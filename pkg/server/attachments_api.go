@@ -1,7 +1,10 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc"
+	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 	"net/url"
 	"path/filepath"
 
@@ -79,11 +82,23 @@ func createAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("disallowed usage: %s", usage))
 	}
 
-	// TODO Add file size check with user permissions (BLOCKED BY Passport#3)
-
 	file, err := c.FormFile("file")
 	if err != nil {
 		return err
+	}
+
+	requiredPerm, _ := jsoniter.Marshal(file.Size)
+	if result, err := grpc.Auth.CheckPerm(context.Background(), &proto.CheckPermRequest{
+		Token: c.Locals("token").(string),
+		Key:   "CreatePaperclipAttachments",
+		Value: requiredPerm,
+	}); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("failed to check permission: %v", err))
+	} else if !result.GetIsValid() {
+		return fiber.NewError(
+			fiber.StatusForbidden,
+			fmt.Sprintf("requires permission CreatePaperclipAttachments equals or greater than %d", file.Size),
+		)
 	}
 
 	var usermeta = make(map[string]any)
