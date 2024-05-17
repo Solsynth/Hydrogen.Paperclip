@@ -1,0 +1,42 @@
+name = "Solar Attachments"
+maintainer = "SmartSheep Studio"
+
+bind = "0.0.0.0:8443"
+grpc_bind = "0.0.0.0:7443"
+domain = "usercontent.solsynth.dev"
+secret = "LtTjzAGFLshwXhN4ZD4nG5KlMv1MWcsvfv03TSZYnT1VhiAnLIZFTnHUwR0XhGgi"
+
+preferred_destination = "local"
+accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
+
+[debug]
+database = true
+print_routes = false
+
+[passport]
+client_id = "solarplaza"
+client_secret = "Z9k9AFTj^p"
+endpoint = "http://localhost:8444"
+grpc_endpoint = "localhost:7444"
+
+[security]
+cookie_domain = "localhost"
+cookie_samesite = "Lax"
+access_token_duration = 300
+refresh_token_duration = 2592000
+
+[database]
+dsn = "host=localhost dbname=hy_paperclip port=5432 sslmode=disable"
+prefix = "paperclip_"
+
+[destinations.local]
+type = "local"
+path = "uploads"
+
+[destinations.s3]
+type = "s3"
+bucket = "bucket"
+endpoint = "s3.ap-east-1.amazonaws.com"
+secret_id = "secret"
+secret_key = "secret"
+enable_ssl = true
