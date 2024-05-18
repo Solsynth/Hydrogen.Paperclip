@@ -2,10 +2,13 @@ syntax = "proto3";
 
 option go_package = ".;proto";
 
+import "google/protobuf/empty.proto";
+
 package proto;
 
 service Attachments {
     rpc GetAttachment(AttachmentLookupRequest) returns (Attachment) {}
+    rpc CheckAttachmentExists(AttachmentLookupRequest) returns (google.protobuf.Empty) {}
 }
 
 message Attachment {
@@ -26,4 +29,5 @@ message Attachment {
 message AttachmentLookupRequest {
     optional uint64 id = 1;
     optional string uuid = 2;
+    optional string usage = 3;
 }
