@@ -54,7 +54,7 @@ func NewServer() {
 
 	api := A.Group("/api").Name("API")
 	{
-		api.Get("/attachments/i/:id", getAttachmentMeta)
+		api.Get("/attachments/:id/meta", getAttachmentMeta)
 		api.Get("/attachments/:id", openAttachment)
 		api.Post("/attachments", authMiddleware, createAttachment)
 		api.Delete("/attachments/:id", authMiddleware, deleteAttachment)

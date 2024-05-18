@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Upload attachment requires permission check">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Provide a faster check attachment exists grpc method">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/grpc/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/grpc/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/grpc/proto/attachments.pb.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments.proto" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/grpc/proto/attachments.proto" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/grpc/proto/attachments_grpc.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/startup.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/server/startup.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +69,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value=":sparkles: Upload attachment requires permission check" />
-    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Upload attachment requires permission check" />
+    <MESSAGE value=":sparkles: Provide a faster check attachment exists grpc method" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Provide a faster check attachment exists grpc method" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
