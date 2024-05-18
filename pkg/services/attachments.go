@@ -50,6 +50,7 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 		linked = true
 		attachment = exists
 		attachment.ID = 0
+		attachment.Uuid = uuid.NewString()
 		attachment.AccountID = user.ID
 	} else {
 		// Upload the new file
