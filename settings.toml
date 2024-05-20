@@ -10,7 +10,7 @@ preferred_destination = "local"
 accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
 
 [debug]
-database = true
+database = false
 print_routes = false
 
 [passport]

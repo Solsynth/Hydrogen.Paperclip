@@ -19,9 +19,9 @@ import (
 )
 
 func openAttachment(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, _ := c.ParamsInt("id", 0)
 
-	metadata, err := services.GetAttachmentByUUID(id)
+	metadata, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
@@ -58,9 +58,9 @@ func openAttachment(c *fiber.Ctx) error {
 }
 
 func getAttachmentMeta(c *fiber.Ctx) error {
-	id := c.Params("id")
+	id, _ := c.ParamsInt("id")
 
-	metadata, err := services.GetAttachmentByUUID(id)
+	metadata, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
@@ -132,6 +132,7 @@ func createAttachment(c *fiber.Ctx) error {
 }
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id", 0)
 	user := c.Locals("principal").(models.Account)
 
 	var data struct {
@@ -147,9 +148,9 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
-		Uuid:      c.Params("id"),
+		BaseModel: models.BaseModel{ID: uint(id)},
 		AccountID: user.ID,
-	}).Error; err != nil {
+	}).First(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 

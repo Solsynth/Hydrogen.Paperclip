@@ -5,7 +5,7 @@ import "gorm.io/datatypes"
 type Attachment struct {
 	BaseModel
 
-	Uuid        string `json:"uuid" gorm:"uniqueIndex"`
+	Uuid        string `json:"uuid"`
 	Size        int64  `json:"size"`
 	Name        string `json:"name"`
 	Alternative string `json:"alt"`
