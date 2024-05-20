@@ -57,6 +57,7 @@ func NewServer() {
 		api.Get("/attachments/:id/meta", getAttachmentMeta)
 		api.Get("/attachments/:id", openAttachment)
 		api.Post("/attachments", authMiddleware, createAttachment)
+		api.Put("/attachments/:id", authMiddleware, updateAttachmentMeta)
 		api.Delete("/attachments/:id", authMiddleware, deleteAttachment)
 	}
 }

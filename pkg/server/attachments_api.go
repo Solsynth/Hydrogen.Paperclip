@@ -3,10 +3,11 @@ package server
 import (
 	"context"
 	"fmt"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc"
-	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 	"net/url"
 	"path/filepath"
+
+	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc"
+	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
@@ -15,7 +16,6 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/samber/lo"
 	"github.com/spf13/viper"
-	"gorm.io/datatypes"
 )
 
 func openAttachment(c *fiber.Ctx) error {
@@ -101,7 +101,7 @@ func createAttachment(c *fiber.Ctx) error {
 		)
 	}
 
-	var usermeta = make(map[string]any)
+	usermeta := make(map[string]any)
 	_ = jsoniter.UnmarshalFromString(c.FormValue("metadata"), &usermeta)
 
 	tx := database.C.Begin()
@@ -110,7 +110,7 @@ func createAttachment(c *fiber.Ctx) error {
 		HashCode:    hash,
 		Alternative: c.FormValue("alt"),
 		MimeType:    c.FormValue("mimetype"),
-		Metadata:    datatypes.JSONMap(usermeta),
+		Metadata:    usermeta,
 		IsMature:    len(c.FormValue("mature")) > 0,
 		Destination: destName,
 	})
@@ -129,6 +129,40 @@ func createAttachment(c *fiber.Ctx) error {
 	tx.Commit()
 
 	return c.JSON(metadata)
+}
+
+func updateAttachmentMeta(c *fiber.Ctx) error {
+	user := c.Locals("principal").(models.Account)
+
+	var data struct {
+		Alternative string         `json:"alt"`
+		Usage       string         `json:"usage"`
+		Metadata    map[string]any `json:"metadata"`
+		IsMature    bool           `json:"is_mature"`
+	}
+
+	if err := BindAndValidate(c, &data); err != nil {
+		return err
+	}
+
+	var attachment models.Attachment
+	if err := database.C.Where(models.Attachment{
+		Uuid:      c.Params("id"),
+		AccountID: user.ID,
+	}).Error; err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	attachment.Alternative = data.Alternative
+	attachment.Usage = data.Usage
+	attachment.Metadata = data.Metadata
+	attachment.IsMature = data.IsMature
+
+	if err := database.C.Save(&attachment).Error; err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(attachment)
 }
 
 func deleteAttachment(c *fiber.Ctx) error {
