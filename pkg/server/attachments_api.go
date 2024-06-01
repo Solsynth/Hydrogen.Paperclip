@@ -40,7 +40,11 @@ func openAttachment(c *fiber.Ctx) error {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return c.SendFile(filepath.Join(destConfigured.Path, metadata.Uuid))
+		if len(metadata.MimeType) > 0 {
+			c.Set(fiber.HeaderContentType, metadata.MimeType)
+		}
+		return c.SendFile(filepath.Join(destConfigured.Path, metadata.Uuid), false)
+
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
@@ -52,6 +56,7 @@ func openAttachment(c *fiber.Ctx) error {
 			destConfigured.Endpoint,
 			url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
 		))
+
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", destParsed.Type)
 	}
