@@ -4,7 +4,36 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix uuid duplicate when link exists" />
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix uuid duplicate when link exists">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/cmd/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/database/migrator.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/database/migrator.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/database/source.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/database/source.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/client.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/client.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/proto/attachments.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments.proto" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/proto/attachments.proto" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/proto/attachments_grpc.pb.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/proto/attachments_grpc.pb.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/grpc/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/meta.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/meta.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/accounts.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/accounts.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/base.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/base.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/destination.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/destination.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/models/metadata.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/metadata.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/attachments_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/auth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/startup.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/startup.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/server/well_known_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/well_known_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/auth.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/cleaner.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/cleaner.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/jwt.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/jwt.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,13 +70,20 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg" />
+      <recent name="$PROJECT_DIR$/pkg/internal" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="Backend" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="Paperclip" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
+      <package value="git.solsynth.dev/hydrogen/paperclip" />
       <directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$/pkg/cmd/main.go" />
+      <filePath value="$PROJECT_DIR$/pkg/main.go" />
       <output_directory value="$PROJECT_DIR$/dist" />
       <method v="2" />
     </configuration>
@@ -55,8 +91,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-33c477a475b1-b97fc8a1e17c-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.14494.238" />
-        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-GO-241.14494.238" />
+        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.17890.21" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.17890.21" />
       </set>
     </attachedChunks>
   </component>

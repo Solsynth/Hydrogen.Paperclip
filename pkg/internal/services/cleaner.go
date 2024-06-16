@@ -1,9 +1,9 @@
 package services
 
 import (
+	database2 "git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"time"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
 	"github.com/rs/zerolog/log"
 )
 
@@ -12,8 +12,8 @@ func DoAutoDatabaseCleanup() {
 	log.Debug().Time("deadline", deadline).Msg("Now cleaning up entire database...")
 
 	var count int64
-	for _, model := range database.AutoMaintainRange {
-		tx := database.C.Unscoped().Delete(model, "deleted_at >= ?", deadline)
+	for _, model := range database2.AutoMaintainRange {
+		tx := database2.C.Unscoped().Delete(model, "deleted_at >= ?", deadline)
 		if tx.Error != nil {
 			log.Error().Err(tx.Error).Msg("An error occurred when running auth context cleanup...")
 		}

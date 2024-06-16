@@ -3,13 +3,13 @@ package server
 import (
 	"context"
 	"fmt"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 	"net/url"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc"
 	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/services"
 	"github.com/gofiber/fiber/v2"

@@ -3,10 +3,10 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc/proto"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
 	jsoniter "github.com/json-iterator/go"
 )

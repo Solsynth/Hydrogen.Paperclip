@@ -2,12 +2,12 @@ package services
 
 import (
 	"fmt"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"

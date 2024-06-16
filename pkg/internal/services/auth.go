@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 	"reflect"
 	"time"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
 	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 	"gorm.io/gorm"

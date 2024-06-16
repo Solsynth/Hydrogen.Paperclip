@@ -1,9 +1,9 @@
 package grpc
 
 import (
+	"git.solsynth.dev/hydrogen/paperclip/pkg/proto"
 	"net"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/grpc/proto"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
