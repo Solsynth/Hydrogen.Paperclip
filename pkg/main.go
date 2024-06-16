@@ -1,8 +1,9 @@
 package main
 
 import (
-	database2 "git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	grpc2 "git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 	"os"
 	"os/signal"
 	"syscall"
@@ -35,14 +36,17 @@ func main() {
 	}
 
 	// Connect to database
-	if err := database2.NewSource(); err != nil {
+	if err := database.NewSource(); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when connect to database.")
-	} else if err := database2.RunMigration(database2.C); err != nil {
+	} else if err := database.RunMigration(database.C); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when running database auto migration.")
 	}
 
 	// Connect other services
-	if err := grpc2.ConnectPassport(); err != nil {
+	if err := gap.Register(); err != nil {
+		log.Error().Err(err).Msg("An error occurred when registering service to gateway...")
+	}
+	if err := grpc.ConnectPassport(); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when connecting to passport grpc endpoint...")
 	}
 
@@ -56,11 +60,9 @@ func main() {
 	go server.Listen()
 
 	// Grpc Server
-	go func() {
-		if err := grpc2.StartGrpc(); err != nil {
-			log.Fatal().Err(err).Msg("An message occurred when starting grpc server.")
-		}
-	}()
+	if err := grpc.StartGrpc(); err != nil {
+		log.Fatal().Err(err).Msg("An message occurred when starting grpc server.")
+	}
 
 	// Messages
 	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)

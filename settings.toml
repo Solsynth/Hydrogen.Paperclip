@@ -19,6 +19,11 @@ client_secret = "Z9k9AFTj^p"
 endpoint = "http://localhost:8444"
 grpc_endpoint = "localhost:7444"
 
+[consul]
+addr = "127.0.0.1:8500"
+srv_serve = "127.0.0.1:8443"
+srv_http = "http://192.168.50.83:8443"
+
 [security]
 cookie_domain = "localhost"
 cookie_samesite = "Lax"
