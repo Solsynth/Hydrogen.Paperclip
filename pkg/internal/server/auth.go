@@ -1,7 +1,7 @@
 package server
 
 import (
-	"git.solsynth.dev/hydrogen/paperclip/pkg/services"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"strings"
 )

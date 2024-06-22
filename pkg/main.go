@@ -1,18 +1,19 @@
 package main
 
 import (
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
 	"github.com/robfig/cron/v3"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal"
+	pkg "git.solsynth.dev/hydrogen/paperclip/pkg/internal"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -46,9 +47,6 @@ func main() {
 	if err := gap.Register(); err != nil {
 		log.Error().Err(err).Msg("An error occurred when registering service to gateway...")
 	}
-	if err := grpc.ConnectPassport(); err != nil {
-		log.Fatal().Err(err).Msg("An error occurred when connecting to passport grpc endpoint...")
-	}
 
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
@@ -60,9 +58,8 @@ func main() {
 	go server.Listen()
 
 	// Grpc Server
-	if err := grpc.StartGrpc(); err != nil {
-		log.Fatal().Err(err).Msg("An message occurred when starting grpc server.")
-	}
+	grpc.NewGRPC()
+	go grpc.ListenGRPC()
 
 	// Messages
 	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)

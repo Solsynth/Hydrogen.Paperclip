@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

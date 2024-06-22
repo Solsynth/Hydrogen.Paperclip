@@ -7,7 +7,7 @@ import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 )
 

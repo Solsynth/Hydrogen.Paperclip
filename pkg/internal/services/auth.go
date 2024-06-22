@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 	"reflect"
 	"time"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 	"gorm.io/gorm"
 )
@@ -60,7 +61,13 @@ func Authenticate(atk, rtk string) (models.Account, string, string, error) {
 
 	var err error
 	var user models.Account
-	reply, err := grpc.Auth.Authenticate(ctx, &proto.AuthRequest{
+
+	pc, err := gap.DiscoverPassport()
+	if err != nil {
+		return user, atk, rtk, fmt.Errorf("authenticate services was not available")
+	}
+
+	reply, err := proto.NewAuthClient(pc).Authenticate(ctx, &proto.AuthRequest{
 		AccessToken:  atk,
 		RefreshToken: &rtk,
 	})

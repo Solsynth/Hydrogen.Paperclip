@@ -8,7 +8,7 @@ import (
 	"mime/multipart"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"

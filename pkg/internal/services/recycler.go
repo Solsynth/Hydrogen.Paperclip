@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"

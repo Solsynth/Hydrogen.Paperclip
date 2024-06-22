@@ -1,7 +1,7 @@
 package database
 
 import (
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"gorm.io/gorm"
 )
 

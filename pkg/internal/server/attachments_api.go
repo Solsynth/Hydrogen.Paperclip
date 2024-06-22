@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
+	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
 	"net/url"
 	"path/filepath"
 
-	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
-
-	"git.solsynth.dev/hydrogen/paperclip/pkg/models"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/services"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/samber/lo"
