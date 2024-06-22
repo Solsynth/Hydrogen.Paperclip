@@ -1,5 +1,5 @@
-git.solsynth.dev/hydrogen/passport v0.0.0-20240622041415-c37a55b88b50 h1:DD7aOr4TkwJN0gUGf0zBgj77s9f6ozCuLB2tQjomkK0=
-git.solsynth.dev/hydrogen/passport v0.0.0-20240622041415-c37a55b88b50/go.mod h1:XTNEOv75sZI52sNgpum7Z/tgYmlRcHfK7VdhyV7kc0w=
+git.solsynth.dev/hydrogen/passport v0.0.0-20240622050421-7007cda8f210 h1:DM4AVhG/l3cOfmhA5IDFgn120BL2PEATnPQDtINIS/Q=
+git.solsynth.dev/hydrogen/passport v0.0.0-20240622050421-7007cda8f210/go.mod h1:XTNEOv75sZI52sNgpum7Z/tgYmlRcHfK7VdhyV7kc0w=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
