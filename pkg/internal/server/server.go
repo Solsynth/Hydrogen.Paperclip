@@ -1,6 +1,9 @@
 package server
 
 import (
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/api"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -49,17 +52,10 @@ func NewServer() {
 		Output: log.Logger,
 	}))
 
-	A.Get("/.well-known", getMetadata)
-	A.Get("/.well-known/destinations", getDestinations)
+	A.Use(gap.H.AuthMiddleware)
+	A.Use(exts.LinkAccountMiddleware)
 
-	api := A.Group("/api").Name("API")
-	{
-		api.Get("/attachments/:id/meta", getAttachmentMeta)
-		api.Get("/attachments/:id", openAttachment)
-		api.Post("/attachments", authMiddleware, createAttachment)
-		api.Put("/attachments/:id", authMiddleware, updateAttachmentMeta)
-		api.Delete("/attachments/:id", authMiddleware, deleteAttachment)
-	}
+	api.MapAPIs(A)
 }
 
 func Listen() {

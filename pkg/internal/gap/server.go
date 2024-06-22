@@ -7,8 +7,6 @@ import (
 
 	"github.com/hashicorp/consul/api"
 	"github.com/spf13/viper"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 func Register() error {
@@ -39,13 +37,4 @@ func Register() error {
 	}
 
 	return client.Agent().ServiceRegister(registration)
-}
-
-func DiscoverPassport() (*grpc.ClientConn, error) {
-	target := fmt.Sprintf("consul://%s/Hydrogen.Passport", viper.GetString("consul.addr"))
-	return grpc.NewClient(
-		target,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy": "round_robin"}`),
-	)
 }

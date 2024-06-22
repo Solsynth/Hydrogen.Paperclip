@@ -4,34 +4,39 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix uuid duplicate when link exists">
-      <change afterPath="$PROJECT_DIR$/pkg/internal/gap/net.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/internal/grpc/health.go" afterDir="false" />
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment="&#10;:sparkles: Add health check">
+      <change afterPath="$PROJECT_DIR$/pkg/internal/gap/client.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/internal/server/api/index.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/internal/server/exts/auth.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/database/migrator.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/database/migrator.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/gap/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/gap/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/grpc/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/grpc/client.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/grpc/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/attachments_api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/auth.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/startup.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/exts/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/well_known_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/well_known_api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/services/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
   <component name="GOROOT" url="file:///opt/homebrew/opt/go/libexec" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -42,25 +47,27 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Go Build.Backend.executor&quot;: &quot;Run&quot;,
-    &quot;Go 构建.Backend.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;features/consul&quot;,
-    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
-    &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/littlesheep/Documents/Projects/Hydrogen/Paperclip/pkg/internal/grpc&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultGoTemplateProperty": "Go File",
+    "Go Build.Backend.executor": "Run",
+    "Go 构建.Backend.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.go.formatter.settings.were.checked": "true",
+    "RunOnceActivity.go.migrated.go.modules.settings": "true",
+    "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
+    "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
+    "git-widget-placeholder": "features/consul",
+    "go.import.settings.migrated": "true",
+    "go.sdk.automatically.set": "true",
+    "last_opened_file_path": "/Users/littlesheep/Documents/Projects/Hydrogen/Paperclip/pkg/internal/grpc",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.lookFeel"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/pkg/internal/grpc" />
@@ -68,6 +75,8 @@
       <recent name="$PROJECT_DIR$/pkg/internal" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/pkg/internal/server/exts" />
+      <recent name="$PROJECT_DIR$/pkg/internal/server/api" />
       <recent name="$PROJECT_DIR$/pkg" />
       <recent name="$PROJECT_DIR$/pkg/internal" />
     </key>
@@ -87,8 +96,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.17890.21" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.17890.21" />
+        <option value="bundled-gosdk-33c477a475b1-e0158606a674-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-241.18034.61" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-GO-241.18034.61" />
       </set>
     </attachedChunks>
   </component>
@@ -96,12 +105,24 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value=":sparkles: Upload attachment requires permission check" />
     <MESSAGE value=":sparkles: Provide a faster check attachment exists grpc method" />
     <MESSAGE value=":truck: Update url mapping" />
     <MESSAGE value=":bug: Fix uuid duplicate when link exists" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix uuid duplicate when link exists" />
+    <MESSAGE value="&#10;:sparkles: Add health check" />
+    <option name="LAST_COMMIT_MESSAGE" value="&#10;:sparkles: Add health check" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

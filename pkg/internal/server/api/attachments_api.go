@@ -1,11 +1,10 @@
-package server
+package api
 
 import (
-	"context"
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
-	"git.solsynth.dev/hydrogen/passport/pkg/grpc/proto"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"net/url"
 	"path/filepath"
 
@@ -73,7 +72,7 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 }
 
 func createAttachment(c *fiber.Ctx) error {
-	user := c.Locals("principal").(models.Account)
+	user := c.Locals("user").(models.Account)
 
 	destName := c.Query("destination", viper.GetString("preferred_destination"))
 
@@ -91,18 +90,8 @@ func createAttachment(c *fiber.Ctx) error {
 		return err
 	}
 
-	requiredPerm, _ := jsoniter.Marshal(file.Size)
-	if result, err := grpc.Auth.CheckPerm(context.Background(), &proto.CheckPermRequest{
-		Token: c.Locals("token").(string),
-		Key:   "CreatePaperclipAttachments",
-		Value: requiredPerm,
-	}); err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("failed to check permission: %v", err))
-	} else if !result.GetIsValid() {
-		return fiber.NewError(
-			fiber.StatusForbidden,
-			fmt.Sprintf("requires permission CreatePaperclipAttachments equals or greater than %d", file.Size),
-		)
+	if err := gap.H.EnsureGrantedPerm(c, "CreatePaperclipAttachments", file.Size); err != nil {
+		return err
 	}
 
 	usermeta := make(map[string]any)
@@ -137,7 +126,11 @@ func createAttachment(c *fiber.Ctx) error {
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("principal").(models.Account)
+	user := c.Locals("user").(models.Account)
+
+	if err := gap.H.EnsureAuthenticated(c); err != nil {
+		return err
+	}
 
 	var data struct {
 		Alternative string         `json:"alt"`
@@ -146,7 +139,7 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 		IsMature    bool           `json:"is_mature"`
 	}
 
-	if err := BindAndValidate(c, &data); err != nil {
+	if err := exts.BindAndValidate(c, &data); err != nil {
 		return err
 	}
 
@@ -172,7 +165,11 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("principal").(models.Account)
+	user := c.Locals("user").(models.Account)
+
+	if err := gap.H.EnsureAuthenticated(c); err != nil {
+		return err
+	}
 
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
