@@ -72,6 +72,9 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 }
 
 func createAttachment(c *fiber.Ctx) error {
+	if err := gap.H.EnsureAuthenticated(c); err != nil {
+		return err
+	}
 	user := c.Locals("user").(models.Account)
 
 	destName := c.Query("destination", viper.GetString("preferred_destination"))
@@ -126,11 +129,11 @@ func createAttachment(c *fiber.Ctx) error {
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("user").(models.Account)
 
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err
 	}
+	user := c.Locals("user").(models.Account)
 
 	var data struct {
 		Alternative string         `json:"alt"`
@@ -165,11 +168,11 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("user").(models.Account)
 
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err
 	}
+	user := c.Locals("user").(models.Account)
 
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
