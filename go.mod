@@ -3,7 +3,7 @@ module git.solsynth.dev/hydrogen/paperclip
 go 1.21.6
 
 require (
-	git.solsynth.dev/hydrogen/passport v0.0.0-20240623081149-7ddbea8bcb86
+	git.solsynth.dev/hydrogen/passport v0.0.0-20240623083719-86b2cd81400a
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/golang-jwt/jwt/v5 v5.2.0
