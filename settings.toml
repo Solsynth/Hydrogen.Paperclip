@@ -27,7 +27,7 @@ prefix = "paperclip_"
 
 [destinations.local]
 type = "local"
-path = "/uploads"
+path = "uploads"
 
 [destinations.s3]
 type = "s3"

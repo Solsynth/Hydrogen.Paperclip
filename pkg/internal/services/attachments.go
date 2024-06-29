@@ -13,23 +13,27 @@ import (
 	"gorm.io/gorm"
 )
 
+const metadataCacheLimit = 512
+
+var metadataCache = make(map[uint]models.Attachment)
+
 func GetAttachmentByID(id uint) (models.Attachment, error) {
+	if val, ok := metadataCache[id]; ok {
+		return val, nil
+	}
+
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		BaseModel: models.BaseModel{ID: id},
 	}).First(&attachment).Error; err != nil {
 		return attachment, err
+	} else {
+		if len(metadataCache) > metadataCacheLimit {
+			clear(metadataCache)
+		}
+		metadataCache[id] = attachment
 	}
-	return attachment, nil
-}
 
-func GetAttachmentByUUID(id string) (models.Attachment, error) {
-	var attachment models.Attachment
-	if err := database.C.Where(models.Attachment{
-		Uuid: id,
-	}).First(&attachment).Error; err != nil {
-		return attachment, err
-	}
 	return attachment, nil
 }
 
@@ -61,7 +65,7 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 		attachment.Name = file.Filename
 		attachment.AccountID = user.ID
 
-		// If user didn't provide file mimetype manually, we gotta to detect it
+		// If the user didn't provide file mimetype manually, we have to detect it
 		if len(attachment.MimeType) == 0 {
 			if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
 				// Detect mimetype by file extensions
@@ -87,9 +91,27 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 
 	if err := tx.Save(&attachment).Error; err != nil {
 		return attachment, linked, fmt.Errorf("failed to save attachment record: %v", err)
+	} else {
+		if len(metadataCache) > metadataCacheLimit {
+			clear(metadataCache)
+		}
+		metadataCache[attachment.ID] = attachment
 	}
 
 	return attachment, linked, nil
+}
+
+func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
+	if err := database.C.Save(&item).Error; err != nil {
+		return item, err
+	} else {
+		if len(metadataCache) > metadataCacheLimit {
+			clear(metadataCache)
+		}
+		metadataCache[item.ID] = item
+	}
+
+	return item, nil
 }
 
 func DeleteAttachment(item models.Attachment) error {
@@ -103,6 +125,8 @@ func DeleteAttachment(item models.Attachment) error {
 
 	if err := database.C.Delete(&item).Error; err != nil {
 		return err
+	} else {
+		delete(metadataCache, item.ID)
 	}
 
 	if dupeCount != -1 && dupeCount <= 1 {

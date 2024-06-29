@@ -159,11 +159,11 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	attachment.Metadata = data.Metadata
 	attachment.IsMature = data.IsMature
 
-	if err := database.C.Save(&attachment).Error; err != nil {
+	if attachment, err := services.UpdateAttachment(attachment); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	} else {
+		return c.JSON(attachment)
 	}
-
-	return c.JSON(attachment)
 }
 
 func deleteAttachment(c *fiber.Ctx) error {
