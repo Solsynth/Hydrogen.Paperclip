@@ -93,7 +93,7 @@ func createAttachment(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := gap.H.EnsureGrantedPerm(c, "CreatePaperclipAttachments", file.Size); err != nil {
+	if err := gap.H.EnsureGrantedPerm(c, "CreateAttachments", file.Size); err != nil {
 		return err
 	}
 
