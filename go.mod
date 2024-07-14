@@ -3,12 +3,10 @@ module git.solsynth.dev/hydrogen/paperclip
 go 1.21.6
 
 require (
-	git.solsynth.dev/hydrogen/passport v0.0.0-20240623083719-86b2cd81400a
+	git.solsynth.dev/hydrogen/dealer v0.0.0-20240714155615-ad83100677ab
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/gofiber/fiber/v2 v2.52.4
-	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.6.0
-	github.com/hashicorp/consul/api v1.29.1
 	github.com/json-iterator/go v1.1.12
 	github.com/minio/minio-go/v7 v7.0.70
 	github.com/robfig/cron/v3 v3.0.1
@@ -34,6 +32,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
+	github.com/hashicorp/consul/api v1.29.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
