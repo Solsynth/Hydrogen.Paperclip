@@ -1,10 +1,11 @@
 package server
 
 import (
+	"strings"
+
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/api"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -55,7 +56,7 @@ func NewServer() {
 	A.Use(gap.H.AuthMiddleware)
 	A.Use(exts.LinkAccountMiddleware)
 
-	api.MapAPIs(A)
+	api.MapAPIs(A, "/")
 }
 
 func Listen() {

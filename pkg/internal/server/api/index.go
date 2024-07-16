@@ -2,10 +2,10 @@ package api
 
 import "github.com/gofiber/fiber/v2"
 
-func MapAPIs(app *fiber.App) {
+func MapAPIs(app *fiber.App, baseURL string) {
 	app.Get("/.well-known/destinations", getDestinations)
 
-	api := app.Group("/api").Name("API")
+	api := app.Group(baseURL).Name("API")
 	{
 		api.Get("/attachments/:id/meta", getAttachmentMeta)
 		api.Get("/attachments/:id", openAttachment)
