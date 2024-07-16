@@ -44,10 +44,8 @@ func main() {
 	}
 
 	// Connect other services
-	if err := gap.Register(); err != nil {
-		log.Error().Err(err).Msg("An error occurred when registering service to gateway...")
-	} else {
-		gap.NewHyperClient()
+	if err := gap.RegisterService(); err != nil {
+		log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
 	}
 
 	// Configure timed tasks
