@@ -5,6 +5,8 @@ grpc_bind = "0.0.0.0:7443"
 domain = "usercontent.solsynth.dev"
 secret = "LtTjzAGFLshwXhN4ZD4nG5KlMv1MWcsvfv03TSZYnT1VhiAnLIZFTnHUwR0XhGgi"
 
+independent_mode = false
+
 preferred_destination = "local"
 accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
 

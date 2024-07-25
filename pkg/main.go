@@ -44,8 +44,12 @@ func main() {
 	}
 
 	// Connect other services
-	if err := gap.RegisterService(); err != nil {
-		log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
+	if !viper.GetBool("independent_mode") {
+		if err := gap.RegisterService(); err != nil {
+			log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
+		}
+	} else {
+		log.Warn().Msg("WATCHOUT! Running in independent mode, everyone with access to API can upload their file without authenticate!")
 	}
 
 	// Configure timed tasks

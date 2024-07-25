@@ -2,11 +2,12 @@ package services
 
 import (
 	"fmt"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
@@ -47,7 +48,7 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	return attachment, nil
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, bool, error) {
+func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, bool, error) {
 	linked := false
 	exists, pickupErr := GetAttachmentByHash(attachment.HashCode)
 	if pickupErr == nil {
@@ -57,13 +58,19 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 		exists.Metadata = attachment.Metadata
 		attachment = exists
 		attachment.ID = 0
-		attachment.AccountID = user.ID
+
+		if user != nil {
+			attachment.AccountID = &user.ID
+		}
 	} else {
 		// Upload the new file
 		attachment.Uuid = uuid.NewString()
 		attachment.Size = file.Size
 		attachment.Name = file.Filename
-		attachment.AccountID = user.ID
+
+		if user != nil {
+			attachment.AccountID = &user.ID
+		}
 
 		// If the user didn't provide file mimetype manually, we have to detect it
 		if len(attachment.MimeType) == 0 {

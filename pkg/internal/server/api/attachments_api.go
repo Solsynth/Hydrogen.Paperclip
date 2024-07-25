@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
+	"net/url"
+	"path/filepath"
+
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
-	"net/url"
-	"path/filepath"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
@@ -72,10 +73,13 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 }
 
 func createAttachment(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
+	var user *models.Account
+	if gap.H != nil {
+		if err := gap.H.EnsureAuthenticated(c); err != nil {
+			return err
+		}
+		user = lo.ToPtr(c.Locals("user").(models.Account))
 	}
-	user := c.Locals("user").(models.Account)
 
 	destName := c.Query("destination", viper.GetString("preferred_destination"))
 
@@ -93,8 +97,10 @@ func createAttachment(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := gap.H.EnsureGrantedPerm(c, "CreateAttachments", file.Size); err != nil {
-		return err
+	if gap.H != nil {
+		if err := gap.H.EnsureGrantedPerm(c, "CreateAttachments", file.Size); err != nil {
+			return err
+		}
 	}
 
 	usermeta := make(map[string]any)
@@ -129,6 +135,10 @@ func createAttachment(c *fiber.Ctx) error {
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
+
+	if gap.H == nil {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "server running in independent mode, unable to modify attachment meta")
+	}
 
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err
@@ -169,6 +179,10 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
 
+	if gap.H == nil {
+		return fiber.NewError(fiber.StatusUnprocessableEntity, "server running in independent mode, unable to delete attachment")
+	}
+
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err
 	}
@@ -177,7 +191,7 @@ func deleteAttachment(c *fiber.Ctx) error {
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	} else if attachment.AccountID != user.ID {
+	} else if attachment.AccountID == nil || *attachment.AccountID != user.ID {
 		return fiber.NewError(fiber.StatusNotFound, "record not created by you")
 	}
 

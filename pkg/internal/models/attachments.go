@@ -17,6 +17,6 @@ type Attachment struct {
 	Metadata datatypes.JSONMap `json:"metadata"`
 	IsMature bool              `json:"is_mature"`
 
-	Account   Account `json:"account"`
-	AccountID uint    `json:"account_id"`
+	Account   *Account `json:"account"`
+	AccountID *uint    `json:"account_id"`
 }
