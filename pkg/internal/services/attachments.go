@@ -26,7 +26,7 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		BaseModel: models.BaseModel{ID: id},
-	}).First(&attachment).Error; err != nil {
+	}).Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
 		if len(metadataCache) > metadataCacheLimit {
