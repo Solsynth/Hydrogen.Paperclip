@@ -3,12 +3,14 @@ package grpc
 import (
 	"context"
 	"fmt"
+
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/proto"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/samber/lo"
 )
 
 func (v *Server) GetAttachment(ctx context.Context, request *proto.AttachmentLookupRequest) (*proto.Attachment, error) {
@@ -31,6 +33,10 @@ func (v *Server) GetAttachment(ctx context.Context, request *proto.AttachmentLoo
 
 	rawMetadata, _ := jsoniter.Marshal(attachment.Metadata)
 
+	if attachment.AccountID == nil {
+		attachment.AccountID = lo.ToPtr[uint](0)
+	}
+
 	return &proto.Attachment{
 		Id:          uint64(attachment.ID),
 		Uuid:        attachment.Uuid,
@@ -43,7 +49,7 @@ func (v *Server) GetAttachment(ctx context.Context, request *proto.AttachmentLoo
 		Destination: attachment.Destination,
 		Metadata:    rawMetadata,
 		IsMature:    attachment.IsMature,
-		AccountId:   uint64(attachment.AccountID),
+		AccountId:   uint64(*attachment.AccountID),
 	}, nil
 }
 

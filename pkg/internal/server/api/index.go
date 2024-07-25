@@ -7,7 +7,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 
 	api := app.Group(baseURL).Name("API")
 	{
-		api.Get("/attachments", list)
+		api.Get("/attachments", listAttachment)
 		api.Get("/attachments/:id/meta", getAttachmentMeta)
 		api.Get("/attachments/:id", openAttachment)
 		api.Post("/attachments", createAttachment)
