@@ -157,10 +157,7 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	}
 
 	var attachment models.Attachment
-	if err := database.C.Where(models.Attachment{
-		BaseModel: models.BaseModel{ID: uint(id)},
-		AccountID: user.ID,
-	}).First(&attachment).Error; err != nil {
+	if err := database.C.Where("id = ? AND account_id = ?", id, user.ID).First(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
