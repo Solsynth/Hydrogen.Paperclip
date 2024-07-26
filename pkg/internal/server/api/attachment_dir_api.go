@@ -18,9 +18,13 @@ func listAttachment(c *fiber.Ctx) error {
 
 	tx := database.C
 
-	if author := c.QueryInt("authorId", 0); author > 0 {
-		tx = tx.Where("account_id = ?", author)
+	var author models.Account
+	if err := database.C.Where("name = ?", c.Query("author")).Error; err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	} else {
+		tx = tx.Where("account_id = ?", author.ID)
 	}
+
 	if usage := strings.Split(c.Query("usage"), " "); len(usage) > 0 {
 		tx = tx.Where("usage IN ?", usage)
 	}
@@ -31,7 +35,7 @@ func listAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	var attachments []models.Attachment
-	if err := tx.Offset(offset).Limit(take).Find(&attachments).Error; err != nil {
+	if err := tx.Order("created_at DESC").Offset(offset).Limit(take).Find(&attachments).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
