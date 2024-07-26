@@ -37,7 +37,7 @@ func listAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	var attachments []models.Attachment
-	if err := tx.Offset(offset).Limit(take).Find(&attachments).Error; err != nil {
+	if err := tx.Offset(offset).Limit(take).Preload("Account").Find(&attachments).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
