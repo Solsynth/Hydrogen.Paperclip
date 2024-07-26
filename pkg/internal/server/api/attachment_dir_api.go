@@ -16,7 +16,7 @@ func listAttachment(c *fiber.Ctx) error {
 		take = 100
 	}
 
-	tx := database.C
+	tx := database.C.Order("created_at DESC")
 
 	if len(c.Query("author")) > 0 {
 		var author models.Account
@@ -27,8 +27,8 @@ func listAttachment(c *fiber.Ctx) error {
 		}
 	}
 
-	if usage := strings.Split(c.Query("usage"), " "); len(usage) > 0 {
-		tx = tx.Where("usage IN ?", usage)
+	if usage := c.Query("usage"); len(usage) > 0 {
+		tx = tx.Where("usage IN ?", strings.Split(usage, " "))
 	}
 
 	var count int64
@@ -37,7 +37,7 @@ func listAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 	var attachments []models.Attachment
-	if err := tx.Order("created_at DESC").Offset(offset).Limit(take).Find(&attachments).Error; err != nil {
+	if err := tx.Offset(offset).Limit(take).Find(&attachments).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
