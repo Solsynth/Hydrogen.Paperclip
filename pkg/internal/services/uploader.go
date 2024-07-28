@@ -16,18 +16,31 @@ import (
 	"github.com/spf13/viper"
 )
 
-func UploadFile(destName string, ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations")
-	dest, destOk := destMap[destName]
-	if !destOk {
-		return fmt.Errorf("invalid destination: destination configuration was not found")
+func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
+	destMap := viper.GetStringMap("destinations.temporary")
+
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	switch dest.Type {
+	case models.DestinationTypeLocal:
+		var destConfigured models.LocalDestination
+		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
+		return UploadFileToLocal(destConfigured, ctx, file, meta)
+	default:
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
+}
 
-	var destParsed models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(dest)
-	_ = jsoniter.Unmarshal(rawDest, &destParsed)
+func UploadFileToPermanent(ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
+	destMap := viper.GetStringMap("destinations.permanent")
 
-	switch destParsed.Type {
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
@@ -37,7 +50,7 @@ func UploadFile(destName string, ctx *fiber.Ctx, file *multipart.FileHeader, met
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 		return UploadFileToS3(destConfigured, file, meta)
 	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", destParsed.Type)
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
 }
 

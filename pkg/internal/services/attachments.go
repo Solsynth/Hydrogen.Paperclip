@@ -58,19 +58,13 @@ func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.Fi
 		exists.Metadata = attachment.Metadata
 		attachment = exists
 		attachment.ID = 0
-
-		if user != nil {
-			attachment.AccountID = &user.ID
-		}
+		attachment.AccountID = user.ID
 	} else {
 		// Upload the new file
 		attachment.Uuid = uuid.NewString()
 		attachment.Size = file.Size
 		attachment.Name = file.Filename
-
-		if user != nil {
-			attachment.AccountID = &user.ID
-		}
+		attachment.AccountID = user.ID
 
 		// If the user didn't provide file mimetype manually, we have to detect it
 		if len(attachment.MimeType) == 0 {

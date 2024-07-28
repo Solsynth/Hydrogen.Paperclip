@@ -14,17 +14,18 @@ import (
 )
 
 func DeleteFile(meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations")
-	dest, destOk := destMap[meta.Destination]
-	if !destOk {
-		return fmt.Errorf("invalid destination: destination configuration was not found")
+	var destMap map[string]any
+	if meta.Destination == models.AttachmentDstTemporary {
+		destMap = viper.GetStringMap("destinations.temporary")
+	} else {
+		destMap = viper.GetStringMap("destinations.permanent")
 	}
 
-	var destParsed models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(dest)
-	_ = jsoniter.Unmarshal(rawDest, &destParsed)
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	switch destParsed.Type {
+	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
@@ -34,7 +35,7 @@ func DeleteFile(meta models.Attachment) error {
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 		return DeleteFileFromS3(destConfigured, meta)
 	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", destParsed.Type)
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
 }
 
