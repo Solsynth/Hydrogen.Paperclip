@@ -154,7 +154,7 @@ func DeleteAttachment(item models.Attachment) error {
 	tx.Commit()
 
 	if dat.RefCount == 0 {
-		return DeleteFile(dat)
+		PublishDeleteFileTask(dat)
 	}
 
 	return nil

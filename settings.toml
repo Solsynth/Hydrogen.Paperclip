@@ -7,6 +7,10 @@ secret = "LtTjzAGFLshwXhN4ZD4nG5KlMv1MWcsvfv03TSZYnT1VhiAnLIZFTnHUwR0XhGgi"
 
 accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
 
+[workers]
+files_deletion = 4
+files_analyze = 4
+
 [debug]
 database = false
 print_routes = false

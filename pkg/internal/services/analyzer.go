@@ -13,6 +13,7 @@ import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 
 	_ "image/gif"
@@ -24,6 +25,15 @@ var fileAnalyzeQueue = make(chan models.Attachment, 256)
 
 func PublishAnalyzeTask(file models.Attachment) {
 	fileAnalyzeQueue <- file
+}
+
+func StartConsumeAnalyzeTask() {
+	for {
+		task := <-fileAnalyzeQueue
+		if err := AnalyzeAttachment(task); err != nil {
+			log.Error().Err(err).Any("task", task).Msg("A file analyze task failed...")
+		}
+	}
 }
 
 func AnalyzeAttachment(file models.Attachment) error {

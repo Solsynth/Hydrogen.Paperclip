@@ -48,6 +48,14 @@ func main() {
 		log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
 	}
 
+	// Setup some workers
+	for idx := 0; idx < viper.GetInt("workers.files_deletion"); idx++ {
+		go services.StartConsumeDeletionTask()
+	}
+	for idx := 0; idx < viper.GetInt("workers.files_analyze"); idx++ {
+		go services.StartConsumeAnalyzeTask()
+	}
+
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
 	quartz.AddFunc("@every 60m", services.DoAutoDatabaseCleanup)

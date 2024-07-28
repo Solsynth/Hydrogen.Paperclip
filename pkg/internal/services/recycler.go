@@ -10,8 +10,24 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
+
+var fileDeletionQueue = make(chan models.Attachment, 256)
+
+func PublishDeleteFileTask(file models.Attachment) {
+	fileDeletionQueue <- file
+}
+
+func StartConsumeDeletionTask() {
+	for {
+		task := <-fileDeletionQueue
+		if err := DeleteFile(task); err != nil {
+			log.Error().Err(err).Any("task", task).Msg("A file deletion task failed...")
+		}
+	}
+}
 
 func DeleteFile(meta models.Attachment) error {
 	var destMap map[string]any
