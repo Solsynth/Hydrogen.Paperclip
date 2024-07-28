@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"os"
 	"path/filepath"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
@@ -33,22 +34,71 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 	}
 }
 
-func UploadFileToPermanent(ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
+func ReUploadFileToPermanent(meta models.Attachment) error {
+	if meta.Destination != models.AttachmentDstTemporary {
+		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
+	}
+
 	destMap := viper.GetStringMap("destinations.permanent")
 
 	var dest models.BaseDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
 	_ = jsoniter.Unmarshal(rawDest, &dest)
 
+	prevDestMap := viper.GetStringMap("destinations.temporary")
+
+	// Currently the temporary destination only support the local
+	// So we can do this
+	var prevDest models.LocalDestination
+	prevRawDest, _ := jsoniter.Marshal(prevDestMap)
+	_ = jsoniter.Unmarshal(prevRawDest, &prevDest)
+
+	in, err := os.Open(filepath.Join(prevDest.Path, meta.Uuid))
+	if err != nil {
+		return fmt.Errorf("unable to open file in temporary storage: %v", err)
+	}
+	defer in.Close()
+
 	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return UploadFileToLocal(destConfigured, ctx, file, meta)
+
+		out, err := os.Create(filepath.Join(destConfigured.Path, meta.Uuid))
+		if err != nil {
+			return fmt.Errorf("unable to open dest file: %v", err)
+		}
+		defer out.Close()
+
+		_, err = io.Copy(out, in)
+		if err != nil {
+			return fmt.Errorf("unable to copy data to dest file: %v", err)
+		}
+		return nil
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return UploadFileToS3(destConfigured, file, meta)
+
+		buffer := bytes.NewBuffer(nil)
+		if _, err := io.Copy(buffer, in); err != nil {
+			return fmt.Errorf("create io reader for upload file: %v", err)
+		}
+
+		client, err := minio.New(destConfigured.Endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
+			Secure: destConfigured.EnableSSL,
+		})
+		if err != nil {
+			return fmt.Errorf("unable to configure s3 client: %v", err)
+		}
+
+		_, err = client.PutObject(context.Background(), destConfigured.Bucket, filepath.Join(destConfigured.Path, meta.Uuid), buffer, -1, minio.PutObjectOptions{
+			ContentType: meta.MimeType,
+		})
+		if err != nil {
+			return fmt.Errorf("unable to upload file to s3: %v", err)
+		}
+		return nil
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
