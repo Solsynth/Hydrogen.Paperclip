@@ -5,15 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":recycle: Moved onto dealer">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/gap/client.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/gap/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/gap/server.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/exts/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/exts/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/auth.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/auth.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/jwt.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -54,7 +45,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "refactor/dealer",
+    "git-widget-placeholder": "features/calc-in-backend",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/Users/littlesheep/Documents/Projects/Hydrogen/Paperclip/pkg/internal/grpc",

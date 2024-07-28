@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
@@ -23,8 +24,11 @@ func PublishDeleteFileTask(file models.Attachment) {
 func StartConsumeDeletionTask() {
 	for {
 		task := <-fileDeletionQueue
+		start := time.Now()
 		if err := DeleteFile(task); err != nil {
 			log.Error().Err(err).Any("task", task).Msg("A file deletion task failed...")
+		} else {
+			log.Info().Dur("elapsed", time.Since(start)).Any("task", task).Msg("A file deletion task was completed.")
 		}
 	}
 }

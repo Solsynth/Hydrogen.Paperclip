@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
@@ -30,8 +31,11 @@ func PublishAnalyzeTask(file models.Attachment) {
 func StartConsumeAnalyzeTask() {
 	for {
 		task := <-fileAnalyzeQueue
+		start := time.Now()
 		if err := AnalyzeAttachment(task); err != nil {
 			log.Error().Err(err).Any("task", task).Msg("A file analyze task failed...")
+		} else {
+			log.Info().Dur("elapsed", time.Since(start)).Any("task", task).Msg("A file analyze task was completed.")
 		}
 	}
 }
@@ -48,8 +52,8 @@ func AnalyzeAttachment(file models.Attachment) error {
 	_ = jsoniter.Unmarshal(rawDest, &dest)
 
 	dst := filepath.Join(dest.Path, file.Uuid)
-	if _, err := os.Stat(dst); !os.IsExist(err) {
-		return fmt.Errorf("attachment doesn't exists in temporary storage")
+	if _, err := os.Stat(dst); os.IsNotExist(err) {
+		return fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
 	}
 
 	if t := strings.SplitN(file.MimeType, "/", 2)[0]; t == "image" {
@@ -85,7 +89,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 	if linked && err != nil {
 		return fmt.Errorf("unable to link file record: %v", err)
 	} else if !linked {
-		if err := tx.Save(&file); err != nil {
+		if err := tx.Save(&file).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("unable to save file record: %v", err)
 		}
@@ -116,13 +120,12 @@ func HashAttachment(file models.Attachment) (hash string, err error) {
 	_ = jsoniter.Unmarshal(rawDest, &dest)
 
 	dst := filepath.Join(dest.Path, file.Uuid)
-	if _, err = os.Stat(dst); !os.IsExist(err) {
-		err = fmt.Errorf("attachment doesn't exists in temporary storage")
+	if _, err = os.Stat(dst); os.IsNotExist(err) {
+		err = fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
 		return
 	}
-
 	var in *os.File
-	in, err = os.Open("file.txt")
+	in, err = os.Open(dst)
 	if err != nil {
 		err = fmt.Errorf("unable to open file: %v", err)
 		return

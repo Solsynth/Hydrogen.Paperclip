@@ -96,6 +96,7 @@ func createAttachment(c *fiber.Ctx) error {
 	_ = jsoniter.UnmarshalFromString(c.FormValue("metadata"), &usermeta)
 
 	tx := database.C.Begin()
+
 	metadata, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
 		Usage:       usage,
 		Alternative: c.FormValue("alt"),

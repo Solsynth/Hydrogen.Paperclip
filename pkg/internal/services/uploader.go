@@ -53,16 +53,18 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 	prevRawDest, _ := jsoniter.Marshal(prevDestMap)
 	_ = jsoniter.Unmarshal(prevRawDest, &prevDest)
 
-	in, err := os.Open(filepath.Join(prevDest.Path, meta.Uuid))
-	if err != nil {
-		return fmt.Errorf("unable to open file in temporary storage: %v", err)
-	}
-	defer in.Close()
+	inDst := filepath.Join(prevDest.Path, meta.Uuid)
 
 	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
+
+		in, err := os.Open(inDst)
+		if err != nil {
+			return fmt.Errorf("unable to open file in temporary storage: %v", err)
+		}
+		defer in.Close()
 
 		out, err := os.Create(filepath.Join(destConfigured.Path, meta.Uuid))
 		if err != nil {
@@ -79,11 +81,6 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 
-		buffer := bytes.NewBuffer(nil)
-		if _, err := io.Copy(buffer, in); err != nil {
-			return fmt.Errorf("create io reader for upload file: %v", err)
-		}
-
 		client, err := minio.New(destConfigured.Endpoint, &minio.Options{
 			Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
 			Secure: destConfigured.EnableSSL,
@@ -92,8 +89,10 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 			return fmt.Errorf("unable to configure s3 client: %v", err)
 		}
 
-		_, err = client.PutObject(context.Background(), destConfigured.Bucket, filepath.Join(destConfigured.Path, meta.Uuid), buffer, -1, minio.PutObjectOptions{
-			ContentType: meta.MimeType,
+		_, err = client.FPutObject(context.Background(), destConfigured.Bucket, filepath.Join(destConfigured.Path, meta.Uuid), inDst, minio.PutObjectOptions{
+			ContentType:          meta.MimeType,
+			SendContentMd5:       false,
+			DisableContentSha256: true,
 		})
 		if err != nil {
 			return fmt.Errorf("unable to upload file to s3: %v", err)
@@ -128,8 +127,10 @@ func UploadFileToS3(config models.S3Destination, file *multipart.FileHeader, met
 		return fmt.Errorf("unable to configure s3 client: %v", err)
 	}
 
-	_, err = client.PutObject(context.Background(), config.Bucket, filepath.Join(config.Path, meta.Uuid), buffer, -1, minio.PutObjectOptions{
-		ContentType: meta.MimeType,
+	_, err = client.PutObject(context.Background(), config.Bucket, filepath.Join(config.Path, meta.Uuid), buffer, file.Size, minio.PutObjectOptions{
+		ContentType:          meta.MimeType,
+		SendContentMd5:       false,
+		DisableContentSha256: true,
 	})
 	if err != nil {
 		return fmt.Errorf("unable to upload file to s3: %v", err)
