@@ -78,10 +78,6 @@ func createAttachment(c *fiber.Ctx) error {
 	}
 	user = lo.ToPtr(c.Locals("user").(models.Account))
 
-	hash := c.FormValue("hash")
-	if len(hash) != 64 {
-		return fiber.NewError(fiber.StatusBadRequest, "please provide a sha-256 hash code, length should be 64 characters")
-	}
 	usage := c.FormValue("usage")
 	if !lo.Contains(viper.GetStringSlice("accepts_usage"), usage) {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("disallowed usage: %s", usage))
@@ -100,9 +96,8 @@ func createAttachment(c *fiber.Ctx) error {
 	_ = jsoniter.UnmarshalFromString(c.FormValue("metadata"), &usermeta)
 
 	tx := database.C.Begin()
-	metadata, linked, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
+	metadata, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
 		Usage:       usage,
-		HashCode:    hash,
 		Alternative: c.FormValue("alt"),
 		MimeType:    c.FormValue("mimetype"),
 		Metadata:    usermeta,
@@ -114,14 +109,14 @@ func createAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if !linked {
-		if err := services.UploadFileToTemporary(c, file, metadata); err != nil {
-			tx.Rollback()
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
+	if err := services.UploadFileToTemporary(c, file, metadata); err != nil {
+		tx.Rollback()
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	tx.Commit()
+
+	services.PublishAnalyzeTask(metadata)
 
 	return c.JSON(metadata)
 }

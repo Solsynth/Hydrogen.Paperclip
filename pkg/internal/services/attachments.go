@@ -48,50 +48,37 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	return attachment, nil
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, bool, error) {
-	linked := false
-	exists, pickupErr := GetAttachmentByHash(attachment.HashCode)
-	if pickupErr == nil {
-		linked = true
-		exists.Alternative = attachment.Alternative
-		exists.Usage = attachment.Usage
-		exists.Metadata = attachment.Metadata
-		attachment = exists
-		attachment.ID = 0
-		attachment.AccountID = user.ID
-	} else {
-		// Upload the new file
-		attachment.Uuid = uuid.NewString()
-		attachment.Size = file.Size
-		attachment.Name = file.Filename
-		attachment.AccountID = user.ID
+func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+	attachment.Uuid = uuid.NewString()
+	attachment.Size = file.Size
+	attachment.Name = file.Filename
+	attachment.AccountID = user.ID
 
-		// If the user didn't provide file mimetype manually, we have to detect it
-		if len(attachment.MimeType) == 0 {
-			if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
-				// Detect mimetype by file extensions
-				attachment.MimeType = mime.TypeByExtension(ext)
-			} else {
-				// Detect mimetype by file header
-				// This method as a fallback method, because this isn't pretty accurate
-				header, err := file.Open()
-				if err != nil {
-					return attachment, false, fmt.Errorf("failed to read file header: %v", err)
-				}
-				defer header.Close()
-
-				fileHeader := make([]byte, 512)
-				_, err = header.Read(fileHeader)
-				if err != nil {
-					return attachment, false, err
-				}
-				attachment.MimeType = http.DetectContentType(fileHeader)
+	// If the user didn't provide file mimetype manually, we have to detect it
+	if len(attachment.MimeType) == 0 {
+		if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
+			// Detect mimetype by file extensions
+			attachment.MimeType = mime.TypeByExtension(ext)
+		} else {
+			// Detect mimetype by file header
+			// This method as a fallback method, because this isn't pretty accurate
+			header, err := file.Open()
+			if err != nil {
+				return attachment, fmt.Errorf("failed to read file header: %v", err)
 			}
+			defer header.Close()
+
+			fileHeader := make([]byte, 512)
+			_, err = header.Read(fileHeader)
+			if err != nil {
+				return attachment, err
+			}
+			attachment.MimeType = http.DetectContentType(fileHeader)
 		}
 	}
 
 	if err := tx.Save(&attachment).Error; err != nil {
-		return attachment, linked, fmt.Errorf("failed to save attachment record: %v", err)
+		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
 		if len(metadataCache) > metadataCacheLimit {
 			clear(metadataCache)
@@ -99,7 +86,32 @@ func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.Fi
 		metadataCache[attachment.ID] = attachment
 	}
 
-	return attachment, linked, nil
+	return attachment, nil
+}
+
+func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, error) {
+	prev, err := GetAttachmentByHash(hash)
+	if err != nil {
+		return false, err
+	}
+
+	prev.RefCount++
+	og.RefID = &prev.ID
+	og.Uuid = prev.Uuid
+	og.Destination = prev.Destination
+
+	if err := tx.Save(&og).Error; err != nil {
+		tx.Rollback()
+		return true, err
+	} else if err = tx.Save(&prev).Error; err != nil {
+		tx.Rollback()
+		return true, err
+	}
+
+	metadataCache[prev.ID] = prev
+	metadataCache[og.ID] = og
+
+	return true, nil
 }
 
 func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
@@ -116,22 +128,33 @@ func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 }
 
 func DeleteAttachment(item models.Attachment) error {
-	var dupeCount int64
-	if err := database.C.
-		Where(&models.Attachment{HashCode: item.HashCode}).
-		Model(&models.Attachment{}).
-		Count(&dupeCount).Error; err != nil {
-		dupeCount = -1
-	}
+	dat := item
 
+	tx := database.C.Begin()
+
+	if item.RefID != nil {
+		var refTarget models.Attachment
+		if err := database.C.Where(models.Attachment{
+			BaseModel: models.BaseModel{ID: *item.RefID},
+		}).First(&refTarget).Error; err == nil {
+			refTarget.RefCount--
+			if err := tx.Save(&refTarget).Error; err != nil {
+				tx.Rollback()
+				return fmt.Errorf("unable to update ref count: %v", err)
+			}
+		}
+	}
 	if err := database.C.Delete(&item).Error; err != nil {
+		tx.Rollback()
 		return err
 	} else {
 		delete(metadataCache, item.ID)
 	}
 
-	if dupeCount != -1 && dupeCount <= 1 {
-		return DeleteFile(item)
+	tx.Commit()
+
+	if dat.RefCount == 0 {
+		return DeleteFile(dat)
 	}
 
 	return nil

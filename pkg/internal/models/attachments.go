@@ -20,9 +20,13 @@ type Attachment struct {
 	MimeType    string        `json:"mimetype"`
 	HashCode    string        `json:"hash"`
 	Destination AttachmentDst `json:"destination"`
+	RefCount    int           `json:"ref_count"`
 
 	Metadata datatypes.JSONMap `json:"metadata"`
 	IsMature bool              `json:"is_mature"`
+
+	Ref   *Attachment `json:"ref"`
+	RefID *uint       `json:"ref_id"`
 
 	Account   Account `json:"account"`
 	AccountID uint    `json:"account_id"`

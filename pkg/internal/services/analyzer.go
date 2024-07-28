@@ -1,8 +1,11 @@
 package services
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"image"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,9 +63,68 @@ func AnalyzeAttachment(file models.Attachment) error {
 		}
 	}
 
-	if err := database.C.Save(&file).Error; err != nil {
-		return fmt.Errorf("unable to save file record: %v", err)
+	if hash, err := HashAttachment(file); err != nil {
+		return err
+	} else {
+		file.HashCode = hash
 	}
 
+	tx := database.C.Begin()
+
+	linked, err := TryLinkAttachment(tx, file, file.HashCode)
+	if linked && err != nil {
+		return fmt.Errorf("unable to link file record: %v", err)
+	} else if !linked {
+		if err := tx.Save(&file); err != nil {
+			tx.Rollback()
+			return fmt.Errorf("unable to save file record: %v", err)
+		}
+	}
+
+	if !linked {
+		if err := ReUploadFileToPermanent(file); err != nil {
+			tx.Rollback()
+			return fmt.Errorf("unable to move file to permanet storage: %v", err)
+		}
+	}
+
+	tx.Commit()
+
 	return nil
+}
+
+func HashAttachment(file models.Attachment) (hash string, err error) {
+	if file.Destination != models.AttachmentDstTemporary {
+		err = fmt.Errorf("attachment isn't in temporary storage, unable to hash")
+		return
+	}
+
+	destMap := viper.GetStringMap("destinations.temporary")
+
+	var dest models.LocalDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	dst := filepath.Join(dest.Path, file.Uuid)
+	if _, err = os.Stat(dst); !os.IsExist(err) {
+		err = fmt.Errorf("attachment doesn't exists in temporary storage")
+		return
+	}
+
+	var in *os.File
+	in, err = os.Open("file.txt")
+	if err != nil {
+		err = fmt.Errorf("unable to open file: %v", err)
+		return
+	}
+	defer in.Close()
+
+	hasher := sha256.New()
+	if _, err = io.Copy(hasher, in); err != nil {
+		err = fmt.Errorf("unable to hash: %v", err)
+		return
+	}
+
+	hash = hex.EncodeToString(hasher.Sum(nil))
+	return
 }
