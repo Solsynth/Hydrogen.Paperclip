@@ -72,6 +72,8 @@ func main() {
 	// Messages
 	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)
 
+	services.ScanUnanalyzedFileFromDatabase()
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit

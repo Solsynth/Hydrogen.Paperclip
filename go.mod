@@ -48,6 +48,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jpillora/backoff v1.0.0 // indirect
+	github.com/k0kubun/go-ansi v0.0.0-20180517002512-3bf9e2903213 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
@@ -57,6 +58,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mbobakov/grpc-consul-resolver v1.5.3 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
@@ -68,6 +70,7 @@ require (
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/schollz/progressbar/v3 v3.14.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
@@ -82,7 +85,8 @@ require (
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect

@@ -14,7 +14,9 @@ import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/k0kubun/go-ansi"
 	"github.com/rs/zerolog/log"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/viper"
 
 	_ "image/gif"
@@ -40,49 +42,100 @@ func StartConsumeAnalyzeTask() {
 	}
 }
 
+func ScanUnanalyzedFileFromDatabase() {
+	workers := viper.GetInt("workers.files_analyze")
+
+	if workers < 2 {
+		log.Warn().Int("val", workers).Int("min", 2).Msg("The file analyzer does not have enough computing power, and the scan of unanalyzed files will not start...")
+	}
+
+	var attachments []models.Attachment
+	if err := database.C.Where("destination = ? OR is_analyzed = ?", models.AttachmentDstTemporary, false).Find(&attachments).Error; err != nil {
+		log.Error().Err(err).Msg("Scan unanalyzed files from database failed...")
+		return
+	}
+
+	if len(attachments) == 0 {
+		return
+	}
+
+	go func() {
+		var deletionIdSet []uint
+		bar := progressbar.NewOptions(len(attachments),
+			progressbar.OptionSetWriter(ansi.NewAnsiStdout()),
+			progressbar.OptionEnableColorCodes(true),
+			progressbar.OptionShowBytes(true),
+			progressbar.OptionSetWidth(15),
+			progressbar.OptionSetDescription("Analyzing the unanalyzed files..."),
+			progressbar.OptionSetTheme(progressbar.Theme{
+				Saucer:        "[green]=[reset]",
+				SaucerHead:    "[green]>[reset]",
+				SaucerPadding: " ",
+				BarStart:      "[",
+				BarEnd:        "]",
+			}))
+		for _, task := range attachments {
+			if err := AnalyzeAttachment(task); err != nil {
+				log.Error().Err(err).Any("task", task).Msg("A background file analyze task failed...")
+				deletionIdSet = append(deletionIdSet, task.ID)
+			}
+			bar.Add(1)
+		}
+		log.Info().Int("count", len(attachments)).Int("fails", len(deletionIdSet)).Msg("All unanalyzed files has been analyzed!")
+
+		if len(deletionIdSet) > 0 {
+			database.C.Delete(&models.Attachment{}, deletionIdSet)
+		}
+	}()
+}
+
 func AnalyzeAttachment(file models.Attachment) error {
 	if file.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to analyze")
 	}
 
-	destMap := viper.GetStringMap("destinations.temporary")
+	var start time.Time
 
-	var dest models.LocalDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
+	if !file.IsAnalyzed || len(file.HashCode) == 0 {
+		destMap := viper.GetStringMap("destinations.temporary")
 
-	start := time.Now()
+		var dest models.LocalDestination
+		rawDest, _ := jsoniter.Marshal(destMap)
+		_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	dst := filepath.Join(dest.Path, file.Uuid)
-	if _, err := os.Stat(dst); os.IsNotExist(err) {
-		return fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
-	}
+		start = time.Now()
 
-	if t := strings.SplitN(file.MimeType, "/", 2)[0]; t == "image" {
-		// Dealing with image
-		reader, err := os.Open(dst)
-		if err != nil {
-			return fmt.Errorf("unable to open file: %v", err)
+		dst := filepath.Join(dest.Path, file.Uuid)
+		if _, err := os.Stat(dst); os.IsNotExist(err) {
+			return fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
 		}
-		defer reader.Close()
-		im, _, err := image.Decode(reader)
-		if err != nil {
-			return fmt.Errorf("unable to decode file as an image: %v", err)
-		}
-		width := im.Bounds().Dx()
-		height := im.Bounds().Dy()
-		ratio := width / height
-		file.Metadata = map[string]any{
-			"width":  width,
-			"height": height,
-			"ratio":  ratio,
-		}
-	}
 
-	if hash, err := HashAttachment(file); err != nil {
-		return err
-	} else {
-		file.HashCode = hash
+		if t := strings.SplitN(file.MimeType, "/", 2)[0]; t == "image" {
+			// Dealing with image
+			reader, err := os.Open(dst)
+			if err != nil {
+				return fmt.Errorf("unable to open file: %v", err)
+			}
+			defer reader.Close()
+			im, _, err := image.Decode(reader)
+			if err != nil {
+				return fmt.Errorf("unable to decode file as an image: %v", err)
+			}
+			width := im.Bounds().Dx()
+			height := im.Bounds().Dy()
+			ratio := float64(width) / float64(height)
+			file.Metadata = map[string]any{
+				"width":  width,
+				"height": height,
+				"ratio":  ratio,
+			}
+		}
+
+		if hash, err := HashAttachment(file); err != nil {
+			return err
+		} else {
+			file.HashCode = hash
+		}
 	}
 
 	tx := database.C.Begin()
