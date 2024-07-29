@@ -6,21 +6,23 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"sync"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
 const metadataCacheLimit = 512
 
-var metadataCache = make(map[uint]models.Attachment)
+var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
-	if val, ok := metadataCache[id]; ok {
-		return val, nil
+	if val, ok := metadataCache.Load(id); ok {
+		return val.(models.Attachment), nil
 	}
 
 	var attachment models.Attachment
@@ -29,10 +31,8 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	}).Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[id] = attachment
+		MaintainAttachmentCache()
+		metadataCache.Store(id, attachment)
 	}
 
 	return attachment, nil
@@ -48,97 +48,126 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	return attachment, nil
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, bool, error) {
-	linked := false
-	exists, pickupErr := GetAttachmentByHash(attachment.HashCode)
-	if pickupErr == nil {
-		linked = true
-		exists.Alternative = attachment.Alternative
-		exists.Usage = attachment.Usage
-		exists.Metadata = attachment.Metadata
-		attachment = exists
-		attachment.ID = 0
+func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+	attachment.Uuid = uuid.NewString()
+	attachment.Size = file.Size
+	attachment.Name = file.Filename
+	attachment.AccountID = user.ID
 
-		if user != nil {
-			attachment.AccountID = &user.ID
-		}
-	} else {
-		// Upload the new file
-		attachment.Uuid = uuid.NewString()
-		attachment.Size = file.Size
-		attachment.Name = file.Filename
-
-		if user != nil {
-			attachment.AccountID = &user.ID
-		}
-
-		// If the user didn't provide file mimetype manually, we have to detect it
-		if len(attachment.MimeType) == 0 {
-			if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
-				// Detect mimetype by file extensions
-				attachment.MimeType = mime.TypeByExtension(ext)
-			} else {
-				// Detect mimetype by file header
-				// This method as a fallback method, because this isn't pretty accurate
-				header, err := file.Open()
-				if err != nil {
-					return attachment, false, fmt.Errorf("failed to read file header: %v", err)
-				}
-				defer header.Close()
-
-				fileHeader := make([]byte, 512)
-				_, err = header.Read(fileHeader)
-				if err != nil {
-					return attachment, false, err
-				}
-				attachment.MimeType = http.DetectContentType(fileHeader)
+	// If the user didn't provide file mimetype manually, we have to detect it
+	if len(attachment.MimeType) == 0 {
+		if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
+			// Detect mimetype by file extensions
+			attachment.MimeType = mime.TypeByExtension(ext)
+		} else {
+			// Detect mimetype by file header
+			// This method as a fallback method, because this isn't pretty accurate
+			header, err := file.Open()
+			if err != nil {
+				return attachment, fmt.Errorf("failed to read file header: %v", err)
 			}
+			defer header.Close()
+
+			fileHeader := make([]byte, 512)
+			_, err = header.Read(fileHeader)
+			if err != nil {
+				return attachment, err
+			}
+			attachment.MimeType = http.DetectContentType(fileHeader)
 		}
 	}
 
 	if err := tx.Save(&attachment).Error; err != nil {
-		return attachment, linked, fmt.Errorf("failed to save attachment record: %v", err)
+		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[attachment.ID] = attachment
+		MaintainAttachmentCache()
+		metadataCache.Store(attachment.ID, attachment)
 	}
 
-	return attachment, linked, nil
+	return attachment, nil
+}
+
+func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, error) {
+	prev, err := GetAttachmentByHash(hash)
+	if err != nil {
+		return false, err
+	}
+
+	prev.RefCount++
+	og.RefID = &prev.ID
+	og.Uuid = prev.Uuid
+	og.Destination = prev.Destination
+
+	if err := tx.Save(&og).Error; err != nil {
+		tx.Rollback()
+		return true, err
+	} else if err = tx.Save(&prev).Error; err != nil {
+		tx.Rollback()
+		return true, err
+	}
+
+	metadataCache.Store(prev.ID, prev)
+	metadataCache.Store(og.ID, og)
+
+	return true, nil
 }
 
 func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 	if err := database.C.Save(&item).Error; err != nil {
 		return item, err
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[item.ID] = item
+		MaintainAttachmentCache()
+		metadataCache.Store(item.ID, item)
 	}
 
 	return item, nil
 }
 
 func DeleteAttachment(item models.Attachment) error {
-	var dupeCount int64
-	if err := database.C.
-		Where(&models.Attachment{HashCode: item.HashCode}).
-		Model(&models.Attachment{}).
-		Count(&dupeCount).Error; err != nil {
-		dupeCount = -1
-	}
+	dat := item
 
+	tx := database.C.Begin()
+
+	if item.RefID != nil {
+		var refTarget models.Attachment
+		if err := database.C.Where(models.Attachment{
+			BaseModel: models.BaseModel{ID: *item.RefID},
+		}).First(&refTarget).Error; err == nil {
+			refTarget.RefCount--
+			if err := tx.Save(&refTarget).Error; err != nil {
+				tx.Rollback()
+				return fmt.Errorf("unable to update ref count: %v", err)
+			}
+		}
+	}
 	if err := database.C.Delete(&item).Error; err != nil {
+		tx.Rollback()
 		return err
 	} else {
-		delete(metadataCache, item.ID)
+		metadataCache.Delete(item.ID)
 	}
 
-	if dupeCount != -1 && dupeCount <= 1 {
-		return DeleteFile(item)
+	tx.Commit()
+
+	if dat.RefCount == 0 {
+		PublishDeleteFileTask(dat)
 	}
 
 	return nil
+}
+
+func MaintainAttachmentCache() {
+	var keySet []uint
+	metadataCache.Range(func(k any, v any) bool {
+		keySet = append(keySet, k.(uint))
+		return true
+	})
+	if len(keySet) > metadataCacheLimit {
+		go func() {
+			log.Debug().Int("count", len(keySet)).Msg("Cleaning attachment metadata cache...")
+			for _, k := range keySet {
+				metadataCache.Delete(k)
+			}
+		}()
+	}
 }

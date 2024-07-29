@@ -5,8 +5,11 @@ grpc_bind = "0.0.0.0:7443"
 domain = "usercontent.solsynth.dev"
 secret = "LtTjzAGFLshwXhN4ZD4nG5KlMv1MWcsvfv03TSZYnT1VhiAnLIZFTnHUwR0XhGgi"
 
-preferred_destination = "local"
 accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
+
+[workers]
+files_deletion = 4
+files_analyze = 4
 
 [debug]
 database = false
@@ -25,14 +28,15 @@ refresh_token_duration = 2592000
 dsn = "host=localhost user=postgres password=password dbname=hy_paperclip port=5432 sslmode=disable"
 prefix = "paperclip_"
 
-[destinations.local]
+[destinations.temporary]
 type = "local"
 path = "uploads"
 
-[destinations.s3]
+[destinations.permanent]
 type = "s3"
 bucket = "bucket"
 endpoint = "s3.ap-east-1.amazonaws.com"
 secret_id = "secret"
 secret_key = "secret"
+access_baseurl = "https://raw.sn.solsynth.dev"
 enable_ssl = true

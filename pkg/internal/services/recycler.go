@@ -5,26 +5,47 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
 
+var fileDeletionQueue = make(chan models.Attachment, 256)
+
+func PublishDeleteFileTask(file models.Attachment) {
+	fileDeletionQueue <- file
+}
+
+func StartConsumeDeletionTask() {
+	for {
+		task := <-fileDeletionQueue
+		start := time.Now()
+		if err := DeleteFile(task); err != nil {
+			log.Error().Err(err).Any("task", task).Msg("A file deletion task failed...")
+		} else {
+			log.Info().Dur("elapsed", time.Since(start)).Uint("id", task.ID).Msg("A file deletion task was completed.")
+		}
+	}
+}
+
 func DeleteFile(meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations")
-	dest, destOk := destMap[meta.Destination]
-	if !destOk {
-		return fmt.Errorf("invalid destination: destination configuration was not found")
+	var destMap map[string]any
+	if meta.Destination == models.AttachmentDstTemporary {
+		destMap = viper.GetStringMap("destinations.temporary")
+	} else {
+		destMap = viper.GetStringMap("destinations.permanent")
 	}
 
-	var destParsed models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(dest)
-	_ = jsoniter.Unmarshal(rawDest, &destParsed)
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	switch destParsed.Type {
+	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
@@ -34,7 +55,7 @@ func DeleteFile(meta models.Attachment) error {
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
 		return DeleteFileFromS3(destConfigured, meta)
 	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", destParsed.Type)
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
 }
 

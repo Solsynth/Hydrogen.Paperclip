@@ -25,17 +25,18 @@ func openAttachment(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
 
-	destMap := viper.GetStringMap("destinations")
-	dest, destOk := destMap[metadata.Destination]
-	if !destOk {
-		return fiber.NewError(fiber.StatusInternalServerError, "invalid destination: destination configuration was not found")
+	var destMap map[string]any
+	if metadata.Destination == models.AttachmentDstTemporary {
+		destMap = viper.GetStringMap("destinations.temporary")
+	} else {
+		destMap = viper.GetStringMap("destinations.permanent")
 	}
 
-	var destParsed models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(dest)
-	_ = jsoniter.Unmarshal(rawDest, &destParsed)
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	switch destParsed.Type {
+	switch dest.Type {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
@@ -43,21 +44,27 @@ func openAttachment(c *fiber.Ctx) error {
 			c.Set(fiber.HeaderContentType, metadata.MimeType)
 		}
 		return c.SendFile(filepath.Join(destConfigured.Path, metadata.Uuid), false)
-
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
-		return c.Redirect(fmt.Sprintf(
-			"%s://%s.%s/%s",
-			protocol,
-			destConfigured.Bucket,
-			destConfigured.Endpoint,
-			url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
-		))
-
+		if len(destConfigured.AccessBaseURL) > 0 {
+			return c.Redirect(fmt.Sprintf(
+				"%s/%s",
+				destConfigured.AccessBaseURL,
+				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
+			), fiber.StatusMovedPermanently)
+		} else {
+			protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
+			return c.Redirect(fmt.Sprintf(
+				"%s://%s.%s/%s",
+				protocol,
+				destConfigured.Bucket,
+				destConfigured.Endpoint,
+				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
+			), fiber.StatusMovedPermanently)
+		}
 	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", destParsed.Type)
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
 }
 
@@ -79,12 +86,6 @@ func createAttachment(c *fiber.Ctx) error {
 	}
 	user = lo.ToPtr(c.Locals("user").(models.Account))
 
-	destName := c.Query("destination", viper.GetString("preferred_destination"))
-
-	hash := c.FormValue("hash")
-	if len(hash) != 64 {
-		return fiber.NewError(fiber.StatusBadRequest, "please provide a sha-256 hash code, length should be 64 characters")
-	}
 	usage := c.FormValue("usage")
 	if !lo.Contains(viper.GetStringSlice("accepts_usage"), usage) {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("disallowed usage: %s", usage))
@@ -103,28 +104,29 @@ func createAttachment(c *fiber.Ctx) error {
 	_ = jsoniter.UnmarshalFromString(c.FormValue("metadata"), &usermeta)
 
 	tx := database.C.Begin()
-	metadata, linked, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
+
+	metadata, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
 		Usage:       usage,
-		HashCode:    hash,
 		Alternative: c.FormValue("alt"),
 		MimeType:    c.FormValue("mimetype"),
 		Metadata:    usermeta,
 		IsMature:    len(c.FormValue("mature")) > 0,
-		Destination: destName,
+		IsAnalyzed:  false,
+		Destination: models.AttachmentDstTemporary,
 	})
 	if err != nil {
 		tx.Rollback()
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if !linked {
-		if err := services.UploadFile(destName, c, file, metadata); err != nil {
-			tx.Rollback()
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		}
+	if err := services.UploadFileToTemporary(c, file, metadata); err != nil {
+		tx.Rollback()
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	tx.Commit()
+
+	services.PublishAnalyzeTask(metadata)
 
 	return c.JSON(metadata)
 }
@@ -176,7 +178,7 @@ func deleteAttachment(c *fiber.Ctx) error {
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, err.Error())
-	} else if attachment.AccountID == nil || *attachment.AccountID != user.ID {
+	} else if attachment.AccountID != user.ID {
 		return fiber.NewError(fiber.StatusNotFound, "record not created by you")
 	}
 
