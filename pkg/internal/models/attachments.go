@@ -22,8 +22,9 @@ type Attachment struct {
 	Destination AttachmentDst `json:"destination"`
 	RefCount    int           `json:"ref_count"`
 
-	Metadata datatypes.JSONMap `json:"metadata"`
-	IsMature bool              `json:"is_mature"`
+	Metadata   datatypes.JSONMap `json:"metadata"`
+	IsMature   bool              `json:"is_mature"`
+	IsAnalyzed bool              `json:"is_analyzed"`
 
 	Ref   *Attachment `json:"ref"`
 	RefID *uint       `json:"ref_id"`

@@ -35,7 +35,7 @@ func StartConsumeAnalyzeTask() {
 		if err := AnalyzeAttachment(task); err != nil {
 			log.Error().Err(err).Any("task", task).Msg("A file analyze task failed...")
 		} else {
-			log.Info().Dur("elapsed", time.Since(start)).Any("task", task).Msg("A file analyze task was completed.")
+			log.Info().Dur("elapsed", time.Since(start)).Uint("id", task.ID).Msg("A file analyze task was completed.")
 		}
 	}
 }
@@ -50,6 +50,8 @@ func AnalyzeAttachment(file models.Attachment) error {
 	var dest models.LocalDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
 	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	start := time.Now()
 
 	dst := filepath.Join(dest.Path, file.Uuid)
 	if _, err := os.Stat(dst); os.IsNotExist(err) {
@@ -85,24 +87,38 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	tx := database.C.Begin()
 
+	file.IsAnalyzed = true
+
 	linked, err := TryLinkAttachment(tx, file, file.HashCode)
 	if linked && err != nil {
 		return fmt.Errorf("unable to link file record: %v", err)
 	} else if !linked {
+		metadataCache[file.ID] = file
 		if err := tx.Save(&file).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("unable to save file record: %v", err)
 		}
 	}
 
+	tx.Commit()
+
+	log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Msg("A file analyze task was finished, starting uploading...")
+
+	start = time.Now()
+
+	// Move temporary to permanet
 	if !linked {
 		if err := ReUploadFileToPermanent(file); err != nil {
-			tx.Rollback()
 			return fmt.Errorf("unable to move file to permanet storage: %v", err)
 		}
 	}
 
-	tx.Commit()
+	// Recycle the temporary file
+	file.Destination = models.AttachmentDstTemporary
+	PublishDeleteFileTask(file)
+
+	// Finish
+	log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Bool("linked", linked).Msg("A file post-analyze upload task was finished.")
 
 	return nil
 }

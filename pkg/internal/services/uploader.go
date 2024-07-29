@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
@@ -38,6 +39,8 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 	if meta.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
 	}
+
+	meta.Destination = models.AttachmentDstPermanent
 
 	destMap := viper.GetStringMap("destinations.permanent")
 
@@ -76,6 +79,9 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 		if err != nil {
 			return fmt.Errorf("unable to copy data to dest file: %v", err)
 		}
+
+		database.C.Save(&meta)
+		metadataCache[meta.ID] = meta
 		return nil
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
@@ -97,6 +103,9 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 		if err != nil {
 			return fmt.Errorf("unable to upload file to s3: %v", err)
 		}
+
+		database.C.Save(&meta)
+		metadataCache[meta.ID] = meta
 		return nil
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)

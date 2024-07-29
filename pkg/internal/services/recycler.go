@@ -28,7 +28,7 @@ func StartConsumeDeletionTask() {
 		if err := DeleteFile(task); err != nil {
 			log.Error().Err(err).Any("task", task).Msg("A file deletion task failed...")
 		} else {
-			log.Info().Dur("elapsed", time.Since(start)).Any("task", task).Msg("A file deletion task was completed.")
+			log.Info().Dur("elapsed", time.Since(start)).Uint("id", task.ID).Msg("A file deletion task was completed.")
 		}
 	}
 }

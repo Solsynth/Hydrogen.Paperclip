@@ -47,14 +47,22 @@ func openAttachment(c *fiber.Ctx) error {
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
-		return c.Redirect(fmt.Sprintf(
-			"%s://%s.%s/%s",
-			protocol,
-			destConfigured.Bucket,
-			destConfigured.Endpoint,
-			url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
-		), fiber.StatusMovedPermanently)
+		if len(destConfigured.AccessBaseURL) > 0 {
+			return c.Redirect(fmt.Sprintf(
+				"%s/%s",
+				destConfigured.AccessBaseURL,
+				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
+			), fiber.StatusMovedPermanently)
+		} else {
+			protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
+			return c.Redirect(fmt.Sprintf(
+				"%s://%s.%s/%s",
+				protocol,
+				destConfigured.Bucket,
+				destConfigured.Endpoint,
+				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
+			), fiber.StatusMovedPermanently)
+		}
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
@@ -103,6 +111,7 @@ func createAttachment(c *fiber.Ctx) error {
 		MimeType:    c.FormValue("mimetype"),
 		Metadata:    usermeta,
 		IsMature:    len(c.FormValue("mature")) > 0,
+		IsAnalyzed:  false,
 		Destination: models.AttachmentDstTemporary,
 	})
 	if err != nil {
