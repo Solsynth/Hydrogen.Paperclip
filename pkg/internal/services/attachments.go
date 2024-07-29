@@ -6,21 +6,23 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"sync"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
 const metadataCacheLimit = 512
 
-var metadataCache = make(map[uint]models.Attachment)
+var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
-	if val, ok := metadataCache[id]; ok {
-		return val, nil
+	if val, ok := metadataCache.Load(id); ok {
+		return val.(models.Attachment), nil
 	}
 
 	var attachment models.Attachment
@@ -29,10 +31,8 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	}).Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[id] = attachment
+		MaintainAttachmentCache()
+		metadataCache.Store(id, attachment)
 	}
 
 	return attachment, nil
@@ -80,10 +80,8 @@ func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.Fi
 	if err := tx.Save(&attachment).Error; err != nil {
 		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[attachment.ID] = attachment
+		MaintainAttachmentCache()
+		metadataCache.Store(attachment.ID, attachment)
 	}
 
 	return attachment, nil
@@ -108,8 +106,8 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 		return true, err
 	}
 
-	metadataCache[prev.ID] = prev
-	metadataCache[og.ID] = og
+	metadataCache.Store(prev.ID, prev)
+	metadataCache.Store(og.ID, og)
 
 	return true, nil
 }
@@ -118,10 +116,8 @@ func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 	if err := database.C.Save(&item).Error; err != nil {
 		return item, err
 	} else {
-		if len(metadataCache) > metadataCacheLimit {
-			clear(metadataCache)
-		}
-		metadataCache[item.ID] = item
+		MaintainAttachmentCache()
+		metadataCache.Store(item.ID, item)
 	}
 
 	return item, nil
@@ -148,7 +144,7 @@ func DeleteAttachment(item models.Attachment) error {
 		tx.Rollback()
 		return err
 	} else {
-		delete(metadataCache, item.ID)
+		metadataCache.Delete(item.ID)
 	}
 
 	tx.Commit()
@@ -158,4 +154,20 @@ func DeleteAttachment(item models.Attachment) error {
 	}
 
 	return nil
+}
+
+func MaintainAttachmentCache() {
+	var keySet []uint
+	metadataCache.Range(func(k any, v any) bool {
+		keySet = append(keySet, k.(uint))
+		return true
+	})
+	if len(keySet) > metadataCacheLimit {
+		go func() {
+			log.Debug().Int("count", len(keySet)).Msg("Cleaning attachment metadata cache...")
+			for _, k := range keySet {
+				metadataCache.Delete(k)
+			}
+		}()
+	}
 }
