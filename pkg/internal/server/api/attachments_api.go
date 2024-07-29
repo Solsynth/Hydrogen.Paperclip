@@ -140,10 +140,9 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	user := c.Locals("user").(models.Account)
 
 	var data struct {
-		Alternative string         `json:"alt"`
-		Usage       string         `json:"usage"`
-		Metadata    map[string]any `json:"metadata"`
-		IsMature    bool           `json:"is_mature"`
+		Alternative string `json:"alt"`
+		Usage       string `json:"usage"`
+		IsMature    bool   `json:"is_mature"`
 	}
 
 	if err := exts.BindAndValidate(c, &data); err != nil {
@@ -157,7 +156,6 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	attachment.Alternative = data.Alternative
 	attachment.Usage = data.Usage
-	attachment.Metadata = data.Metadata
 	attachment.IsMature = data.IsMature
 
 	if attachment, err := services.UpdateAttachment(attachment); err != nil {
