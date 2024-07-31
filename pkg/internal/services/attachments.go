@@ -21,7 +21,7 @@ const metadataCacheLimit = 512
 var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
-	if val, ok := metadataCache.Load(id); ok {
+	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).AccountID > 0 {
 		return val.(models.Attachment), nil
 	}
 
