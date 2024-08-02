@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,6 +20,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/viper"
+	"gopkg.in/vansante/go-ffprobe.v2"
 
 	_ "image/gif"
 	_ "image/jpeg"
@@ -96,6 +99,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	var start time.Time
 
+	// Do analyze job
 	if !file.IsAnalyzed || len(file.HashCode) == 0 {
 		destMap := viper.GetStringMap("destinations.temporary")
 
@@ -110,7 +114,8 @@ func AnalyzeAttachment(file models.Attachment) error {
 			return fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
 		}
 
-		if t := strings.SplitN(file.MimeType, "/", 2)[0]; t == "image" {
+		switch strings.SplitN(file.MimeType, "/", 2)[0] {
+		case "image":
 			// Dealing with image
 			reader, err := os.Open(dst)
 			if err != nil {
@@ -128,6 +133,29 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"width":  width,
 				"height": height,
 				"ratio":  ratio,
+			}
+		case "video":
+			// Dealing with video
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			data, err := ffprobe.ProbeURL(ctx, dst)
+			if err != nil {
+				return fmt.Errorf("unable to analyze video information: %v", err)
+			}
+
+			stream := data.FirstVideoStream()
+			ratio := float64(stream.Width) / float64(stream.Height)
+			duration, _ := strconv.ParseFloat(stream.Duration, 64)
+			file.Metadata = map[string]any{
+				"width":       stream.Width,
+				"height":      stream.Height,
+				"ratio":       ratio,
+				"duration":    duration,
+				"bit_rate":    stream.BitRate,
+				"codec_name":  stream.CodecName,
+				"color_range": stream.ColorRange,
+				"color_space": stream.ColorSpace,
 			}
 		}
 

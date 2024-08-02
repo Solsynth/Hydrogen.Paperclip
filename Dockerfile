@@ -10,6 +10,8 @@ FROM golang:alpine
 
 COPY --from=paperclip-server /dist /paperclip/server
 
+RUN apk add --no-cache ffmpeg
+
 EXPOSE 8445
 
 CMD ["/paperclip/server"]
