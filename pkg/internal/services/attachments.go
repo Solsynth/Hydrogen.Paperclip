@@ -48,7 +48,7 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	return attachment, nil
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user *models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Size = file.Size
 	attachment.Name = file.Filename

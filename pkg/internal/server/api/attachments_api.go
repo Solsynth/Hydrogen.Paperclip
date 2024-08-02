@@ -80,11 +80,11 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 }
 
 func createAttachment(c *fiber.Ctx) error {
-	var user *models.Account
+	var user models.Account
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err
 	}
-	user = lo.ToPtr(c.Locals("user").(models.Account))
+	user = c.Locals("user").(models.Account)
 
 	usage := c.FormValue("usage")
 	if !lo.Contains(viper.GetStringSlice("accepts_usage"), usage) {
@@ -126,6 +126,7 @@ func createAttachment(c *fiber.Ctx) error {
 
 	tx.Commit()
 
+	metadata.Account = user
 	services.PublishAnalyzeTask(metadata)
 
 	return c.JSON(metadata)

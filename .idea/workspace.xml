@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":recycle: Moved onto dealer">
-      <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
-    </list>
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":recycle: Moved onto dealer" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -45,7 +43,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "RunOnceActivity.go.modules.automatic.dependencies.download": "true",
     "RunOnceActivity.go.modules.go.list.on.any.changes.was.set": "true",
-    "git-widget-placeholder": "features/calc-in-backend",
+    "git-widget-placeholder": "master",
     "go.import.settings.migrated": "true",
     "go.sdk.automatically.set": "true",
     "last_opened_file_path": "/Users/littlesheep/Documents/Projects/Hydrogen/Paperclip/pkg/internal/grpc",
