@@ -18,6 +18,10 @@ func listAttachment(c *fiber.Ctx) error {
 
 	tx := database.C.Order("created_at DESC")
 
+	if len(c.Query("id")) > 0 {
+		tx = tx.Where("id IN ?", strings.Split(c.Query("id"), ","))
+	}
+
 	if len(c.Query("author")) > 0 {
 		var author models.Account
 		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
