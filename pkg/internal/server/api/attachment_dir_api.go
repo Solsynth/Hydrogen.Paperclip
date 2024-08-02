@@ -16,10 +16,14 @@ func listAttachment(c *fiber.Ctx) error {
 		take = 100
 	}
 
-	tx := database.C.Order("created_at DESC")
+	tx := database.C
 
 	if len(c.Query("id")) > 0 {
 		tx = tx.Where("id IN ?", strings.Split(c.Query("id"), ","))
+	} else {
+		// Do sort this when doesn't filter by the id
+		// Because the sort will mess up the result
+		tx = tx.Order("created_at DESC")
 	}
 
 	if len(c.Query("author")) > 0 {
