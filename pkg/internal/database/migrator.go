@@ -8,6 +8,8 @@ import (
 var AutoMaintainRange = []any{
 	&models.Account{},
 	&models.Attachment{},
+	&models.Sticker{},
+	&models.StickerPack{},
 }
 
 func RunMigration(source *gorm.DB) error {

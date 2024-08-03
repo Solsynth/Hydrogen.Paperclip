@@ -3,9 +3,14 @@ id = "paperclip01"
 bind = "0.0.0.0:8443"
 grpc_bind = "0.0.0.0:7443"
 domain = "usercontent.solsynth.dev"
-secret = "LtTjzAGFLshwXhN4ZD4nG5KlMv1MWcsvfv03TSZYnT1VhiAnLIZFTnHUwR0XhGgi"
 
-accepts_usage = ["p.avatar", "p.banner", "i.attachment", "m.attachment"]
+accepts_usage = [
+  "p.avatar",
+  "p.banner",
+  "i.attachment",
+  "m.attachment",
+  "sticker",
+]
 
 [workers]
 files_deletion = 4
