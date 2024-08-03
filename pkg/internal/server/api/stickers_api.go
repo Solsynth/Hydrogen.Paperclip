@@ -146,11 +146,11 @@ func updateSticker(c *fiber.Ctx) error {
 
 	if strings.SplitN(attachment.MimeType, "/", 2)[0] != "image" {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must be an image")
-	} else if width, ok := attachment.Metadata["width"].(float64); !ok {
+	} else if width, ok := attachment.Metadata["width"]; !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must has width metadata")
-	} else if height, ok := attachment.Metadata["height"].(float64); !ok {
+	} else if height, ok := attachment.Metadata["height"]; !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must has height metadata")
-	} else if width != 28 || height != 28 {
+	} else if fmt.Sprint(width) != fmt.Sprint(28) || fmt.Sprint(height) != fmt.Sprint(28) {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must be a 28x28 image")
 	}
 
