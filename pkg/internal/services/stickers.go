@@ -7,7 +7,7 @@ import (
 
 func GetSticker(id uint) (models.Sticker, error) {
 	var sticker models.Sticker
-	if err := database.C.Where("id = ?", id).First(&sticker).Error; err != nil {
+	if err := database.C.Where("id = ?", id).Preload("Attachment").First(&sticker).Error; err != nil {
 		return sticker, err
 	}
 	return sticker, nil

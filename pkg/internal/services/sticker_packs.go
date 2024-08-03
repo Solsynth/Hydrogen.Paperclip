@@ -15,7 +15,7 @@ func GetStickerPackWithUser(id, userId uint) (models.StickerPack, error) {
 
 func ListStickerPackWithStickers(take, offset int) ([]models.StickerPack, error) {
 	var packs []models.StickerPack
-	if err := database.C.Limit(take).Offset(offset).Preload("Stickers").Find(&packs).Error; err != nil {
+	if err := database.C.Limit(take).Offset(offset).Preload("Stickers").Preload("Stickers.Attachment").Find(&packs).Error; err != nil {
 		return packs, err
 	}
 	return packs, nil

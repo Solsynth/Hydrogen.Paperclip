@@ -36,7 +36,7 @@ func listStickers(c *fiber.Ctx) error {
 	}
 
 	var stickers []models.Sticker
-	if err := tx.Limit(take).Offset(offset).Find(&stickers).Error; err != nil {
+	if err := tx.Limit(take).Offset(offset).Preload("Attachment").Find(&stickers).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(stickers)
