@@ -81,7 +81,7 @@ func createSticker(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must has width metadata")
 	} else if height, ok := attachment.Metadata["height"]; !ok {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must has height metadata")
-	} else if width != 28 || height != 28 {
+	} else if fmt.Sprint(width) != fmt.Sprint(28) || fmt.Sprint(height) != fmt.Sprint(28) {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must be a 28x28 image")
 	}
 
