@@ -19,7 +19,7 @@ type StickerPack struct {
 	Prefix      string    `json:"prefix"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	Stickers    []Sticker `json:"stickers" gorm:"constraint:OnDelete:DELETE"`
+	Stickers    []Sticker `json:"stickers" gorm:"foreignKey:PackID;constraint:OnDelete:CASCADE"`
 	AccountID   uint      `json:"account_id"`
 	Account     Account   `json:"account"`
 }

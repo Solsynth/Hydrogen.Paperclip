@@ -17,7 +17,7 @@ files_deletion = 4
 files_analyze = 4
 
 [debug]
-database = false
+database = true
 print_routes = false
 
 [dealer]
