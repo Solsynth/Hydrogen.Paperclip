@@ -14,11 +14,13 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		api.Put("/attachments/:id", updateAttachmentMeta)
 		api.Delete("/attachments/:id", deleteAttachment)
 
+		api.Get("/stickers/manifest", listStickerManifest)
 		api.Get("/stickers/packs", listStickerPacks)
 		api.Post("/stickers/packs", createStickerPack)
 		api.Put("/stickers/packs/:packId", updateStickerPack)
 		api.Delete("/stickers/packs/:packId", deleteStickerPack)
 
+		api.Get("/stickers", listStickers)
 		api.Get("/stickers/:stickerId", getSticker)
 		api.Post("/stickers", createSticker)
 		api.Put("/stickers/:stickerId", updateSticker)

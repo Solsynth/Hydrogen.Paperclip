@@ -1,6 +1,7 @@
 package api
 
 import (
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
@@ -8,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func listStickerPacks(c *fiber.Ctx) error {
+func listStickerManifest(c *fiber.Ctx) error {
 	take := c.QueryInt("take", 0)
 	offset := c.QueryInt("offset", 0)
 
@@ -21,6 +22,32 @@ func listStickerPacks(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(stickers)
+}
+
+func listStickerPacks(c *fiber.Ctx) error {
+	take := c.QueryInt("take", 0)
+	offset := c.QueryInt("offset", 0)
+
+	if take > 100 {
+		take = 100
+	}
+
+	tx := database.C
+
+	if len(c.Query("author")) > 0 {
+		var author models.Account
+		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		} else {
+			tx = tx.Where("account_id = ?", author.ID)
+		}
+	}
+
+	var packs []models.StickerPack
+	if err := tx.Limit(take).Offset(offset).Find(&packs).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(packs)
 }
 
 func createStickerPack(c *fiber.Ctx) error {
