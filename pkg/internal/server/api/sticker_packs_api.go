@@ -17,11 +17,20 @@ func listStickerManifest(c *fiber.Ctx) error {
 		take = 100
 	}
 
+	var count int64
+	if err := database.C.Model(&models.StickerPack{}).Count(&count).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	stickers, err := services.ListStickerPackWithStickers(take, offset)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(stickers)
+
+	return c.JSON(fiber.Map{
+		"count": count,
+		"data":  stickers,
+	})
 }
 
 func listStickerPacks(c *fiber.Ctx) error {
@@ -43,11 +52,20 @@ func listStickerPacks(c *fiber.Ctx) error {
 		}
 	}
 
+	var count int64
+	if err := database.C.Model(&models.StickerPack{}).Count(&count).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	var packs []models.StickerPack
 	if err := tx.Limit(take).Offset(offset).Find(&packs).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(packs)
+
+	return c.JSON(fiber.Map{
+		"count": count,
+		"data":  packs,
+	})
 }
 
 func createStickerPack(c *fiber.Ctx) error {

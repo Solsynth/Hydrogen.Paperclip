@@ -35,11 +35,20 @@ func listStickers(c *fiber.Ctx) error {
 		tx = tx.Where("pack_id = ?", val)
 	}
 
+	var count int64
+	if err := database.C.Model(&models.Sticker{}).Count(&count).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
 	var stickers []models.Sticker
 	if err := tx.Limit(take).Offset(offset).Preload("Attachment").Find(&stickers).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(stickers)
+
+	return c.JSON(fiber.Map{
+		"count": count,
+		"data":  stickers,
+	})
 }
 
 func getSticker(c *fiber.Ctx) error {
