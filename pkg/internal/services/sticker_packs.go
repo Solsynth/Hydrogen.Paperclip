@@ -3,6 +3,7 @@ package services
 import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"gorm.io/gorm"
 )
 
 func GetStickerPackWithUser(id, userId uint) (models.StickerPack, error) {
@@ -13,9 +14,9 @@ func GetStickerPackWithUser(id, userId uint) (models.StickerPack, error) {
 	return pack, nil
 }
 
-func ListStickerPackWithStickers(take, offset int) ([]models.StickerPack, error) {
+func ListStickerPackWithStickers(tx *gorm.DB, take, offset int) ([]models.StickerPack, error) {
 	var packs []models.StickerPack
-	if err := database.C.Limit(take).Offset(offset).Preload("Stickers").Preload("Stickers.Attachment").Find(&packs).Error; err != nil {
+	if err := tx.Limit(take).Offset(offset).Preload("Stickers").Preload("Stickers.Attachment").Find(&packs).Error; err != nil {
 		return packs, err
 	}
 	return packs, nil

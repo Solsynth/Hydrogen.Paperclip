@@ -17,12 +17,24 @@ func listStickerManifest(c *fiber.Ctx) error {
 		take = 100
 	}
 
+	tx := database.C
+
+	if len(c.Query("author")) > 0 {
+		var author models.Account
+		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		} else {
+			tx = tx.Where("account_id = ?", author.ID)
+		}
+	}
+
 	var count int64
-	if err := database.C.Model(&models.StickerPack{}).Count(&count).Error; err != nil {
+	countTx := tx
+	if err := countTx.Model(&models.StickerPack{}).Count(&count).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	stickers, err := services.ListStickerPackWithStickers(take, offset)
+	stickers, err := services.ListStickerPackWithStickers(tx, take, offset)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
