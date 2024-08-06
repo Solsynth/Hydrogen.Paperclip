@@ -21,7 +21,7 @@ const metadataCacheLimit = 512
 var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
-	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).AccountID > 0 {
+	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).Account.ID > 0 {
 		return val.(models.Attachment), nil
 	}
 
@@ -46,6 +46,13 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 		return attachment, err
 	}
 	return attachment, nil
+}
+
+func GetAttachmentCache(id uint) (models.Attachment, bool) {
+	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).Account.ID > 0 {
+		return val.(models.Attachment), ok
+	}
+	return models.Attachment{}, false
 }
 
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
