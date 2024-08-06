@@ -55,6 +55,10 @@ func GetAttachmentCache(id uint) (models.Attachment, bool) {
 	return models.Attachment{}, false
 }
 
+func CacheAttachment(id uint, item models.Attachment) {
+	metadataCache.Store(id, item)
+}
+
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Size = file.Size

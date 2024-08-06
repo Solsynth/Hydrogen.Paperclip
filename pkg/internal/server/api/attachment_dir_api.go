@@ -20,6 +20,8 @@ func listAttachment(c *fiber.Ctx) error {
 
 	tx := database.C
 
+	needQuery := true
+
 	var result = make([]models.Attachment, take)
 	var idxList []uint
 
@@ -40,6 +42,7 @@ func listAttachment(c *fiber.Ctx) error {
 			}
 		}
 		tx = tx.Where("id IN ?", pendingQueryId)
+		needQuery = len(pendingQueryId) > 0
 	} else {
 		// Do sort this when doesn't filter by the id
 		// Because the sort will mess up the result
@@ -64,21 +67,28 @@ func listAttachment(c *fiber.Ctx) error {
 	if err := countTx.Model(&models.Attachment{}).Count(&count).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
-	var out []models.Attachment
-	if err := tx.Offset(offset).Limit(take).Preload("Account").Find(&out).Error; err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, err.Error())
-	}
 
-	if len(idxList) == 0 {
-		result = out
-	} else {
-		for _, item := range out {
-			for p, id := range idxList {
-				if item.ID == id {
-					result[p] = item
+	if needQuery {
+		var out []models.Attachment
+		if err := tx.Offset(offset).Limit(take).Preload("Account").Find(&out).Error; err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, err.Error())
+		}
+
+		if len(idxList) == 0 {
+			result = out
+		} else {
+			for _, item := range out {
+				for p, id := range idxList {
+					if item.ID == id {
+						result[p] = item
+					}
 				}
 			}
 		}
+	}
+
+	for _, item := range result {
+		services.CacheAttachment(item.ID, item)
 	}
 
 	return c.JSON(fiber.Map{
