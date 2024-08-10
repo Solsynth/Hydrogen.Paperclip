@@ -187,7 +187,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	start = time.Now()
 
-	// Move temporary to permanet
+	// Move temporary to permanent
 	if !linked {
 		if err := ReUploadFileToPermanent(file); err != nil {
 			return fmt.Errorf("unable to move file to permanet storage: %v", err)

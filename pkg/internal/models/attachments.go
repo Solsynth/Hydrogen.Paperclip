@@ -25,6 +25,7 @@ type Attachment struct {
 	Metadata   datatypes.JSONMap `json:"metadata"`
 	IsMature   bool              `json:"is_mature"`
 	IsAnalyzed bool              `json:"is_analyzed"`
+	IsSelfRef  bool              `json:"is_self_ref"`
 
 	Ref   *Attachment `json:"ref"`
 	RefID *uint       `json:"ref_id"`

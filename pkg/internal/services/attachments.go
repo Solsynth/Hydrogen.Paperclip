@@ -109,6 +109,10 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 	og.Uuid = prev.Uuid
 	og.Destination = prev.Destination
 
+	if og.AccountID == prev.AccountID {
+		og.IsSelfRef = true
+	}
+
 	if err := tx.Save(&og).Error; err != nil {
 		tx.Rollback()
 		return true, err
