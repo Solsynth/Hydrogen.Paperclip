@@ -62,6 +62,10 @@ func listAttachment(c *fiber.Ctx) error {
 		tx = tx.Where("usage IN ?", strings.Split(usage, " "))
 	}
 
+	if original := c.QueryBool("original", false); original {
+		tx = tx.Where("ref_id IS NULL")
+	}
+
 	var count int64
 	countTx := tx
 	if err := countTx.Model(&models.Attachment{}).Count(&count).Error; err != nil {

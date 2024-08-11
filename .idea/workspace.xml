@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":recycle: Moved onto dealer">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Self reference detection">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachment_dir_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachment_dir_api.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -119,7 +117,8 @@
     <MESSAGE value=":ambulance: Fix getting user panic" />
     <MESSAGE value=":zap: Add cache into metadata fetching" />
     <MESSAGE value=":recycle: Moved onto dealer" />
-    <option name="LAST_COMMIT_MESSAGE" value=":recycle: Moved onto dealer" />
+    <MESSAGE value=":sparkles: Self reference detection" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Self reference detection" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
