@@ -42,7 +42,7 @@ func RunMarkDeletionTask() {
 	}
 
 	var pendingPools []models.AttachmentPool
-	for _, pool := range pendingPools {
+	for _, pool := range pools {
 		if pool.Config.Data().ExistLifecycle != nil {
 			pendingPools = append(pendingPools, pool)
 		}
