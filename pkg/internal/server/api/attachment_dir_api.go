@@ -1,7 +1,6 @@
 package api
 
 import (
-	"strconv"
 	"strings"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
@@ -23,25 +22,20 @@ func listAttachment(c *fiber.Ctx) error {
 	needQuery := true
 
 	var result = make([]models.Attachment, take)
-	var idxList []uint
+	var idxList []string
 
 	if len(c.Query("id")) > 0 {
-		var pendingQueryId []uint
+		var pendingQueryId []string
 		idx := strings.Split(c.Query("id"), ",")
 		for p, raw := range idx {
-			id, err := strconv.Atoi(raw)
-			if err != nil {
-				continue
-			} else {
-				idxList = append(idxList, uint(id))
-			}
-			if val, ok := services.GetAttachmentCache(uint(id)); ok {
+			idxList = append(idxList, raw)
+			if val, ok := services.GetAttachmentCache(raw); ok {
 				result[p] = val
 			} else {
-				pendingQueryId = append(pendingQueryId, uint(id))
+				pendingQueryId = append(pendingQueryId, raw)
 			}
 		}
-		tx = tx.Where("id IN ?", pendingQueryId)
+		tx = tx.Where("rid IN ?", pendingQueryId)
 		needQuery = len(pendingQueryId) > 0
 	} else {
 		// Do sort this when doesn't filter by the id
@@ -83,7 +77,7 @@ func listAttachment(c *fiber.Ctx) error {
 		} else {
 			for _, item := range out {
 				for p, id := range idxList {
-					if item.ID == id {
+					if item.Rid == id {
 						result[p] = item
 					}
 				}

@@ -2,13 +2,11 @@ package api
 
 import (
 	"fmt"
-	"net/url"
-	"path/filepath"
-	"strconv"
-
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
+	"net/url"
+	"path/filepath"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
@@ -21,14 +19,7 @@ import (
 func openAttachment(c *fiber.Ctx) error {
 	id := c.Params("id")
 
-	var err error
-	var metadata models.Attachment
-
-	if numericId, numericErr := strconv.Atoi(id); numericErr == nil {
-		metadata, err = services.GetAttachmentByID(uint(numericId))
-	} else {
-		metadata, err = services.GetAttachmentByRID(id)
-	}
+	metadata, err := services.GetAttachmentByRID(id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
@@ -77,9 +68,9 @@ func openAttachment(c *fiber.Ctx) error {
 }
 
 func getAttachmentMeta(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id")
+	id := c.Params("id")
 
-	metadata, err := services.GetAttachmentByID(uint(id))
+	metadata, err := services.GetAttachmentByRID(id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
