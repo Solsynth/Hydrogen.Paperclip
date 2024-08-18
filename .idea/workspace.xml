@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix migration issue on pools">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
-    </list>
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix schedule deletion will delete referenced file" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -124,7 +121,8 @@
     <MESSAGE value=":sparkles: Pool clean by lifecycle config" />
     <MESSAGE value=":recycle: Split mark and delete file" />
     <MESSAGE value=":bug: Fix migration issue on pools" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix migration issue on pools" />
+    <MESSAGE value=":bug: Fix schedule deletion will delete referenced file" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix schedule deletion will delete referenced file" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
