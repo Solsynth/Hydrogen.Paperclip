@@ -10,7 +10,7 @@ type AttachmentPool struct {
 	Description string                                   `json:"description"`
 	Config      datatypes.JSONType[AttachmentPoolConfig] `json:"config"`
 
-	Attachments []Attachment `json:"attachments"`
+	Attachments []Attachment `json:"attachments" gorm:"foreignKey:PoolID"`
 
 	Account   *Account `json:"account"`
 	AccountID *uint    `json:"account_id"`
