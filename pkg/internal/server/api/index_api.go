@@ -1,6 +1,9 @@
 package api
 
 import (
+	"fmt"
+	"github.com/spf13/viper"
+	"gorm.io/datatypes"
 	"strings"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
@@ -41,6 +44,12 @@ func listAttachment(c *fiber.Ctx) error {
 		// Do sort this when doesn't filter by the id
 		// Because the sort will mess up the result
 		tx = tx.Order("created_at DESC")
+
+		// Do not expose un-public indexable attachments
+		prefix := viper.GetString("database.prefix")
+		tx = tx.
+			Joins(fmt.Sprintf("JOIN %sattachment_pools ON %sattachment_pools.id = %sattachments.pool_id", prefix, prefix, prefix)).
+			Where(datatypes.JSONQuery(fmt.Sprintf("%sattachment_pools.config", prefix)).Equals(true, "public_indexable"))
 	}
 
 	if len(c.Query("author")) > 0 {
@@ -52,8 +61,12 @@ func listAttachment(c *fiber.Ctx) error {
 		}
 	}
 
-	if usage := c.Query("usage"); len(usage) > 0 {
-		tx = tx.Where("usage IN ?", strings.Split(usage, " "))
+	if pools := c.Query("pools"); len(pools) > 0 {
+		prefix := viper.GetString("database.prefix")
+		poolAliases := strings.Split(pools, ",")
+		tx = tx.
+			Joins(fmt.Sprintf("JOIN %sattachment_pools ON %sattachment_pools.id = %sattachments.pool_id", prefix, prefix, prefix)).
+			Where(fmt.Sprintf("%sattachment_pools.alias IN ?", prefix), poolAliases)
 	}
 
 	if original := c.QueryBool("original", false); original {

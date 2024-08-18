@@ -21,4 +21,5 @@ type AttachmentPoolConfig struct {
 	ExistLifecycle        *int64 `json:"exist_lifecycle"`
 	AllowCrossPoolIngress bool   `json:"allow_cross_pool_ingress"`
 	AllowCrossPoolEgress  bool   `json:"allow_cross_pool_egress"`
+	PublicIndexable       bool   `json:"public_indexable"`
 }
