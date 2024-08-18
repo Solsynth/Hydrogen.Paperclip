@@ -6,6 +6,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
@@ -21,7 +22,8 @@ const metadataCacheLimit = 512
 var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
-	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).Account.ID > 0 {
+	strId := strconv.Itoa(int(id))
+	if val, ok := metadataCache.Load(strId); ok && val.(models.Attachment).Account.ID > 0 {
 		return val.(models.Attachment), nil
 	}
 
@@ -32,7 +34,25 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 		return attachment, err
 	} else {
 		MaintainAttachmentCache()
-		metadataCache.Store(id, attachment)
+		CacheAttachment(attachment)
+	}
+
+	return attachment, nil
+}
+
+func GetAttachmentByRID(rid string) (models.Attachment, error) {
+	if val, ok := metadataCache.Load(rid); ok && val.(models.Attachment).Account.ID > 0 {
+		return val.(models.Attachment), nil
+	}
+
+	var attachment models.Attachment
+	if err := database.C.Where(models.Attachment{
+		Rid: rid,
+	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
+		return attachment, err
+	} else {
+		MaintainAttachmentCache()
+		CacheAttachment(attachment)
 	}
 
 	return attachment, nil
@@ -49,14 +69,17 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 }
 
 func GetAttachmentCache(id uint) (models.Attachment, bool) {
-	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).Account.ID > 0 {
+	strId := strconv.Itoa(int(id))
+	if val, ok := metadataCache.Load(strId); ok && val.(models.Attachment).Account.ID > 0 {
 		return val.(models.Attachment), ok
 	}
 	return models.Attachment{}, false
 }
 
-func CacheAttachment(id uint, item models.Attachment) {
-	metadataCache.Store(id, item)
+func CacheAttachment(item models.Attachment) {
+	strId := strconv.Itoa(int(item.ID))
+	metadataCache.Store(strId, item)
+	metadataCache.Store(item.Rid, item)
 }
 
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
@@ -93,7 +116,7 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
 		MaintainAttachmentCache()
-		metadataCache.Store(attachment.ID, attachment)
+		CacheAttachment(attachment)
 	}
 
 	return attachment, nil
@@ -129,8 +152,8 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 		return true, err
 	}
 
-	metadataCache.Store(prev.ID, prev)
-	metadataCache.Store(og.ID, og)
+	CacheAttachment(prev)
+	CacheAttachment(og)
 
 	return true, nil
 }
@@ -140,7 +163,7 @@ func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 		return item, err
 	} else {
 		MaintainAttachmentCache()
-		metadataCache.Store(item.ID, item)
+		CacheAttachment(item)
 	}
 
 	return item, nil
@@ -167,7 +190,9 @@ func DeleteAttachment(item models.Attachment) error {
 		tx.Rollback()
 		return err
 	} else {
-		metadataCache.Delete(item.ID)
+		strId := strconv.Itoa(int(item.ID))
+		metadataCache.Delete(strId)
+		metadataCache.Delete(item.Rid)
 	}
 
 	tx.Commit()

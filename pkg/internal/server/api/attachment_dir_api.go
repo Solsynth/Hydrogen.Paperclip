@@ -92,7 +92,7 @@ func listAttachment(c *fiber.Ctx) error {
 	}
 
 	for _, item := range result {
-		services.CacheAttachment(item.ID, item)
+		services.CacheAttachment(item)
 	}
 
 	return c.JSON(fiber.Map{

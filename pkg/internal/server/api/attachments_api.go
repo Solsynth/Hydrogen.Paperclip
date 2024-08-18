@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"strconv"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
@@ -18,9 +19,16 @@ import (
 )
 
 func openAttachment(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id", 0)
+	id := c.Params("id")
 
-	metadata, err := services.GetAttachmentByID(uint(id))
+	var err error
+	var metadata models.Attachment
+
+	if numericId, numericErr := strconv.Atoi(id); numericErr == nil {
+		metadata, err = services.GetAttachmentByID(uint(numericId))
+	} else {
+		metadata, err = services.GetAttachmentByRID(id)
+	}
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
 	}
