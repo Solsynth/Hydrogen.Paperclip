@@ -8,6 +8,7 @@ import (
 var AutoMaintainRange = []any{
 	&models.Account{},
 	&models.Attachment{},
+	&models.AttachmentPool{},
 	&models.StickerPack{},
 	&models.Sticker{},
 }

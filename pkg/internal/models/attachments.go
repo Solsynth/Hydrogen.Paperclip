@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/datatypes"
+import (
+	"gorm.io/datatypes"
+	"time"
+)
 
 type AttachmentDst = int8
 
@@ -22,6 +25,8 @@ type Attachment struct {
 	Destination AttachmentDst `json:"destination"`
 	RefCount    int           `json:"ref_count"`
 
+	CleanedAt *time.Time `json:"cleaned_at"`
+
 	Metadata   datatypes.JSONMap `json:"metadata"`
 	IsMature   bool              `json:"is_mature"`
 	IsAnalyzed bool              `json:"is_analyzed"`
@@ -29,6 +34,9 @@ type Attachment struct {
 
 	Ref   *Attachment `json:"ref"`
 	RefID *uint       `json:"ref_id"`
+
+	Pool   *AttachmentPool `json:"pool"`
+	PoolID *uint           `json:"pool_id"`
 
 	Account   Account `json:"account"`
 	AccountID uint    `json:"account_id"`
