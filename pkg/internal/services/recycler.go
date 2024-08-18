@@ -49,10 +49,10 @@ func RunMarkDeletionTask() {
 	}
 
 	for _, pool := range pendingPools {
-		lifecycle := fmt.Sprintf("%d seconds", *pool.Config.Data().ExistLifecycle)
+		lifecycle := time.Now().Add(-time.Duration(*pool.Config.Data().ExistLifecycle) * time.Second)
 		tx := database.C.
 			Where("pool_id = ?", pool.ID).
-			Where("created_at < NOW() - INTERVAL ?", lifecycle).
+			Where("created_at < ?", lifecycle).
 			Updates(&models.Attachment{CleanedAt: lo.ToPtr(time.Now())})
 		log.Info().
 			Str("pool", pool.Alias).
