@@ -197,9 +197,9 @@ func DeleteAttachment(item models.Attachment) error {
 }
 
 func MaintainAttachmentCache() {
-	var keySet []uint
+	var keySet []any
 	metadataCache.Range(func(k any, v any) bool {
-		keySet = append(keySet, k.(uint))
+		keySet = append(keySet, k)
 		return true
 	})
 	if len(keySet) > metadataCacheLimit {
