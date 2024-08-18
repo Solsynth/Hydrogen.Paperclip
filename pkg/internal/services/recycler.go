@@ -51,7 +51,7 @@ func RunMarkDeletionTask() {
 	for _, pool := range pendingPools {
 		lifecycle := fmt.Sprintf("%d seconds", *pool.Config.Data().ExistLifecycle)
 		tx := database.C.
-			Where("pool_id = ? AND created_at < NOW() - INTERVAL ?", pool.ID, lifecycle).
+			Where("pool_id = ? AND  AND created_at < NOW() - INTERVAL ?", pool.ID, lifecycle).
 			Updates(&models.Attachment{CleanedAt: lo.ToPtr(time.Now())})
 		log.Info().
 			Str("pool", pool.Alias).
@@ -68,6 +68,9 @@ func RunScheduleDeletionTask() {
 	}
 
 	for idx, attachment := range attachments {
+		if attachment.RefID != nil {
+			continue
+		}
 		if err := DeleteFile(attachment); err != nil {
 			log.Error().
 				Uint("id", attachment.ID).
