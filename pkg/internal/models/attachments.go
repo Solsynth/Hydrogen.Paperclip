@@ -15,11 +15,14 @@ const (
 type Attachment struct {
 	BaseModel
 
-	Uuid        string        `json:"uuid"`
+	// Random ID is for accessing (appear in URL)
+	Rid string `json:"rid" gorm:"uniqueIndex"`
+	// Unique ID is for storing (appear in local file name or object name)
+	Uuid string `json:"uuid"`
+
 	Size        int64         `json:"size"`
 	Name        string        `json:"name"`
 	Alternative string        `json:"alt"`
-	Usage       string        `json:"usage"`
 	MimeType    string        `json:"mimetype"`
 	HashCode    string        `json:"hash"`
 	Destination AttachmentDst `json:"destination"`

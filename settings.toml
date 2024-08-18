@@ -5,11 +5,11 @@ grpc_bind = "0.0.0.0:7443"
 domain = "usercontent.solsynth.dev"
 
 accepts_usage = [
-  "p.avatar",
-  "p.banner",
-  "i.attachment",
-  "m.attachment",
-  "sticker",
+    "p.avatar",
+    "p.banner",
+    "i.attachment",
+    "m.attachment",
+    "sticker",
 ]
 
 [workers]
@@ -32,6 +32,13 @@ refresh_token_duration = 2592000
 [database]
 dsn = "host=localhost user=postgres password=password dbname=hy_paperclip port=5432 sslmode=disable"
 prefix = "paperclip_"
+
+[pools.aliases]
+"p.avatar" = "avatar"
+"p.banner" = "avatar"
+"i.attachment" = "interactive"
+"m.attachment" = "messaging"
+"sticker" = "sticker"
 
 [destinations.temporary]
 type = "local"

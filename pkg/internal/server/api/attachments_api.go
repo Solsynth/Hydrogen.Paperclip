@@ -85,9 +85,18 @@ func createAttachment(c *fiber.Ctx) error {
 	}
 	user := c.Locals("user").(models.Account)
 
-	usage := c.FormValue("usage")
-	if !lo.Contains(viper.GetStringSlice("accepts_usage"), usage) {
-		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("disallowed usage: %s", usage))
+	poolAlias := c.FormValue("pool")
+	if len(poolAlias) == 0 {
+		poolAlias = c.FormValue("usage")
+	}
+	aliasingMap := viper.GetStringMapString("pools.aliases")
+	if val, ok := aliasingMap[poolAlias]; ok {
+		poolAlias = val
+	}
+
+	pool, err := services.GetAttachmentPoolByAlias(poolAlias)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to get attachment pool info: %v", err))
 	}
 
 	file, err := c.FormFile("file")
@@ -97,6 +106,8 @@ func createAttachment(c *fiber.Ctx) error {
 
 	if err = gap.H.EnsureGrantedPerm(c, "CreateAttachments", file.Size); err != nil {
 		return err
+	} else if pool.Config.Data().MaxFileSize != nil && file.Size > *pool.Config.Data().MaxFileSize {
+		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
 
 	usermeta := make(map[string]any)
@@ -105,13 +116,14 @@ func createAttachment(c *fiber.Ctx) error {
 	tx := database.C.Begin()
 
 	metadata, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
-		Usage:       usage,
 		Alternative: c.FormValue("alt"),
 		MimeType:    c.FormValue("mimetype"),
 		Metadata:    usermeta,
 		IsMature:    len(c.FormValue("mature")) > 0,
 		IsAnalyzed:  false,
 		Destination: models.AttachmentDstTemporary,
+		Pool:        &pool,
+		PoolID:      &pool.ID,
 	})
 	if err != nil {
 		tx.Rollback()
@@ -126,6 +138,7 @@ func createAttachment(c *fiber.Ctx) error {
 	tx.Commit()
 
 	metadata.Account = user
+	metadata.Pool = &pool
 	services.PublishAnalyzeTask(metadata)
 
 	return c.JSON(metadata)
@@ -141,7 +154,6 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	var data struct {
 		Alternative string `json:"alt"`
-		Usage       string `json:"usage"`
 		IsMature    bool   `json:"is_mature"`
 	}
 
@@ -155,7 +167,6 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	}
 
 	attachment.Alternative = data.Alternative
-	attachment.Usage = data.Usage
 	attachment.IsMature = data.IsMature
 
 	if attachment, err := services.UpdateAttachment(attachment); err != nil {

@@ -17,6 +17,8 @@ type AttachmentPool struct {
 }
 
 type AttachmentPoolConfig struct {
-	ExistLifecycle     *int `json:"exist_lifecycle"`
-	IsPublicAccessible bool `json:"is_public_accessible"`
+	MaxFileSize           *int64 `json:"max_file_size"`
+	ExistLifecycle        *int64 `json:"exist_lifecycle"`
+	AllowCrossPoolIngress bool   `json:"allow_cross_pool_ingress"`
+	AllowCrossPoolEgress  bool   `json:"allow_cross_pool_egress"`
 }

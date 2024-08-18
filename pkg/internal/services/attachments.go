@@ -28,7 +28,7 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		BaseModel: models.BaseModel{ID: id},
-	}).Preload("Account").First(&attachment).Error; err != nil {
+	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
 		MaintainAttachmentCache()
@@ -42,7 +42,7 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		HashCode: hash,
-	}).First(&attachment).Error; err != nil {
+	}).Preload("Pool").First(&attachment).Error; err != nil {
 		return attachment, err
 	}
 	return attachment, nil
@@ -60,6 +60,7 @@ func CacheAttachment(id uint, item models.Attachment) {
 }
 
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+	attachment.Rid = RandString(16)
 	attachment.Uuid = uuid.NewString()
 	attachment.Size = file.Size
 	attachment.Name = file.Filename
@@ -102,6 +103,13 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 	prev, err := GetAttachmentByHash(hash)
 	if err != nil {
 		return false, err
+	}
+
+	if prev.PoolID != nil && og.PoolID != nil && prev.PoolID != og.PoolID {
+		if !prev.Pool.Config.Data().AllowCrossPoolEgress || !og.Pool.Config.Data().AllowCrossPoolIngress {
+			// Pool config doesn't allow reference
+			return false, nil
+		}
 	}
 
 	prev.RefCount++

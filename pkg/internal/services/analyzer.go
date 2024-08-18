@@ -99,7 +99,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	var start time.Time
 
-	// Do analyze job
+	// Do analyze jobs
 	if !file.IsAnalyzed || len(file.HashCode) == 0 {
 		destMap := viper.GetStringMap("destinations.temporary")
 
