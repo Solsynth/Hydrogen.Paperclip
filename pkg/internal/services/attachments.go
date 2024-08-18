@@ -60,8 +60,8 @@ func CacheAttachment(id uint, item models.Attachment) {
 }
 
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
-	attachment.Rid = RandString(16)
 	attachment.Uuid = uuid.NewString()
+	attachment.Rid = RandString(16)
 	attachment.Size = file.Size
 	attachment.Name = file.Filename
 	attachment.AccountID = user.ID
