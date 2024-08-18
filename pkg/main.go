@@ -48,7 +48,7 @@ func main() {
 		log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
 	}
 
-	// Setup some workers
+	// Set up some workers
 	for idx := 0; idx < viper.GetInt("workers.files_deletion"); idx++ {
 		go services.StartConsumeDeletionTask()
 	}
@@ -59,6 +59,7 @@ func main() {
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
 	quartz.AddFunc("@every 60m", services.DoAutoDatabaseCleanup)
+	quartz.AddFunc("@every 60m", services.RunMarkDeletionTask)
 	quartz.AddFunc("@midnight", services.RunScheduleDeletionTask)
 	quartz.Start()
 
@@ -74,7 +75,7 @@ func main() {
 	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)
 
 	services.ScanUnanalyzedFileFromDatabase()
-	services.RunScheduleDeletionTask()
+	services.RunMarkDeletionTask()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

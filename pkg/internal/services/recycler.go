@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"github.com/samber/lo"
-	"gorm.io/gorm/clause"
 	"os"
 	"path/filepath"
 	"time"
@@ -36,7 +35,7 @@ func StartConsumeDeletionTask() {
 	}
 }
 
-func RunScheduleDeletionTask() {
+func RunMarkDeletionTask() {
 	var pools []models.AttachmentPool
 	if err := database.C.Find(&pools).Error; err != nil {
 		return
@@ -51,28 +50,34 @@ func RunScheduleDeletionTask() {
 
 	for _, pool := range pendingPools {
 		lifecycle := fmt.Sprintf("%d seconds", *pool.Config.Data().ExistLifecycle)
-		var attachments []models.Attachment
-		if err := database.C.Where("pool_id = ? AND created_at < NOW() - INTERVAL ?", pool.ID, lifecycle).Find(&attachments).Error; err != nil {
-			continue
-		}
+		tx := database.C.
+			Where("pool_id = ? AND created_at < NOW() - INTERVAL ?", pool.ID, lifecycle).
+			Updates(&models.Attachment{CleanedAt: lo.ToPtr(time.Now())})
 		log.Info().
 			Str("pool", pool.Alias).
-			Int("count", len(attachments)).
-			Msg("Deleting attachments due to pool's lifecycle configuration...")
-		for idx, attachment := range attachments {
-			if err := DeleteFile(attachment); err != nil {
-				log.Error().
-					Str("pool", pool.Alias).
-					Uint("id", attachment.ID).
-					Msg("An error occurred when deleting attachment due to pool's lifecycle configuration...")
-			} else {
-				attachments[idx].CleanedAt = lo.ToPtr(time.Now())
-			}
-		}
-		database.C.Clauses(clause.OnConflict{
-			UpdateAll: true,
-		}).CreateInBatches(attachments, 1000)
+			Int64("count", tx.RowsAffected).
+			Err(tx.Error).
+			Msg("Marking attachments as clean needed due to pool's lifecycle configuration...")
 	}
+}
+
+func RunScheduleDeletionTask() {
+	var attachments []models.Attachment
+	if err := database.C.Where("cleaned_at IS NOT NULL").Find(&attachments).Error; err != nil {
+		return
+	}
+
+	for idx, attachment := range attachments {
+		if err := DeleteFile(attachment); err != nil {
+			log.Error().
+				Uint("id", attachment.ID).
+				Msg("An error occurred when deleting marked clean up attachments...")
+		} else {
+			attachments[idx].CleanedAt = lo.ToPtr(time.Now())
+		}
+	}
+
+	database.C.Where("cleaned_at IS NOT NULL").Delete(&models.Attachment{})
 }
 
 func DeleteFile(meta models.Attachment) error {
