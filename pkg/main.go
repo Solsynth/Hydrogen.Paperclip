@@ -59,6 +59,7 @@ func main() {
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
 	quartz.AddFunc("@every 60m", services.DoAutoDatabaseCleanup)
+	quartz.AddFunc("@midnight", services.RunScheduleDeletionTask)
 	quartz.Start()
 
 	// Server
@@ -73,6 +74,7 @@ func main() {
 	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)
 
 	services.ScanUnanalyzedFileFromDatabase()
+	services.RunScheduleDeletionTask()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
