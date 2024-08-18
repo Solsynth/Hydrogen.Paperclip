@@ -69,7 +69,7 @@ func createSticker(c *fiber.Ctx) error {
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
 		Name         string `json:"name" validate:"required"`
-		AttachmentID uint   `json:"attachment_id"`
+		AttachmentID string `json:"attachment_id"`
 		PackID       uint   `json:"pack_id"`
 	}
 
@@ -78,7 +78,7 @@ func createSticker(c *fiber.Ctx) error {
 	}
 
 	var attachment models.Attachment
-	if err := database.C.Where("id = ?", data.AttachmentID).First(&attachment).Error; err != nil {
+	if err := database.C.Where("rid = ?", data.AttachmentID).First(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to find attachment: %v", err))
 	} else if !attachment.IsAnalyzed {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must be analyzed")
@@ -99,7 +99,7 @@ func createSticker(c *fiber.Ctx) error {
 		Attachment:   attachment,
 		AccountID:    user.ID,
 		PackID:       pack.ID,
-		AttachmentID: data.AttachmentID,
+		AttachmentID: attachment.ID,
 	})
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
@@ -117,7 +117,7 @@ func updateSticker(c *fiber.Ctx) error {
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
 		Name         string `json:"name" validate:"required"`
-		AttachmentID uint   `json:"attachment_id"`
+		AttachmentID string `json:"attachment_id"`
 		PackID       uint   `json:"pack_id"`
 	}
 
@@ -132,7 +132,7 @@ func updateSticker(c *fiber.Ctx) error {
 	}
 
 	var attachment models.Attachment
-	if err := database.C.Where("id = ?", data.AttachmentID).First(&attachment).Error; err != nil {
+	if err := database.C.Where("rid = ?", data.AttachmentID).First(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to find attachment: %v", err))
 	} else if !attachment.IsAnalyzed {
 		return fiber.NewError(fiber.StatusBadRequest, "sticker attachment must be analyzed")
@@ -150,7 +150,7 @@ func updateSticker(c *fiber.Ctx) error {
 	sticker.Alias = data.Alias
 	sticker.Name = data.Name
 	sticker.PackID = data.PackID
-	sticker.AttachmentID = data.AttachmentID
+	sticker.AttachmentID = attachment.ID
 
 	if sticker, err = services.UpdateSticker(sticker); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
