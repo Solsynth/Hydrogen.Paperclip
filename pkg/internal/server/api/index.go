@@ -16,9 +16,12 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		api.Get("/attachments", listAttachment)
 		api.Get("/attachments/:id/meta", getAttachmentMeta)
 		api.Get("/attachments/:id", openAttachment)
-		api.Post("/attachments", createAttachment)
+		api.Post("/attachments", createAttachmentDirectly)
 		api.Put("/attachments/:id", updateAttachmentMeta)
 		api.Delete("/attachments/:id", deleteAttachment)
+
+		api.Post("/attachments/multipart", createAttachmentMultipartPlaceholder)
+		api.Post("/attachments/multipart/:file/:chunk", uploadAttachmentMultipart)
 
 		api.Get("/stickers/manifest", listStickerManifest)
 		api.Get("/stickers/packs", listStickerPacks)

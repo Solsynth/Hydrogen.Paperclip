@@ -2,6 +2,9 @@ package services
 
 import (
 	"fmt"
+	"github.com/spf13/viper"
+	"gorm.io/datatypes"
+	"math"
 	"mime"
 	"mime/multipart"
 	"net/http"
@@ -101,6 +104,38 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 				return attachment, err
 			}
 			attachment.MimeType = http.DetectContentType(fileHeader)
+		}
+	}
+
+	if err := tx.Save(&attachment).Error; err != nil {
+		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
+	} else {
+		MaintainAttachmentCache()
+		CacheAttachment(attachment)
+	}
+
+	return attachment, nil
+}
+
+func NewAttachmentPlaceholder(tx *gorm.DB, user models.Account, attachment models.Attachment) (models.Attachment, error) {
+	attachment.Uuid = uuid.NewString()
+	attachment.Rid = RandString(16)
+	attachment.IsUploaded = false
+	attachment.FileChunks = datatypes.JSONMap{}
+	attachment.AccountID = user.ID
+
+	chunkSize := viper.GetInt64("performance.file_chunk_size")
+	chunkCount := math.Ceil(float64(attachment.Size) / float64(chunkSize))
+	for idx := 0; idx < int(chunkCount); idx++ {
+		cid := RandString(8)
+		attachment.FileChunks[cid] = idx
+	}
+
+	// If the user didn't provide file mimetype manually, we have to detect it
+	if len(attachment.MimeType) == 0 {
+		if ext := filepath.Ext(attachment.Name); len(ext) > 0 {
+			// Detect mimetype by file extensions
+			attachment.MimeType = mime.TypeByExtension(ext)
 		}
 	}
 

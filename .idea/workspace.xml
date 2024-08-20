@@ -4,10 +4,20 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix crash on maintain cache">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Un-public indexable &amp; select by pools">
+      <change afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pkg/internal/services/merger.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/pools.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/pools.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachment_dir_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/index_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/index.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/random_id.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/random_id.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,10 +33,15 @@
   </component>
   <component name="GOROOT" url="file:///opt/homebrew/opt/go/libexec" />
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -47,7 +62,7 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.automatic.dependencies.download&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/multipart-upload&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;go.sdk.automatically.set&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/littlesheep/Documents/Projects/Hydrogen/Paperclip/pkg/internal/grpc&quot;,
@@ -113,7 +128,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":sparkles: Provide a faster check attachment exists grpc method" />
     <MESSAGE value=":truck: Update url mapping" />
     <MESSAGE value=":bug: Fix uuid duplicate when link exists" />
     <MESSAGE value="&#10;:sparkles: Add health check" />
@@ -138,7 +152,8 @@
     <MESSAGE value=":boom: Replace attachment id by rid when fetching" />
     <MESSAGE value=":boom: Use attachment rid instead of primary key when create" />
     <MESSAGE value=":bug: Fix crash on maintain cache" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix crash on maintain cache" />
+    <MESSAGE value=":sparkles: Un-public indexable &amp; select by pools" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Un-public indexable &amp; select by pools" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
