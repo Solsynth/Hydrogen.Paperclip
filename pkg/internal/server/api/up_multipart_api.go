@@ -1,10 +1,12 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
@@ -19,10 +21,15 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	var data struct {
 		Pool        string         `json:"pool" validate:"required"`
 		Size        int64          `json:"size" validate:"required"`
+		FileName    string         `json:"name" validate:"required"`
 		Alternative string         `json:"alt"`
 		MimeType    string         `json:"mimetype"`
 		Metadata    map[string]any `json:"metadata"`
 		IsMature    bool           `json:"is_mature"`
+	}
+
+	if err := exts.BindAndValidate(c, &data); err != nil {
+		return err
 	}
 
 	aliasingMap := viper.GetStringMapString("pools.aliases")
@@ -42,6 +49,8 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	}
 
 	metadata, err := services.NewAttachmentPlaceholder(database.C, user, models.Attachment{
+		Name:        data.FileName,
+		Size:        data.Size,
 		Alternative: data.Alternative,
 		MimeType:    data.MimeType,
 		Metadata:    data.Metadata,
@@ -56,8 +65,9 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(fiber.Map{
-		"chunk_size": viper.GetInt64("performance.file_chunk_size"),
-		"meta":       metadata,
+		"chunk_size":  viper.GetInt64("performance.file_chunk_size"),
+		"chunk_count": len(metadata.FileChunks),
+		"meta":        metadata,
 	})
 }
 
@@ -100,8 +110,9 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 		if !services.CheckChunkExistsInTemporary(meta, cid) {
 			isAllUploaded = false
 			break
-		} else if val, ok := idx.(int); ok {
-			chunkArrange[val] = cid
+		} else if val, ok := idx.(json.Number); ok {
+			data, _ := val.Int64()
+			chunkArrange[data] = cid
 		}
 	}
 

@@ -64,7 +64,7 @@ func RunMarkLifecycleDeletionTask() {
 }
 
 func RunMarkMultipartDeletionTask() {
-	lifecycle := time.Now().Add(-24 * time.Hour)
+	lifecycle := time.Now().Add(-60 * time.Minute)
 	tx := database.C.
 		Where("created_at < ?", lifecycle).
 		Where("is_uploaded = ?", false).

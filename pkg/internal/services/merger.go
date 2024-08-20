@@ -25,6 +25,7 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 	}
 	defer destFile.Close()
 
+	// Merge files
 	for _, chunk := range arrange {
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, chunk))
 		chunkFile, err := os.Open(chunkPath)
@@ -41,10 +42,17 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 		_ = chunkFile.Close()
 	}
 
+	// Do post-upload tasks
 	meta.IsUploaded = true
 	database.C.Save(&meta)
 
 	PublishAnalyzeTask(meta)
+
+	// Clean up
+	for _, chunk := range arrange {
+		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, chunk))
+		_ = os.Remove(chunkPath)
+	}
 
 	return meta, nil
 }
