@@ -117,7 +117,6 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 	}
 
 	if !isAllUploaded {
-		database.C.Save(&meta)
 		return c.JSON(meta)
 	}
 

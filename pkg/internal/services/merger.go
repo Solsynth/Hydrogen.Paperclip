@@ -44,8 +44,10 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 
 	// Do post-upload tasks
 	meta.IsUploaded = true
+	meta.FileChunks = nil
 	database.C.Save(&meta)
 
+	CacheAttachment(meta)
 	PublishAnalyzeTask(meta)
 
 	// Clean up
