@@ -25,7 +25,6 @@ type Attachment struct {
 	Alternative string        `json:"alt"`
 	MimeType    string        `json:"mimetype"`
 	HashCode    string        `json:"hash"`
-	UserHash    *string       `json:"user_hash"`
 	Destination AttachmentDst `json:"destination"`
 	RefCount    int           `json:"ref_count"`
 

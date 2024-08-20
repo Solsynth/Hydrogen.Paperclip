@@ -19,7 +19,6 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	var data struct {
 		Pool        string         `json:"pool" validate:"required"`
 		Size        int64          `json:"size" validate:"required"`
-		Hash        string         `json:"hash" validate:"required"`
 		Alternative string         `json:"alt"`
 		MimeType    string         `json:"mimetype"`
 		Metadata    map[string]any `json:"metadata"`
@@ -43,7 +42,6 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	}
 
 	metadata, err := services.NewAttachmentPlaceholder(database.C, user, models.Attachment{
-		UserHash:    &data.Hash,
 		Alternative: data.Alternative,
 		MimeType:    data.MimeType,
 		Metadata:    data.Metadata,
@@ -57,7 +55,10 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(metadata)
+	return c.JSON(fiber.Map{
+		"chunk_size": viper.GetInt64("performance.file_chunk_size"),
+		"meta":       metadata,
+	})
 }
 
 func uploadAttachmentMultipart(c *fiber.Ctx) error {

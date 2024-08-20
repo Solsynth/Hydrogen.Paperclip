@@ -4,19 +4,12 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Un-public indexable &amp; select by pools">
-      <change afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pkg/internal/services/merger.go" afterDir="false" />
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Multipart file upload">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/index.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/index.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/random_id.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/random_id.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/merger.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/merger.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -128,7 +121,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":truck: Update url mapping" />
     <MESSAGE value=":bug: Fix uuid duplicate when link exists" />
     <MESSAGE value="&#10;:sparkles: Add health check" />
     <MESSAGE value=":arrow_up: Upgrade Passport and use Hyper SDK" />
@@ -153,7 +145,8 @@
     <MESSAGE value=":boom: Use attachment rid instead of primary key when create" />
     <MESSAGE value=":bug: Fix crash on maintain cache" />
     <MESSAGE value=":sparkles: Un-public indexable &amp; select by pools" />
-    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Un-public indexable &amp; select by pools" />
+    <MESSAGE value=":sparkles: Multipart file upload" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Multipart file upload" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

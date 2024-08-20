@@ -99,6 +99,14 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	var start time.Time
 
+	if len(file.HashCode) == 0 {
+		if hash, err := HashAttachment(file); err != nil {
+			return err
+		} else {
+			file.HashCode = hash
+		}
+	}
+
 	// Do analyze jobs
 	if !file.IsAnalyzed || len(file.HashCode) == 0 {
 		destMap := viper.GetStringMap("destinations.temporary")
@@ -157,12 +165,6 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"color_range": stream.ColorRange,
 				"color_space": stream.ColorSpace,
 			}
-		}
-
-		if hash, err := HashAttachment(file); err != nil {
-			return err
-		} else {
-			file.HashCode = hash
 		}
 	}
 
