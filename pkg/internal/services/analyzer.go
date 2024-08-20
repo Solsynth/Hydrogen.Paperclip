@@ -53,7 +53,10 @@ func ScanUnanalyzedFileFromDatabase() {
 	}
 
 	var attachments []models.Attachment
-	if err := database.C.Where("destination = ? OR is_analyzed = ?", models.AttachmentDstTemporary, false).Find(&attachments).Error; err != nil {
+	if err := database.C.
+		Where("is_uploaded = ?", true).
+		Where("destination = ? OR is_analyzed = ?", models.AttachmentDstTemporary, false).
+		Find(&attachments).Error; err != nil {
 		log.Error().Err(err).Msg("Scan unanalyzed files from database failed...")
 		return
 	}
@@ -93,11 +96,21 @@ func ScanUnanalyzedFileFromDatabase() {
 }
 
 func AnalyzeAttachment(file models.Attachment) error {
-	if file.Destination != models.AttachmentDstTemporary {
+	if !file.IsUploaded {
+		return fmt.Errorf("file isn't finish multipart upload")
+	} else if file.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to analyze")
 	}
 
 	var start time.Time
+
+	if len(file.HashCode) == 0 {
+		if hash, err := HashAttachment(file); err != nil {
+			return err
+		} else {
+			file.HashCode = hash
+		}
+	}
 
 	// Do analyze jobs
 	if !file.IsAnalyzed || len(file.HashCode) == 0 {
@@ -157,12 +170,6 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"color_range": stream.ColorRange,
 				"color_space": stream.ColorSpace,
 			}
-		}
-
-		if hash, err := HashAttachment(file); err != nil {
-			return err
-		} else {
-			file.HashCode = hash
 		}
 	}
 

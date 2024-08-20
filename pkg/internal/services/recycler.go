@@ -35,7 +35,7 @@ func StartConsumeDeletionTask() {
 	}
 }
 
-func RunMarkDeletionTask() {
+func RunMarkLifecycleDeletionTask() {
 	var pools []models.AttachmentPool
 	if err := database.C.Find(&pools).Error; err != nil {
 		return
@@ -53,6 +53,7 @@ func RunMarkDeletionTask() {
 		tx := database.C.
 			Where("pool_id = ?", pool.ID).
 			Where("created_at < ?", lifecycle).
+			Where("cleaned_at IS NULL").
 			Updates(&models.Attachment{CleanedAt: lo.ToPtr(time.Now())})
 		log.Info().
 			Str("pool", pool.Alias).
@@ -62,13 +63,26 @@ func RunMarkDeletionTask() {
 	}
 }
 
+func RunMarkMultipartDeletionTask() {
+	lifecycle := time.Now().Add(-60 * time.Minute)
+	tx := database.C.
+		Where("created_at < ?", lifecycle).
+		Where("is_uploaded = ?", false).
+		Where("cleaned_at IS NULL").
+		Updates(&models.Attachment{CleanedAt: lo.ToPtr(time.Now())})
+	log.Info().
+		Int64("count", tx.RowsAffected).
+		Err(tx.Error).
+		Msg("Marking attachments as clean needed due to multipart lifecycle...")
+}
+
 func RunScheduleDeletionTask() {
 	var attachments []models.Attachment
 	if err := database.C.Where("cleaned_at IS NOT NULL").Find(&attachments).Error; err != nil {
 		return
 	}
 
-	for idx, attachment := range attachments {
+	for _, attachment := range attachments {
 		if attachment.RefID != nil {
 			continue
 		}
@@ -76,8 +90,6 @@ func RunScheduleDeletionTask() {
 			log.Error().
 				Uint("id", attachment.ID).
 				Msg("An error occurred when deleting marked clean up attachments...")
-		} else {
-			attachments[idx].CleanedAt = lo.ToPtr(time.Now())
 		}
 	}
 
@@ -85,6 +97,20 @@ func RunScheduleDeletionTask() {
 }
 
 func DeleteFile(meta models.Attachment) error {
+	if !meta.IsUploaded {
+		destMap := viper.GetStringMap("destinations.temporary")
+		var dest models.LocalDestination
+		rawDest, _ := jsoniter.Marshal(destMap)
+		_ = jsoniter.Unmarshal(rawDest, &dest)
+
+		for cid := range meta.FileChunks {
+			path := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid))
+			_ = os.Remove(path)
+		}
+
+		return nil
+	}
+
 	var destMap map[string]any
 	if meta.Destination == models.AttachmentDstTemporary {
 		destMap = viper.GetStringMap("destinations.temporary")

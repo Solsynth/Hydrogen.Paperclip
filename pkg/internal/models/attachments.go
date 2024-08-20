@@ -28,11 +28,14 @@ type Attachment struct {
 	Destination AttachmentDst `json:"destination"`
 	RefCount    int           `json:"ref_count"`
 
+	FileChunks datatypes.JSONMap `json:"file_chunks"`
+
 	CleanedAt *time.Time `json:"cleaned_at"`
 
 	Metadata   datatypes.JSONMap `json:"metadata"`
 	IsMature   bool              `json:"is_mature"`
 	IsAnalyzed bool              `json:"is_analyzed"`
+	IsUploaded bool              `json:"is_uploaded"`
 	IsSelfRef  bool              `json:"is_self_ref"`
 
 	Ref   *Attachment `json:"ref"`

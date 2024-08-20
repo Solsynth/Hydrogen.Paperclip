@@ -1,8 +1,8 @@
 package services
 
 import (
-	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -29,9 +29,41 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return UploadFileToLocal(destConfigured, ctx, file, meta)
+		return ctx.SaveFile(file, filepath.Join(destConfigured.Path, meta.Uuid))
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
+	}
+}
+
+func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHeader, meta models.Attachment) error {
+	destMap := viper.GetStringMap("destinations.temporary")
+
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	switch dest.Type {
+	case models.DestinationTypeLocal:
+		var destConfigured models.LocalDestination
+		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
+		return ctx.SaveFile(file, filepath.Join(destConfigured.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid)))
+	default:
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
+	}
+}
+
+func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
+	destMap := viper.GetStringMap("destinations.temporary")
+
+	var dest models.LocalDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	path := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid))
+	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
+		return false
+	} else {
+		return true
 	}
 }
 
@@ -50,8 +82,8 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 
 	prevDestMap := viper.GetStringMap("destinations.temporary")
 
-	// Currently the temporary destination only support the local
-	// So we can do this
+	// Currently, the temporary destination only supports the local.
+	// So we can do this.
 	var prevDest models.LocalDestination
 	prevRawDest, _ := jsoniter.Marshal(prevDestMap)
 	_ = jsoniter.Unmarshal(prevRawDest, &prevDest)
@@ -110,40 +142,4 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
-}
-
-func UploadFileToLocal(config models.LocalDestination, ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
-	return ctx.SaveFile(file, filepath.Join(config.Path, meta.Uuid))
-}
-
-func UploadFileToS3(config models.S3Destination, file *multipart.FileHeader, meta models.Attachment) error {
-	header, err := file.Open()
-	if err != nil {
-		return fmt.Errorf("read upload file: %v", err)
-	}
-	defer header.Close()
-
-	buffer := bytes.NewBuffer(nil)
-	if _, err := io.Copy(buffer, header); err != nil {
-		return fmt.Errorf("create io reader for upload file: %v", err)
-	}
-
-	client, err := minio.New(config.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(config.SecretID, config.SecretKey, ""),
-		Secure: config.EnableSSL,
-	})
-	if err != nil {
-		return fmt.Errorf("unable to configure s3 client: %v", err)
-	}
-
-	_, err = client.PutObject(context.Background(), config.Bucket, filepath.Join(config.Path, meta.Uuid), buffer, file.Size, minio.PutObjectOptions{
-		ContentType:          meta.MimeType,
-		SendContentMd5:       false,
-		DisableContentSha256: true,
-	})
-	if err != nil {
-		return fmt.Errorf("unable to upload file to s3: %v", err)
-	}
-
-	return nil
 }
