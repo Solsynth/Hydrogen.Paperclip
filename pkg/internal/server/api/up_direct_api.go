@@ -51,6 +51,7 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 		Metadata:    usermeta,
 		IsMature:    len(c.FormValue("mature")) > 0,
 		IsAnalyzed:  false,
+		IsUploaded:  true,
 		Destination: models.AttachmentDstTemporary,
 		Pool:        &pool,
 		PoolID:      &pool.ID,

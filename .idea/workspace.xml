@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix merged file isn't add to cache" />
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix analyzer didn't cache attachment">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -114,7 +117,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":arrow_up: Upgrade Passport and use Hyper SDK" />
     <MESSAGE value=":arrow_up: Upgrade Passport to fix bug" />
     <MESSAGE value=":ambulance: Fix getting user panic" />
     <MESSAGE value=":zap: Add cache into metadata fetching" />
@@ -139,7 +141,8 @@
     <MESSAGE value=":sparkles: Multipart file upload" />
     <MESSAGE value=":sparkles: Make it more implementable" />
     <MESSAGE value=":bug: Fix merged file isn't add to cache" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix merged file isn't add to cache" />
+    <MESSAGE value=":bug: Fix analyzer didn't cache attachment" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix analyzer didn't cache attachment" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
