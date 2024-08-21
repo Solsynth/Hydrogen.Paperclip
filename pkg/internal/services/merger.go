@@ -27,7 +27,7 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 
 	// Merge files
 	for _, chunk := range arrange {
-		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, chunk))
+		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		chunkFile, err := os.Open(chunkPath)
 		if err != nil {
 			return meta, err
@@ -52,7 +52,7 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 
 	// Clean up
 	for _, chunk := range arrange {
-		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, chunk))
+		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		_ = os.Remove(chunkPath)
 	}
 

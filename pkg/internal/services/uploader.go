@@ -46,7 +46,12 @@ func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHead
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return ctx.SaveFile(file, filepath.Join(destConfigured.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid)))
+		tempPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s.partial", meta.Uuid, cid))
+		destPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
+		if err := ctx.SaveFile(file, tempPath); err != nil {
+			return err
+		}
+		return os.Rename(tempPath, destPath)
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
@@ -59,7 +64,7 @@ func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
 	rawDest, _ := jsoniter.Marshal(destMap)
 	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	path := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid))
+	path := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return false
 	} else {

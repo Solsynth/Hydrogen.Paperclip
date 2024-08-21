@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix direct upload will save as non-uploaded">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix uploader still using old cache api">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/merger.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/merger.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/recycler.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/recycler.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -97,8 +98,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-5df93f7ad4aa-dfc284eb1eb8-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.20224.306" />
-        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-GO-242.20224.306" />
+        <option value="bundled-gosdk-5df93f7ad4aa-dfc284eb1eb8-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.20224.424" />
+        <option value="bundled-js-predefined-d6986cc7102b-410509235cf1-JavaScript-GO-242.20224.424" />
       </set>
     </attachedChunks>
   </component>
@@ -118,7 +119,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":ambulance: Fix getting user panic" />
     <MESSAGE value=":zap: Add cache into metadata fetching" />
     <MESSAGE value=":recycle: Moved onto dealer" />
     <MESSAGE value=":sparkles: Self reference detection" />
@@ -143,7 +143,8 @@
     <MESSAGE value=":bug: Fix merged file isn't add to cache" />
     <MESSAGE value=":bug: Fix analyzer didn't cache attachment" />
     <MESSAGE value=":bug: Fix direct upload will save as non-uploaded" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix direct upload will save as non-uploaded" />
+    <MESSAGE value=":bug: Fix uploader still using old cache api" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix uploader still using old cache api" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

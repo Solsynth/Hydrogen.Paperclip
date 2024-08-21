@@ -104,7 +104,7 @@ func DeleteFile(meta models.Attachment) error {
 		_ = jsoniter.Unmarshal(rawDest, &dest)
 
 		for cid := range meta.FileChunks {
-			path := filepath.Join(dest.Path, fmt.Sprintf("%s.%s", meta.Uuid, cid))
+			path := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
 			_ = os.Remove(path)
 		}
 
