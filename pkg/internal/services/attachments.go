@@ -31,7 +31,6 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
-		MaintainAttachmentCache()
 		CacheAttachment(attachment)
 	}
 
@@ -49,7 +48,6 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
-		MaintainAttachmentCache()
 		CacheAttachment(attachment)
 	}
 
@@ -74,6 +72,7 @@ func GetAttachmentCache(id any) (models.Attachment, bool) {
 }
 
 func CacheAttachment(item models.Attachment) {
+	MaintainAttachmentCache()
 	metadataCache.Store(item.Rid, item)
 }
 
@@ -110,7 +109,6 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 	if err := tx.Save(&attachment).Error; err != nil {
 		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
-		MaintainAttachmentCache()
 		CacheAttachment(attachment)
 	}
 
@@ -142,7 +140,6 @@ func NewAttachmentPlaceholder(tx *gorm.DB, user models.Account, attachment model
 	if err := tx.Save(&attachment).Error; err != nil {
 		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
 	} else {
-		MaintainAttachmentCache()
 		CacheAttachment(attachment)
 	}
 
@@ -189,7 +186,6 @@ func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 	if err := database.C.Updates(&item).Error; err != nil {
 		return item, err
 	} else {
-		MaintainAttachmentCache()
 		CacheAttachment(item)
 	}
 

@@ -113,7 +113,7 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 		}
 
 		database.C.Save(&meta)
-		metadataCache.Store(meta.ID, meta)
+		CacheAttachment(meta)
 		return nil
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
@@ -137,7 +137,7 @@ func ReUploadFileToPermanent(meta models.Attachment) error {
 		}
 
 		database.C.Save(&meta)
-		metadataCache.Store(meta.ID, meta)
+		CacheAttachment(meta)
 		return nil
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
