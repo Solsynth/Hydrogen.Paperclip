@@ -181,7 +181,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 	if linked && err != nil {
 		return fmt.Errorf("unable to link file record: %v", err)
 	} else if !linked {
-		metadataCache.Store(file.ID, file)
+		CacheAttachment(file)
 		if err := tx.Save(&file).Error; err != nil {
 			tx.Rollback()
 			return fmt.Errorf("unable to save file record: %v", err)
