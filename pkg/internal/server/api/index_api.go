@@ -57,7 +57,8 @@ func listAttachment(c *fiber.Ctx) error {
 		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		} else {
-			tx = tx.Where("account_id = ?", author.ID)
+			prefix := viper.GetString("database.prefix")
+			tx = tx.Where(fmt.Sprintf("%sattachments.account_id = ?", prefix), author.ID)
 		}
 	}
 
