@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix account_id where clause causing indexing issue">
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_2024_8_20,_22_59_[更改]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_2024_8_20__22_59___.xml" beforeDir="false" />
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":sparkles: Attachment API can edit metadata">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -120,7 +116,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":sparkles: Self reference detection" />
     <MESSAGE value=":sparkles: List attachment original filter" />
     <MESSAGE value=":sparkles: Attachment pool basis" />
     <MESSAGE value=":sparkles: Attachment has pool" />
@@ -145,7 +140,8 @@
     <MESSAGE value=":bug: Fix uploader still using old cache api" />
     <MESSAGE value=":bug: Fix concurrent upload multipart cause incomplete" />
     <MESSAGE value=":bug: Fix account_id where clause causing indexing issue" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix account_id where clause causing indexing issue" />
+    <MESSAGE value=":sparkles: Attachment API can edit metadata" />
+    <option name="LAST_COMMIT_MESSAGE" value=":sparkles: Attachment API can edit metadata" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

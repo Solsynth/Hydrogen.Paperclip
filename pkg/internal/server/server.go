@@ -3,9 +3,11 @@ package server
 import (
 	"strings"
 
+	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/api"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -54,7 +56,15 @@ func NewServer() {
 	}))
 
 	app.Use(gap.H.AuthMiddleware)
-	app.Use(exts.LinkAccountMiddleware)
+	app.Use(hyper.LinkAccountMiddleware(
+		database.C,
+		&models.Account{},
+		func(u hyper.BaseUser) models.Account {
+			return models.Account{
+				BaseUser: u,
+			}
+		},
+	))
 
 	api.MapAPIs(app, "/api")
 }
