@@ -2,8 +2,6 @@ package services
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
-	"gorm.io/datatypes"
 	"math"
 	"mime"
 	"mime/multipart"
@@ -12,6 +10,10 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/spf13/viper"
+	"gorm.io/datatypes"
+
+	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
@@ -26,9 +28,10 @@ var metadataCache sync.Map
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
-	if err := database.C.Where(models.Attachment{
-		BaseModel: models.BaseModel{ID: id},
-	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
+	if err := database.C.
+		Where(&hyper.BaseModel{ID: id}).
+		Preload("Pool").Preload("Account").
+		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
 		CacheAttachment(attachment)
@@ -200,7 +203,7 @@ func DeleteAttachment(item models.Attachment) error {
 	if item.RefID != nil {
 		var refTarget models.Attachment
 		if err := database.C.Where(models.Attachment{
-			BaseModel: models.BaseModel{ID: *item.RefID},
+			BaseModel: hyper.BaseModel{ID: *item.RefID},
 		}).First(&refTarget).Error; err == nil {
 			refTarget.RefCount--
 			if err := tx.Save(&refTarget).Error; err != nil {

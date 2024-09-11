@@ -1,7 +1,9 @@
 package models
 
+import "git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+
 type Sticker struct {
-	BaseModel
+	hyper.BaseModel
 
 	Alias        string      `json:"alias"`
 	Name         string      `json:"name"`
@@ -14,7 +16,7 @@ type Sticker struct {
 }
 
 type StickerPack struct {
-	BaseModel
+	hyper.BaseModel
 
 	Prefix      string    `json:"prefix"`
 	Name        string    `json:"name"`

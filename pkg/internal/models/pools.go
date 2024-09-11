@@ -1,9 +1,12 @@
 package models
 
-import "gorm.io/datatypes"
+import (
+	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+	"gorm.io/datatypes"
+)
 
 type AttachmentPool struct {
-	BaseModel
+	hyper.BaseModel
 
 	Alias       string                                   `json:"alias"`
 	Name        string                                   `json:"name"`

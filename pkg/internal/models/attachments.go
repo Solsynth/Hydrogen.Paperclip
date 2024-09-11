@@ -1,8 +1,10 @@
 package models
 
 import (
-	"gorm.io/datatypes"
 	"time"
+
+	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+	"gorm.io/datatypes"
 )
 
 type AttachmentDst = int8
@@ -13,7 +15,7 @@ const (
 )
 
 type Attachment struct {
-	BaseModel
+	hyper.BaseModel
 
 	// Random ID is for accessing (appear in URL)
 	Rid string `json:"rid" gorm:"uniqueIndex"`
