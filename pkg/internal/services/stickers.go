@@ -1,9 +1,23 @@
 package services
 
 import (
+	"fmt"
+
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"github.com/spf13/viper"
 )
+
+func GetStickerWithAlias(alias string) (models.Sticker, error) {
+	var sticker models.Sticker
+	prefix := viper.GetString("database.prefix")
+	if err := database.C.
+		Joins(fmt.Sprintf("LEFT JOIN %ssticker_packs pk ON pack_id = pk.id", prefix)).
+		Where("CONCAT(pk.prefix, alias) = ?", alias).First(&sticker).Error; err != nil {
+		return sticker, err
+	}
+	return sticker, nil
+}
 
 func GetSticker(id uint) (models.Sticker, error) {
 	var sticker models.Sticker

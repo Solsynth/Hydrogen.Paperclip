@@ -23,6 +23,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		api.Post("/attachments/multipart", createAttachmentMultipartPlaceholder)
 		api.Post("/attachments/multipart/:file/:chunk", uploadAttachmentMultipart)
 
+		api.Get("/stickers/lookup/:alias", lookupSticker)
 		api.Get("/stickers/manifest", listStickerManifest)
 		api.Get("/stickers/packs", listStickerPacks)
 		api.Post("/stickers/packs", createStickerPack)

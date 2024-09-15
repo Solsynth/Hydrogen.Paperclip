@@ -12,6 +12,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func lookupSticker(c *fiber.Ctx) error {
+	alias := c.Params("alias")
+	if sticker, err := services.GetStickerWithAlias(alias); err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	} else {
+		return c.JSON(sticker)
+	}
+}
+
 func listStickers(c *fiber.Ctx) error {
 	take := c.QueryInt("take", 0)
 	offset := c.QueryInt("offset", 0)
