@@ -14,7 +14,8 @@ func GetStickerWithAlias(alias string) (models.Sticker, error) {
 	if err := database.C.
 		Joins(fmt.Sprintf("LEFT JOIN %ssticker_packs pk ON pack_id = pk.id", prefix)).
 		Where("CONCAT(pk.prefix, alias) = ?", alias).
-		Preload("Attachment").First(&sticker).Error; err != nil {
+		Preload("Attachment").Preload("Pack").
+		First(&sticker).Error; err != nil {
 		return sticker, err
 	}
 	return sticker, nil
