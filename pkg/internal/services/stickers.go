@@ -13,7 +13,7 @@ func GetStickerWithAlias(alias string) (models.Sticker, error) {
 	prefix := viper.GetString("database.prefix")
 	if err := database.C.
 		Joins(fmt.Sprintf("LEFT JOIN %ssticker_packs pk ON pack_id = pk.id", prefix)).
-		Where("CONCAT(pk.prefix, alias) = ?", alias).
+		Where("UPPER(CONCAT(pk.prefix, alias)) = UPPER(?)", alias).
 		Preload("Attachment").Preload("Pack").
 		First(&sticker).Error; err != nil {
 		return sticker, err
