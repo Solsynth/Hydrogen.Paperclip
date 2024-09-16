@@ -8,6 +8,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+func GetStickerLikeAlias(alias string) ([]models.Sticker, error) {
+	var stickers []models.Sticker
+	prefix := viper.GetString("database.prefix")
+	if err := database.C.
+		Joins(fmt.Sprintf("LEFT JOIN %ssticker_packs pk ON pack_id = pk.id", prefix)).
+		Where("UPPER(CONCAT(pk.prefix, alias)) LIKE UPPER(?)", "%"+alias+"%").
+		Preload("Attachment").Preload("Pack").
+		Limit(10).
+		Find(&stickers).Error; err != nil {
+		return stickers, err
+	}
+	return stickers, nil
+}
+
 func GetStickerWithAlias(alias string) (models.Sticker, error) {
 	var sticker models.Sticker
 	prefix := viper.GetString("database.prefix")
