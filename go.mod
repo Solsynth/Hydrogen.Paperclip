@@ -3,7 +3,7 @@ module git.solsynth.dev/hydrogen/paperclip
 go 1.21.6
 
 require (
-	git.solsynth.dev/hydrogen/dealer v0.0.0-20240914133539-4a48b980f0b3
+	git.solsynth.dev/hydrogen/dealer v0.0.0-20240917083841-b14c0240a75f
 	github.com/go-playground/validator/v10 v10.17.0
 	github.com/gofiber/fiber/v2 v2.52.4
 	github.com/google/uuid v1.6.0
