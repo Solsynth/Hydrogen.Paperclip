@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
@@ -41,6 +42,11 @@ func main() {
 		log.Fatal().Err(err).Msg("An error occurred when connect to database.")
 	} else if err := database.RunMigration(database.C); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when running database auto migration.")
+	}
+
+	// Initialize cache
+	if err := cache.NewStore(); err != nil {
+		log.Fatal().Err(err).Msg("An error occurred when initializing cache.")
 	}
 
 	// Connect other services

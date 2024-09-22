@@ -1,30 +1,33 @@
 package services
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
-	"strconv"
-	"sync"
+	"time"
 
+	"github.com/eko/gocache/lib/v4/cache"
+	"github.com/eko/gocache/lib/v4/marshaler"
+	"github.com/eko/gocache/lib/v4/store"
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 
 	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+	localCache "git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
 
-const metadataCacheLimit = 512
-
-var metadataCache sync.Map
+func GetAttachmentCacheKey(rid string) any {
+	return fmt.Sprintf("attachment#%s", rid)
+}
 
 func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
@@ -41,8 +44,18 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 }
 
 func GetAttachmentByRID(rid string) (models.Attachment, error) {
-	if val, ok := metadataCache.Load(rid); ok && val.(models.Attachment).Account.ID > 0 {
-		return val.(models.Attachment), nil
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	contx := context.Background()
+
+	if val, err := marshal.Get(
+		contx,
+		GetAttachmentCacheKey(rid),
+		new(models.Attachment),
+	); err == nil {
+		if val.(models.Attachment).Account.ID > 0 {
+			return val.(models.Attachment), nil
+		}
 	}
 
 	var attachment models.Attachment
@@ -67,16 +80,35 @@ func GetAttachmentByHash(hash string) (models.Attachment, error) {
 	return attachment, nil
 }
 
-func GetAttachmentCache(id any) (models.Attachment, bool) {
-	if val, ok := metadataCache.Load(id); ok && val.(models.Attachment).Account.ID > 0 {
-		return val.(models.Attachment), ok
+func GetAttachmentCache(rid string) (models.Attachment, bool) {
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	contx := context.Background()
+
+	if val, err := marshal.Get(
+		contx,
+		GetAttachmentCacheKey(rid),
+		new(models.Attachment),
+	); err == nil {
+		if val.(models.Attachment).Account.ID > 0 {
+			return val.(models.Attachment), true
+		}
 	}
 	return models.Attachment{}, false
 }
 
 func CacheAttachment(item models.Attachment) {
-	MaintainAttachmentCache()
-	metadataCache.Store(item.Rid, item)
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	contx := context.Background()
+
+	marshal.Set(
+		contx,
+		GetAttachmentCacheKey(item.Rid),
+		item,
+		store.WithExpiration(60*time.Minute),
+		store.WithTags([]string{"attachment", fmt.Sprintf("user#%d", item.AccountID)}),
+	)
 }
 
 func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
@@ -216,9 +248,10 @@ func DeleteAttachment(item models.Attachment) error {
 		tx.Rollback()
 		return err
 	} else {
-		strId := strconv.Itoa(int(item.ID))
-		metadataCache.Delete(strId)
-		metadataCache.Delete(item.Rid)
+		cacheManager := cache.New[any](localCache.S)
+		marshal := marshaler.New(cacheManager)
+		contx := context.Background()
+		marshal.Delete(contx, GetAttachmentCacheKey(item.Rid))
 	}
 
 	tx.Commit()
@@ -228,20 +261,4 @@ func DeleteAttachment(item models.Attachment) error {
 	}
 
 	return nil
-}
-
-func MaintainAttachmentCache() {
-	var keySet []any
-	metadataCache.Range(func(k any, v any) bool {
-		keySet = append(keySet, k)
-		return true
-	})
-	if len(keySet) > metadataCacheLimit {
-		go func() {
-			log.Debug().Int("count", len(keySet)).Msg("Cleaning attachment metadata cache...")
-			for _, k := range keySet {
-				metadataCache.Delete(k)
-			}
-		}()
-	}
 }
