@@ -2,22 +2,23 @@ package services
 
 import (
 	"fmt"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/spf13/viper"
 	"io"
 	"os"
 	"path/filepath"
+
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"github.com/spf13/viper"
 )
 
 func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachment, error) {
-	destMap := viper.GetStringMap("destinations.temporary")
+	// Fetch destination from config
+	destMap := viper.GetStringMapString("destinations.temporary")
 
 	var dest models.LocalDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
+	dest.Path = destMap["path"]
 
+	// Create the destination file
 	destPath := filepath.Join(dest.Path, meta.Uuid)
 	destFile, err := os.Create(destPath)
 	if err != nil {
@@ -25,7 +26,10 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 	}
 	defer destFile.Close()
 
-	// Merge files
+	// 32KB buffer
+	buf := make([]byte, 32*1024)
+
+	// Merge the chunks into the destination file
 	for _, chunk := range arrange {
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		chunkFile, err := os.Open(chunkPath)
@@ -33,27 +37,39 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 			return meta, err
 		}
 
-		_, err = io.Copy(destFile, chunkFile)
-		if err != nil {
-			_ = chunkFile.Close()
-			return meta, err
-		}
+		defer chunkFile.Close() // Ensure the file is closed after reading
 
-		_ = chunkFile.Close()
+		for {
+			n, err := chunkFile.Read(buf)
+			if err != nil && err != io.EOF {
+				return meta, err
+			}
+			if n == 0 {
+				break
+			}
+
+			if _, err := destFile.Write(buf[:n]); err != nil {
+				return meta, err
+			}
+		}
 	}
 
-	// Do post-upload tasks
+	// Post-upload tasks
 	meta.IsUploaded = true
 	meta.FileChunks = nil
-	database.C.Save(&meta)
+	if err := database.C.Save(&meta).Error; err != nil {
+		return meta, err
+	}
 
 	CacheAttachment(meta)
 	PublishAnalyzeTask(meta)
 
-	// Clean up
+	// Clean up: remove chunk files
 	for _, chunk := range arrange {
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
-		_ = os.Remove(chunkPath)
+		if err := os.Remove(chunkPath); err != nil {
+			return meta, err
+		}
 	}
 
 	return meta, nil
