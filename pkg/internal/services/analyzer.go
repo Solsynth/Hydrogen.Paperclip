@@ -212,36 +212,57 @@ func AnalyzeAttachment(file models.Attachment) error {
 }
 
 func HashAttachment(file models.Attachment) (hash string, err error) {
-	if file.Destination != models.AttachmentDstTemporary {
-		err = fmt.Errorf("attachment isn't in temporary storage, unable to hash")
-		return
+	const chunkSize = 32 * 1024
+
+	destMap := viper.GetStringMapString("destinations.temporary")
+	destPath := filepath.Join(destMap["path"], file.Uuid)
+
+	// Check if the file exists
+	fileInfo, err := os.Stat(destPath)
+	if os.IsNotExist(err) {
+		return "", fmt.Errorf("file does not exist: %v", err)
 	}
 
-	destMap := viper.GetStringMap("destinations.temporary")
-
-	var dest models.LocalDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	dst := filepath.Join(dest.Path, file.Uuid)
-	if _, err = os.Stat(dst); os.IsNotExist(err) {
-		err = fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
-		return
-	}
-	var in *os.File
-	in, err = os.Open(dst)
+	// Open the file
+	inFile, err := os.Open(destPath)
 	if err != nil {
-		err = fmt.Errorf("unable to open file: %v", err)
-		return
+		return "", fmt.Errorf("unable to open file: %v", err)
 	}
-	defer in.Close()
+	defer inFile.Close()
 
 	hasher := sha256.New()
-	if _, err = io.Copy(hasher, in); err != nil {
-		err = fmt.Errorf("unable to hash: %v", err)
-		return
-	}
 
+	// Hash the first 32KB
+	buf := make([]byte, chunkSize)
+	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+		return "", fmt.Errorf("error reading file: %v", err)
+	}
+	hasher.Write(buf)
+
+	// Hash the middle 32KB
+	middleOffset := fileInfo.Size() / 2
+	if _, err := inFile.Seek(middleOffset, io.SeekStart); err != nil {
+		return "", fmt.Errorf("error seeking to middle: %v", err)
+	}
+	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+		return "", fmt.Errorf("error reading middle: %v", err)
+	}
+	hasher.Write(buf)
+
+	// Hash the last 32KB
+	endOffset := fileInfo.Size() - chunkSize
+	if _, err := inFile.Seek(endOffset, io.SeekStart); err != nil {
+		return "", fmt.Errorf("error seeking to end: %v", err)
+	}
+	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+		return "", fmt.Errorf("error reading end: %v", err)
+	}
+	hasher.Write(buf)
+
+	// Hash with the file metadata
+	hasher.Write([]byte(fmt.Sprintf("%d", file.Size)))
+
+	// Return the combined hash
 	hash = hex.EncodeToString(hasher.Sum(nil))
 	return
 }
