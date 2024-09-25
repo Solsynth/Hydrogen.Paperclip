@@ -54,7 +54,8 @@ func listStickers(c *fiber.Ctx) error {
 	}
 
 	var count int64
-	if err := database.C.Model(&models.Sticker{}).Count(&count).Error; err != nil {
+	countTx := tx
+	if err := countTx.Model(&models.Sticker{}).Count(&count).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
