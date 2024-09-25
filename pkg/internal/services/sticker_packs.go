@@ -6,6 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
+func GetStickerPack(id uint) (models.StickerPack, error) {
+	var pack models.StickerPack
+	if err := database.C.Where("id = ?", id).First(&pack).Error; err != nil {
+		return pack, err
+	}
+	return pack, nil
+}
+
 func GetStickerPackWithUser(id, userId uint) (models.StickerPack, error) {
 	var pack models.StickerPack
 	if err := database.C.Where("id = ? AND account_id = ?", id, userId).First(&pack).Error; err != nil {

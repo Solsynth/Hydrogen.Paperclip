@@ -44,6 +44,16 @@ func listStickerPacks(c *fiber.Ctx) error {
 	})
 }
 
+func getStickerPack(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("packId", 0)
+	pack, err := services.GetStickerPack(uint(id))
+	if err != nil {
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
+	}
+
+	return c.JSON(pack)
+}
+
 func createStickerPack(c *fiber.Ctx) error {
 	if err := gap.H.EnsureAuthenticated(c); err != nil {
 		return err

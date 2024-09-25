@@ -26,6 +26,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		api.Get("/stickers/lookup", lookupStickerBatch)
 		api.Get("/stickers/lookup/:alias", lookupSticker)
 		api.Get("/stickers/packs", listStickerPacks)
+		api.Get("/stickers/packs/:packId", getStickerPack)
 		api.Post("/stickers/packs", createStickerPack)
 		api.Put("/stickers/packs/:packId", updateStickerPack)
 		api.Delete("/stickers/packs/:packId", deleteStickerPack)
