@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/barasher/go-exiftool"
 	"image"
 	"io"
 	"os"
@@ -147,6 +148,22 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"height": height,
 				"ratio":  ratio,
 			}
+
+			// Removing location EXIF data
+			et, err := exiftool.NewExiftool()
+			if err != nil {
+				return fmt.Errorf("error when intializing exiftool: %v", err)
+			}
+			defer et.Close()
+			exif := et.ExtractMetadata(dst)
+			for _, data := range exif {
+				for k, _ := range data.Fields {
+					if strings.HasPrefix(k, "GPS") {
+						data.Clear(k)
+					}
+				}
+			}
+			et.WriteMetadata(exif)
 		case "video":
 			// Dealing with video
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -170,6 +187,22 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"color_range": stream.ColorRange,
 				"color_space": stream.ColorSpace,
 			}
+
+			// Removing location EXIF data
+			et, err := exiftool.NewExiftool()
+			if err != nil {
+				return fmt.Errorf("error when intializing exiftool: %v", err)
+			}
+			defer et.Close()
+			exif := et.ExtractMetadata(dst)
+			for _, data := range exif {
+				for k, _ := range data.Fields {
+					if strings.HasPrefix(k, "GPS") {
+						data.Clear(k)
+					}
+				}
+			}
+			et.WriteMetadata(exif)
 		}
 	}
 

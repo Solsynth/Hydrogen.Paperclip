@@ -10,7 +10,7 @@ FROM golang:alpine
 
 COPY --from=paperclip-server /dist /paperclip/server
 
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg exiftool
 
 EXPOSE 8445
 
