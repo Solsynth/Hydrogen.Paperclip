@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/barasher/go-exiftool"
+	"github.com/samber/lo"
 	"image"
 	"io"
 	"os"
@@ -128,6 +129,13 @@ func AnalyzeAttachment(file models.Attachment) error {
 			return fmt.Errorf("attachment doesn't exists in temporary storage: %v", err)
 		}
 
+		exifWhitelist := []string{
+			"Model", "ShutterSpeed", "ISO", "Megapixels", "Aperture",
+			"ColorSpace", "ColorTemperature", "ColorTone", "Contrast",
+			"ExposureTime", "FNumber", "FocalLength", "Flash", "HDREffect",
+			"LensModel",
+		}
+
 		switch strings.SplitN(file.MimeType, "/", 2)[0] {
 		case "image":
 			// Dealing with image
@@ -161,7 +169,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for k, _ := range data.Fields {
 					if strings.HasPrefix(k, "GPS") {
 						data.Clear(k)
-					} else {
+					} else if lo.Contains(exifWhitelist, k) {
 						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
 					}
 				}
@@ -203,7 +211,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for k, _ := range data.Fields {
 					if strings.HasPrefix(k, "GPS") {
 						data.Clear(k)
-					} else {
+					} else if lo.Contains(exifWhitelist, k) {
 						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
 					}
 				}
