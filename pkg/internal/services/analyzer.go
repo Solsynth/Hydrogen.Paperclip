@@ -147,6 +147,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"width":  width,
 				"height": height,
 				"ratio":  ratio,
+				"exif":   map[string]any{},
 			}
 
 			// Removing location EXIF data
@@ -160,6 +161,8 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for k, _ := range data.Fields {
 					if strings.HasPrefix(k, "GPS") {
 						data.Clear(k)
+					} else {
+						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
 					}
 				}
 			}
@@ -186,6 +189,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				"codec_name":  stream.CodecName,
 				"color_range": stream.ColorRange,
 				"color_space": stream.ColorSpace,
+				"exif":        map[string]any{},
 			}
 
 			// Removing location EXIF data
@@ -199,6 +203,8 @@ func AnalyzeAttachment(file models.Attachment) error {
 				for k, _ := range data.Fields {
 					if strings.HasPrefix(k, "GPS") {
 						data.Clear(k)
+					} else {
+						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
 					}
 				}
 			}
