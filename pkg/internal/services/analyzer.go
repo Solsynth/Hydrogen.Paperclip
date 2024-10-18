@@ -277,32 +277,41 @@ func HashAttachment(file models.Attachment) (hash string, err error) {
 
 	hasher := sha256.New()
 
-	// Hash the first 32KB
-	buf := make([]byte, chunkSize)
-	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
-		return "", fmt.Errorf("error reading file: %v", err)
-	}
-	hasher.Write(buf)
+	if chunkSize*3 <= fileInfo.Size() {
+		// If the total size is smaller than three chunks, then hash the whole file
+		buf := make([]byte, fileInfo.Size())
+		if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+			return "", fmt.Errorf("error reading whole file: %v", err)
+		}
+		hasher.Write(buf)
+	} else {
+		// Hash the first 32KB
+		buf := make([]byte, chunkSize)
+		if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+			return "", fmt.Errorf("error reading file: %v", err)
+		}
+		hasher.Write(buf)
 
-	// Hash the middle 32KB
-	middleOffset := fileInfo.Size() / 2
-	if _, err := inFile.Seek(middleOffset, io.SeekStart); err != nil {
-		return "", fmt.Errorf("error seeking to middle: %v", err)
-	}
-	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
-		return "", fmt.Errorf("error reading middle: %v", err)
-	}
-	hasher.Write(buf)
+		// Hash the middle 32KB
+		middleOffset := fileInfo.Size() / 2
+		if _, err := inFile.Seek(middleOffset, io.SeekStart); err != nil {
+			return "", fmt.Errorf("error seeking to middle: %v", err)
+		}
+		if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+			return "", fmt.Errorf("error reading middle: %v", err)
+		}
+		hasher.Write(buf)
 
-	// Hash the last 32KB
-	endOffset := fileInfo.Size() - chunkSize
-	if _, err := inFile.Seek(endOffset, io.SeekStart); err != nil {
-		return "", fmt.Errorf("error seeking to end: %v", err)
+		// Hash the last 32KB
+		endOffset := fileInfo.Size() - chunkSize
+		if _, err := inFile.Seek(endOffset, io.SeekStart); err != nil {
+			return "", fmt.Errorf("error seeking to end: %v", err)
+		}
+		if _, err := inFile.Read(buf); err != nil && err != io.EOF {
+			return "", fmt.Errorf("error reading end: %v", err)
+		}
+		hasher.Write(buf)
 	}
-	if _, err := inFile.Read(buf); err != nil && err != io.EOF {
-		return "", fmt.Errorf("error reading end: %v", err)
-	}
-	hasher.Write(buf)
 
 	// Hash with the file metadata
 	hasher.Write([]byte(fmt.Sprintf("%d", file.Size)))
