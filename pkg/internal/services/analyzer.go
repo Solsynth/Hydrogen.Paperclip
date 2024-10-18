@@ -160,21 +160,20 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 			// Removing location EXIF data
 			et, err := exiftool.NewExiftool()
-			if err != nil {
-				return fmt.Errorf("error when intializing exiftool: %v", err)
-			}
-			defer et.Close()
-			exif := et.ExtractMetadata(dst)
-			for _, data := range exif {
-				for k, _ := range data.Fields {
-					if strings.HasPrefix(k, "GPS") {
-						data.Clear(k)
-					} else if lo.Contains(exifWhitelist, k) {
-						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
+			if err == nil {
+				defer et.Close()
+				exif := et.ExtractMetadata(dst)
+				for _, data := range exif {
+					for k, _ := range data.Fields {
+						if strings.HasPrefix(k, "GPS") {
+							data.Clear(k)
+						} else if lo.Contains(exifWhitelist, k) {
+							file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
+						}
 					}
 				}
+				et.WriteMetadata(exif)
 			}
-			et.WriteMetadata(exif)
 		case "video":
 			// Dealing with video
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -202,21 +201,20 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 			// Removing location EXIF data
 			et, err := exiftool.NewExiftool()
-			if err != nil {
-				return fmt.Errorf("error when intializing exiftool: %v", err)
-			}
-			defer et.Close()
-			exif := et.ExtractMetadata(dst)
-			for _, data := range exif {
-				for k, _ := range data.Fields {
-					if strings.HasPrefix(k, "GPS") {
-						data.Clear(k)
-					} else if lo.Contains(exifWhitelist, k) {
-						file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
+			if err == nil {
+				defer et.Close()
+				exif := et.ExtractMetadata(dst)
+				for _, data := range exif {
+					for k, _ := range data.Fields {
+						if strings.HasPrefix(k, "GPS") {
+							data.Clear(k)
+						} else if lo.Contains(exifWhitelist, k) {
+							file.Metadata["exif"].(map[string]any)[k] = data.Fields[k]
+						}
 					}
 				}
+				et.WriteMetadata(exif)
 			}
-			et.WriteMetadata(exif)
 		}
 	}
 
