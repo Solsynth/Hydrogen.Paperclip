@@ -187,7 +187,7 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 		return false, err
 	}
 
-	if prev.PoolID != nil && og.PoolID != nil && prev.PoolID != og.PoolID {
+	if prev.PoolID != nil && og.PoolID != nil && prev.PoolID != og.PoolID && prev.Pool != nil && og.Pool != nil {
 		if !prev.Pool.Config.Data().AllowCrossPoolEgress || !og.Pool.Config.Data().AllowCrossPoolIngress {
 			// Pool config doesn't allow reference
 			return false, nil

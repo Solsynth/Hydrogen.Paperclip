@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Trying to prevent exiftool causing analyze failed">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix bug crash caused by hash small files">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,7 +116,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":recycle: Split mark and delete file" />
     <MESSAGE value=":bug: Fix migration issue on pools" />
     <MESSAGE value=":bug: Fix schedule deletion will delete referenced file" />
     <MESSAGE value=":bug: Fix sql statement" />
@@ -142,7 +140,8 @@
     <MESSAGE value=":sparkles: Save EXIF into file metadata" />
     <MESSAGE value=":zap: Use exif whitelist to prevent produce garbage data" />
     <MESSAGE value=":bug: Trying to prevent exiftool causing analyze failed" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Trying to prevent exiftool causing analyze failed" />
+    <MESSAGE value=":bug: Fix bug crash caused by hash small files" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix bug crash caused by hash small files" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
