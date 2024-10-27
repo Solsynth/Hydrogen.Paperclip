@@ -2,28 +2,46 @@ package grpc
 
 import (
 	"context"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex"
 	"strconv"
 
-	"git.solsynth.dev/hydrogen/dealer/pkg/proto"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/nexus/pkg/proto"
 )
 
-func (v *Server) BroadcastDeletion(ctx context.Context, request *proto.DeletionRequest) (*proto.DeletionResponse, error) {
-	switch request.GetResourceType() {
-	case "account":
-		numericId, err := strconv.Atoi(request.GetResourceId())
-		if err != nil {
+func (v *Server) BroadcastEvent(ctx context.Context, in *proto.EventInfo) (*proto.EventResponse, error) {
+	switch in.GetEvent() {
+	case "deletion":
+		data := nex.DecodeMap(in.GetData())
+		resType, ok := data["type"].(string)
+		if !ok {
 			break
 		}
-		for _, model := range database.AutoMaintainRange {
-			switch model.(type) {
-			default:
-				database.C.Delete(model, "account_id = ?", numericId)
+		switch resType {
+		case "account":
+			id, ok := data["id"].(string)
+			if !ok {
+				break
 			}
+			numericId, err := strconv.Atoi(id)
+			if err != nil {
+				break
+			}
+			tx := database.C.Begin()
+			for _, model := range database.AutoMaintainRange {
+				switch model.(type) {
+				default:
+					tx.Delete(model, "account_id = ?", numericId)
+				}
+			}
+			if tx.Delete(&models.Account{}, "id = ?", numericId).Error != nil {
+				tx.Rollback()
+				break
+			}
+			tx.Commit()
 		}
-		database.C.Delete(&models.Account{}, "id = ?", numericId)
 	}
 
-	return &proto.DeletionResponse{}, nil
+	return &proto.EventResponse{}, nil
 }

@@ -1,12 +1,9 @@
 package server
 
 import (
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"strings"
 
-	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/api"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,10 +15,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-var app *fiber.App
+var IReader *sec.InternalTokenReader
 
-func NewServer() {
-	app = fiber.New(fiber.Config{
+type App struct {
+	app *fiber.App
+}
+
+func NewServer() *App {
+	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
 		ServerHeader:          "Hydrogen.Paperclip",
@@ -55,23 +56,15 @@ func NewServer() {
 		Output: log.Logger,
 	}))
 
-	tablePrefix := viper.GetString("database.prefix")
-	app.Use(gap.H.AuthMiddleware)
-	app.Use(hyper.LinkAccountMiddleware(
-		database.C,
-		tablePrefix+"accounts",
-		func(u hyper.BaseUser) models.Account {
-			return models.Account{
-				BaseUser: u,
-			}
-		},
-	))
+	app.Use(sec.ContextMiddleware(IReader))
 
 	api.MapAPIs(app, "/api")
+
+	return &App{app}
 }
 
-func Listen() {
-	if err := app.Listen(viper.GetString("bind")); err != nil {
+func (v *App) Listen() {
+	if err := v.app.Listen(viper.GetString("bind")); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when starting server...")
 	}
 }

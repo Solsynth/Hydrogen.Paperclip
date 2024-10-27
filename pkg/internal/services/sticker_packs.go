@@ -3,6 +3,7 @@ package services
 import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +31,7 @@ func ListStickerPackWithStickers(tx *gorm.DB, take, offset int) ([]models.Sticke
 	return packs, nil
 }
 
-func NewStickerPack(user models.Account, prefix, name, desc string) (models.StickerPack, error) {
+func NewStickerPack(user sec.UserInfo, prefix, name, desc string) (models.StickerPack, error) {
 	pack := models.StickerPack{
 		Prefix:      prefix,
 		Name:        name,

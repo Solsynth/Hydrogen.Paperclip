@@ -2,10 +2,10 @@ package api
 
 import (
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -55,10 +55,7 @@ func getStickerPack(c *fiber.Ctx) error {
 }
 
 func createStickerPack(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Prefix      string `json:"prefix" validate:"required,alphanum,min=2,max=12"`
@@ -79,10 +76,7 @@ func createStickerPack(c *fiber.Ctx) error {
 }
 
 func updateStickerPack(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Prefix      string `json:"prefix" validate:"required,alphanum,min=2,max=12"`
@@ -112,10 +106,7 @@ func updateStickerPack(c *fiber.Ctx) error {
 }
 
 func deleteStickerPack(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	id, _ := c.ParamsInt("packId", 0)
 	pack, err := services.GetStickerPackWithUser(uint(id), user.ID)

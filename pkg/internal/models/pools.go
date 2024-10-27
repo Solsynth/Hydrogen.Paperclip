@@ -1,12 +1,12 @@
 package models
 
 import (
-	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
 	"gorm.io/datatypes"
 )
 
 type AttachmentPool struct {
-	hyper.BaseModel
+	cruda.BaseModel
 
 	Alias       string                                   `json:"alias"`
 	Name        string                                   `json:"name"`

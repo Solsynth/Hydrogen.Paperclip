@@ -3,8 +3,8 @@ package api
 import (
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"net/url"
 	"path/filepath"
 
@@ -82,11 +82,7 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Alternative string         `json:"alt"`
@@ -116,11 +112,7 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {

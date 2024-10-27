@@ -1,9 +1,9 @@
 package models
 
-import "git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+import "git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 
 type Account struct {
-	hyper.BaseUser
+	sec.UserInfo
 
 	Attachments []Attachment     `json:"attachments"`
 	Pools       []AttachmentPool `json:"pools"`

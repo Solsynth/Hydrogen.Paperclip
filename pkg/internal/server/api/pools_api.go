@@ -1,10 +1,10 @@
 package api
 
 import (
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/datatypes"
 )
@@ -27,10 +27,7 @@ func getPool(c *fiber.Ctx) error {
 }
 
 func createPool(c *fiber.Ctx) error {
-	if err := gap.H.EnsureGrantedPerm(c, "CreateAttachmentPools", true); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Alias       string                      `json:"alias" validate:"required"`
@@ -59,10 +56,7 @@ func createPool(c *fiber.Ctx) error {
 }
 
 func updatePool(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Alias       string                      `json:"alias" validate:"required"`
@@ -94,10 +88,7 @@ func updatePool(c *fiber.Ctx) error {
 }
 
 func deletePool(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	id, _ := c.ParamsInt("id")
 	pool, err := services.GetAttachmentPoolWithUser(uint(id), user.ID)

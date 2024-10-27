@@ -1,9 +1,11 @@
 package models
 
-import "git.solsynth.dev/hydrogen/dealer/pkg/hyper"
+import (
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
+)
 
 type Sticker struct {
-	hyper.BaseModel
+	cruda.BaseModel
 
 	Alias        string      `json:"alias"`
 	Name         string      `json:"name"`
@@ -16,7 +18,7 @@ type Sticker struct {
 }
 
 type StickerPack struct {
-	hyper.BaseModel
+	cruda.BaseModel
 
 	Prefix      string    `json:"prefix"`
 	Name        string    `json:"name"`

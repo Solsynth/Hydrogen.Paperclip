@@ -1,9 +1,9 @@
 package models
 
 import (
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
 	"time"
 
-	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
 	"gorm.io/datatypes"
 )
 
@@ -15,7 +15,7 @@ const (
 )
 
 type Attachment struct {
-	hyper.BaseModel
+	cruda.BaseModel
 
 	// Random ID is for accessing (appear in URL)
 	Rid string `json:"rid" gorm:"uniqueIndex"`

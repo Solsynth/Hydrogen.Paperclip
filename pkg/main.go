@@ -1,20 +1,23 @@
 package main
 
 import (
+	"fmt"
+	pkg "git.solsynth.dev/hydrogen/paperclip/pkg/internal"
+	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
+	"github.com/fatih/color"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
 	"github.com/robfig/cron/v3"
 
-	pkg "git.solsynth.dev/hydrogen/paperclip/pkg/internal"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -26,6 +29,12 @@ func init() {
 }
 
 func main() {
+	// Booting screen
+	fmt.Println(color.YellowString(" ____                           _ _\n|  _ \\ __ _ _ __   ___ _ __ ___| (_)_ __\n| |_) / _` | '_ \\ / _ \\ '__/ __| | | '_ \\\n|  __/ (_| | |_) |  __/ | | (__| | | |_) |\n|_|   \\__,_| .__/ \\___|_|  \\___|_|_| .__/\n           |_|                     |_|"))
+	fmt.Printf("%s v%s\n", color.New(color.FgHiYellow).Add(color.Bold).Sprintf("Hypernet.Paperclip"), pkg.AppVersion)
+	fmt.Printf("The upload service in Hypernet\n")
+	color.HiBlack("=====================================================\n")
+
 	// Configure settings
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("..")
@@ -35,6 +44,19 @@ func main() {
 	// Load settings
 	if err := viper.ReadInConfig(); err != nil {
 		log.Panic().Err(err).Msg("An error occurred when loading settings.")
+	}
+
+	// Connect to nexus
+	if err := gap.InitializeToNexus(); err != nil {
+		log.Error().Err(err).Msg("An error occurred when registering service to nexus...")
+	}
+
+	// Load keypair
+	if reader, err := sec.NewInternalTokenReader(viper.GetString("security.internal_public_key")); err != nil {
+		log.Error().Err(err).Msg("An error occurred when reading internal public key for jwt. Authentication related features will be disabled.")
+	} else {
+		server.IReader = reader
+		log.Info().Msg("Internal jwt public key loaded.")
 	}
 
 	// Connect to database
@@ -47,11 +69,6 @@ func main() {
 	// Initialize cache
 	if err := cache.NewStore(); err != nil {
 		log.Fatal().Err(err).Msg("An error occurred when initializing cache.")
-	}
-
-	// Connect other services
-	if err := gap.RegisterService(); err != nil {
-		log.Error().Err(err).Msg("An error occurred when registering service to dealer...")
 	}
 
 	// Set up some workers
@@ -71,24 +88,19 @@ func main() {
 	quartz.Start()
 
 	// Server
-	server.NewServer()
-	go server.Listen()
+	go server.NewServer().Listen()
 
 	// Grpc Server
-	grpc.NewGRPC()
-	go grpc.ListenGRPC()
+	go grpc.NewGrpc().Listen()
 
-	// Messages
-	log.Info().Msgf("Paperclip v%s is started...", pkg.AppVersion)
-
+	// Post-boot actions
 	services.ScanUnanalyzedFileFromDatabase()
 	services.RunMarkLifecycleDeletionTask()
 
+	// Messages
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-
-	log.Info().Msgf("Paperclip v%s is quitting...", pkg.AppVersion)
 
 	quartz.Stop()
 }

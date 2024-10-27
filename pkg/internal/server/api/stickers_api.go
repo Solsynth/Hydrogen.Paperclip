@@ -2,10 +2,10 @@ package api
 
 import (
 	"fmt"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"strings"
 
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
@@ -80,10 +80,7 @@ func getSticker(c *fiber.Ctx) error {
 }
 
 func createSticker(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
@@ -128,10 +125,7 @@ func createSticker(c *fiber.Ctx) error {
 }
 
 func updateSticker(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
@@ -179,10 +173,7 @@ func updateSticker(c *fiber.Ctx) error {
 }
 
 func deleteSticker(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	id, _ := c.ParamsInt("stickerId", 0)
 	sticker, err := services.GetStickerWithUser(uint(id), user.ID)

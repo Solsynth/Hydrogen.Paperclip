@@ -4,19 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"github.com/gofiber/fiber/v2"
 	"github.com/spf13/viper"
 )
 
 func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	var data struct {
 		Pool        string         `json:"pool" validate:"required"`
@@ -42,8 +39,8 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable to get attachment pool info: %v", err))
 	}
 
-	if err = gap.H.EnsureGrantedPerm(c, "CreateAttachments", data.Size); err != nil {
-		return err
+	if !user.HasPermNode("CreateAttachments", data.Size) {
+		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments like this large")
 	} else if pool.Config.Data().MaxFileSize != nil && *pool.Config.Data().MaxFileSize > data.Size {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
@@ -72,10 +69,7 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 }
 
 func uploadAttachmentMultipart(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	rid := c.Params("file")
 	cid := c.Params("chunk")

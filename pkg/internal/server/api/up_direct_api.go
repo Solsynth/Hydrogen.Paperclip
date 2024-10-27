@@ -3,19 +3,16 @@ package api
 import (
 	"fmt"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/viper"
 )
 
 func createAttachmentDirectly(c *fiber.Ctx) error {
-	if err := gap.H.EnsureAuthenticated(c); err != nil {
-		return err
-	}
-	user := c.Locals("user").(models.Account)
+	user := c.Locals("nex_user").(sec.UserInfo)
 
 	poolAlias := c.FormValue("pool")
 
@@ -34,8 +31,8 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err = gap.H.EnsureGrantedPerm(c, "CreateAttachments", file.Size); err != nil {
-		return err
+	if !user.HasPermNode("CreateAttachments", file.Size) {
+		return fiber.NewError(fiber.StatusForbidden, "you are not permitted to create attachments like this large")
 	} else if pool.Config.Data().MaxFileSize != nil && file.Size > *pool.Config.Data().MaxFileSize {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
@@ -68,7 +65,7 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 
 	tx.Commit()
 
-	metadata.Account = user
+	metadata.Account = models.Account{UserInfo: user}
 	metadata.Pool = &pool
 	services.PublishAnalyzeTask(metadata)
 

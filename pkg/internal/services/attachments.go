@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"math"
 	"mime"
 	"mime/multipart"
@@ -16,7 +17,6 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 
-	"git.solsynth.dev/hydrogen/dealer/pkg/hyper"
 	localCache "git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
 
@@ -32,7 +32,7 @@ func GetAttachmentCacheKey(rid string) any {
 func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.
-		Where(&hyper.BaseModel{ID: id}).
+		Where("id = ?", id).
 		Preload("Pool").Preload("Account").
 		First(&attachment).Error; err != nil {
 		return attachment, err
@@ -102,7 +102,7 @@ func CacheAttachment(item models.Attachment) {
 	marshal := marshaler.New(cacheManager)
 	contx := context.Background()
 
-	marshal.Set(
+	_ = marshal.Set(
 		contx,
 		GetAttachmentCacheKey(item.Rid),
 		item,
@@ -111,7 +111,7 @@ func CacheAttachment(item models.Attachment) {
 	)
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+func NewAttachmentMetadata(tx *gorm.DB, user sec.UserInfo, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Rid = RandString(16)
 	attachment.Size = file.Size
@@ -150,7 +150,7 @@ func NewAttachmentMetadata(tx *gorm.DB, user models.Account, file *multipart.Fil
 	return attachment, nil
 }
 
-func NewAttachmentPlaceholder(tx *gorm.DB, user models.Account, attachment models.Attachment) (models.Attachment, error) {
+func NewAttachmentPlaceholder(tx *gorm.DB, user sec.UserInfo, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Rid = RandString(16)
 	attachment.IsUploaded = false
@@ -234,9 +234,7 @@ func DeleteAttachment(item models.Attachment) error {
 
 	if item.RefID != nil {
 		var refTarget models.Attachment
-		if err := database.C.Where(models.Attachment{
-			BaseModel: hyper.BaseModel{ID: *item.RefID},
-		}).First(&refTarget).Error; err == nil {
+		if err := database.C.Where("id = ?", *item.RefID).First(&refTarget).Error; err == nil {
 			refTarget.RefCount--
 			if err := tx.Save(&refTarget).Error; err != nil {
 				tx.Rollback()
@@ -251,7 +249,7 @@ func DeleteAttachment(item models.Attachment) error {
 		cacheManager := cache.New[any](localCache.S)
 		marshal := marshaler.New(cacheManager)
 		contx := context.Background()
-		marshal.Delete(contx, GetAttachmentCacheKey(item.Rid))
+		_ = marshal.Delete(contx, GetAttachmentCacheKey(item.Rid))
 	}
 
 	tx.Commit()
