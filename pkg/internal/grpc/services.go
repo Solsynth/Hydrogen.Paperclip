@@ -7,7 +7,6 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/proto"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 )
 
 func (v *Server) BroadcastEvent(ctx context.Context, in *proto.EventInfo) (*proto.EventResponse, error) {
@@ -34,10 +33,6 @@ func (v *Server) BroadcastEvent(ctx context.Context, in *proto.EventInfo) (*prot
 				default:
 					tx.Delete(model, "account_id = ?", numericId)
 				}
-			}
-			if tx.Delete(&models.Account{}, "id = ?", numericId).Error != nil {
-				tx.Rollback()
-				break
 			}
 			tx.Commit()
 		}

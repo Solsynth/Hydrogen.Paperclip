@@ -65,7 +65,6 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 
 	tx.Commit()
 
-	metadata.Account = models.Account{UserInfo: user}
 	metadata.Pool = &pool
 	services.PublishAnalyzeTask(metadata)
 

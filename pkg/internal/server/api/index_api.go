@@ -2,6 +2,8 @@ package api
 
 import (
 	"fmt"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
+	"git.solsynth.dev/hypernet/passport/pkg/authkit"
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 	"strings"
@@ -53,12 +55,9 @@ func listAttachment(c *fiber.Ctx) error {
 	}
 
 	if len(c.Query("author")) > 0 {
-		var author models.Account
-		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		} else {
-			prefix := viper.GetString("database.prefix")
-			tx = tx.Where(fmt.Sprintf("%sattachments.account_id = ?", prefix), author.ID)
+		author, err := authkit.GetUserByName(gap.Nx, c.Query("author"))
+		if err == nil {
+			tx = tx.Where("attachments.account_id = ?", author.ID)
 		}
 	}
 

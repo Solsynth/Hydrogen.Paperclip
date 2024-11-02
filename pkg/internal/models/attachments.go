@@ -46,6 +46,5 @@ type Attachment struct {
 	Pool   *AttachmentPool `json:"pool"`
 	PoolID *uint           `json:"pool_id"`
 
-	Account   Account `json:"account"`
-	AccountID uint    `json:"account_id"`
+	AccountID uint `json:"account_id"`
 }

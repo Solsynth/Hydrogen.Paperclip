@@ -3,9 +3,11 @@ package api
 import (
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/passport/pkg/authkit"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -20,10 +22,8 @@ func listStickerPacks(c *fiber.Ctx) error {
 	tx := database.C
 
 	if len(c.Query("author")) > 0 {
-		var author models.Account
-		if err := database.C.Where("name = ?", c.Query("author")).First(&author).Error; err != nil {
-			return fiber.NewError(fiber.StatusBadRequest, err.Error())
-		} else {
+		author, err := authkit.GetUserByName(gap.Nx, c.Query("author"))
+		if err == nil {
 			tx = tx.Where("account_id = ?", author.ID)
 		}
 	}

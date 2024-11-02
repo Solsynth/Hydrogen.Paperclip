@@ -53,9 +53,7 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 		GetAttachmentCacheKey(rid),
 		new(models.Attachment),
 	); err == nil {
-		if val.(models.Attachment).Account.ID > 0 {
-			return val.(models.Attachment), nil
-		}
+		return val.(models.Attachment), nil
 	}
 
 	var attachment models.Attachment
@@ -90,9 +88,7 @@ func GetAttachmentCache(rid string) (models.Attachment, bool) {
 		GetAttachmentCacheKey(rid),
 		new(models.Attachment),
 	); err == nil {
-		if val.(models.Attachment).Account.ID > 0 {
-			return val.(models.Attachment), true
-		}
+		return val.(models.Attachment), true
 	}
 	return models.Attachment{}, false
 }

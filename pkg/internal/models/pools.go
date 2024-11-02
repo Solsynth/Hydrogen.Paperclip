@@ -15,8 +15,7 @@ type AttachmentPool struct {
 
 	Attachments []Attachment `json:"attachments" gorm:"foreignKey:PoolID"`
 
-	Account   *Account `json:"account"`
-	AccountID *uint    `json:"account_id"`
+	AccountID *uint `json:"account_id"`
 }
 
 type AttachmentPoolConfig struct {

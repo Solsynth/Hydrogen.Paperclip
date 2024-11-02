@@ -13,7 +13,7 @@ import (
 
 var C *gorm.DB
 
-func NewSource() error {
+func NewGorm() error {
 	var err error
 
 	dsn, err := cruda.NewCrudaConn(gap.Nx).AllocDatabase("paperclip")

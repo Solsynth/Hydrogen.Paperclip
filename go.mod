@@ -1,11 +1,10 @@
 module git.solsynth.dev/hypernet/paperclip
 
-go 1.22.0
-
-toolchain go1.23.2
+go 1.23.2
 
 require (
-	git.solsynth.dev/hypernet/nexus v0.0.0-20241031133156-6bb8eab3fcd8
+	git.solsynth.dev/hypernet/nexus v0.0.0-20241102174036-194d27090415
+	git.solsynth.dev/hypernet/passport v0.0.0-20241102174750-808e7998dd1c
 	github.com/barasher/go-exiftool v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/eko/gocache/lib/v4 v4.1.6
@@ -31,6 +30,7 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
+	git.solsynth.dev/hypernet/pusher v0.0.0-20241026153052-cd2c326efa4e // indirect
 	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
