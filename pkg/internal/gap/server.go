@@ -28,7 +28,7 @@ func InitializeToNexus() error {
 		Type:     "uc",
 		Label:    "Paperclip",
 		GrpcAddr: grpcOutbound,
-		HttpAddr: lo.ToPtr("http://" + httpOutbound),
+		HttpAddr: lo.ToPtr("http://" + httpOutbound + "/api"),
 	})
 	if err == nil {
 		go func() {

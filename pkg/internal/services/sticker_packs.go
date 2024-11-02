@@ -31,7 +31,7 @@ func ListStickerPackWithStickers(tx *gorm.DB, take, offset int) ([]models.Sticke
 	return packs, nil
 }
 
-func NewStickerPack(user sec.UserInfo, prefix, name, desc string) (models.StickerPack, error) {
+func NewStickerPack(user *sec.UserInfo, prefix, name, desc string) (models.StickerPack, error) {
 	pack := models.StickerPack{
 		Prefix:      prefix,
 		Name:        name,

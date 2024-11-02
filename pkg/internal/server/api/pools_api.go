@@ -27,7 +27,7 @@ func getPool(c *fiber.Ctx) error {
 }
 
 func createPool(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Alias       string                      `json:"alias" validate:"required"`
@@ -56,7 +56,7 @@ func createPool(c *fiber.Ctx) error {
 }
 
 func updatePool(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Alias       string                      `json:"alias" validate:"required"`
@@ -88,7 +88,7 @@ func updatePool(c *fiber.Ctx) error {
 }
 
 func deletePool(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	id, _ := c.ParamsInt("id")
 	pool, err := services.GetAttachmentPoolWithUser(uint(id), user.ID)

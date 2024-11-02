@@ -13,7 +13,7 @@ import (
 )
 
 func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Pool        string         `json:"pool" validate:"required"`
@@ -69,7 +69,7 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 }
 
 func uploadAttachmentMultipart(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	rid := c.Params("file")
 	cid := c.Params("chunk")

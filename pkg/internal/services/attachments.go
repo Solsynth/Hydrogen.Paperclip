@@ -33,7 +33,7 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.
 		Where("id = ?", id).
-		Preload("Pool").Preload("Account").
+		Preload("Pool").
 		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
@@ -59,7 +59,7 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		Rid: rid,
-	}).Preload("Pool").Preload("Account").First(&attachment).Error; err != nil {
+	}).Preload("Pool").First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
 		CacheAttachment(attachment)
@@ -107,7 +107,7 @@ func CacheAttachment(item models.Attachment) {
 	)
 }
 
-func NewAttachmentMetadata(tx *gorm.DB, user sec.UserInfo, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
+func NewAttachmentMetadata(tx *gorm.DB, user *sec.UserInfo, file *multipart.FileHeader, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Rid = RandString(16)
 	attachment.Size = file.Size
@@ -146,7 +146,7 @@ func NewAttachmentMetadata(tx *gorm.DB, user sec.UserInfo, file *multipart.FileH
 	return attachment, nil
 }
 
-func NewAttachmentPlaceholder(tx *gorm.DB, user sec.UserInfo, attachment models.Attachment) (models.Attachment, error) {
+func NewAttachmentPlaceholder(tx *gorm.DB, user *sec.UserInfo, attachment models.Attachment) (models.Attachment, error) {
 	attachment.Uuid = uuid.NewString()
 	attachment.Rid = RandString(16)
 	attachment.IsUploaded = false

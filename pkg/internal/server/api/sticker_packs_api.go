@@ -55,7 +55,7 @@ func getStickerPack(c *fiber.Ctx) error {
 }
 
 func createStickerPack(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Prefix      string `json:"prefix" validate:"required,alphanum,min=2,max=12"`
@@ -76,7 +76,7 @@ func createStickerPack(c *fiber.Ctx) error {
 }
 
 func updateStickerPack(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Prefix      string `json:"prefix" validate:"required,alphanum,min=2,max=12"`
@@ -106,7 +106,7 @@ func updateStickerPack(c *fiber.Ctx) error {
 }
 
 func deleteStickerPack(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	id, _ := c.ParamsInt("packId", 0)
 	pack, err := services.GetStickerPackWithUser(uint(id), user.ID)

@@ -82,7 +82,7 @@ func getAttachmentMeta(c *fiber.Ctx) error {
 
 func updateAttachmentMeta(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Alternative string         `json:"alt"`
@@ -112,7 +112,7 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 func deleteAttachment(c *fiber.Ctx) error {
 	id, _ := c.ParamsInt("id", 0)
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	attachment, err := services.GetAttachmentByID(uint(id))
 	if err != nil {

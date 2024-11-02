@@ -80,7 +80,7 @@ func getSticker(c *fiber.Ctx) error {
 }
 
 func createSticker(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
@@ -125,7 +125,7 @@ func createSticker(c *fiber.Ctx) error {
 }
 
 func updateSticker(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
 		Alias        string `json:"alias" validate:"required,alphanum,min=2,max=12"`
@@ -173,7 +173,7 @@ func updateSticker(c *fiber.Ctx) error {
 }
 
 func deleteSticker(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	id, _ := c.ParamsInt("stickerId", 0)
 	sticker, err := services.GetStickerWithUser(uint(id), user.ID)

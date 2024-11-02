@@ -4,22 +4,20 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":recycle: Migrated to nexus">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":wastebasket: Remove account">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea/storage_v2/_src_/database/hy_paperclip.LrVPOQ/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea/storage_v2/_src_/database/hy_paperclip.LrVPOQ/schema/public.abK9xQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/database/migrator.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/database/migrator.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/database/source.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/database/source.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/grpc/services.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/grpc/services.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/accounts.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/pools.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/pools.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/models/stickers.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/stickers.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/index_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/index_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/gap/server.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/gap/server.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/pools_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/pools_api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/sticker_packs_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/sticker_packs_api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/stickers_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/stickers_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_direct_api.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/up_multipart_api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/services/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/attachments.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/sticker_packs.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/sticker_packs.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +129,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":bug: Fix schedule deletion will delete referenced file" />
     <MESSAGE value=":bug: Fix sql statement" />
     <MESSAGE value=":bug: Fix doesn't get has lifecycle settings buckets correctly" />
     <MESSAGE value=":zap: Fix the RandString method cause the lag" />
@@ -156,7 +153,8 @@
     <MESSAGE value=":bug: Trying to prevent exiftool causing analyze failed" />
     <MESSAGE value=":bug: Fix bug crash caused by hash small files" />
     <MESSAGE value=":recycle: Migrated to nexus" />
-    <option name="LAST_COMMIT_MESSAGE" value=":recycle: Migrated to nexus" />
+    <MESSAGE value=":wastebasket: Remove account" />
+    <option name="LAST_COMMIT_MESSAGE" value=":wastebasket: Remove account" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

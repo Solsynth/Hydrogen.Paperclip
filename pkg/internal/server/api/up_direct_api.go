@@ -12,7 +12,7 @@ import (
 )
 
 func createAttachmentDirectly(c *fiber.Ctx) error {
-	user := c.Locals("nex_user").(sec.UserInfo)
+	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	poolAlias := c.FormValue("pool")
 
