@@ -4,7 +4,7 @@ import (
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"strings"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server/api"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/api"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -25,8 +25,8 @@ func NewServer() *App {
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 		EnableIPValidation:    true,
-		ServerHeader:          "Hydrogen.Paperclip",
-		AppName:               "Hydrogen.Paperclip",
+		ServerHeader:          "Hypernet.Paperclip",
+		AppName:               "Hypernet.Paperclip",
 		ProxyHeader:           fiber.HeaderXForwardedFor,
 		JSONEncoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Marshal,
 		JSONDecoder:           jsoniter.ConfigCompatibleWithStandardLibrary.Unmarshal,

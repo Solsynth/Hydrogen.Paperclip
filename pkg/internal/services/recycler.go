@@ -3,13 +3,13 @@ package services
 import (
 	"context"
 	"fmt"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"github.com/samber/lo"
 	"os"
 	"path/filepath"
 	"time"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"

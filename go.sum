@@ -33,12 +33,10 @@ cloud.google.com/go/storage v1.10.0/go.mod h1:FLPqc6j+Ki4BU591ie1oL6qBQGu2Bl/tZ9
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241026162044-3d487fa48baf h1:Fil1ASTvxmqFySD3OoptC7uRXEYpWLwLfjlkWZNNwVQ=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241026162044-3d487fa48baf/go.mod h1:fXQsHXGio+7/0U95IitKF07wS4yTdCMp5ms8wpFBwVI=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241027050830-7fd0b7695eb1 h1:W4QYIXCCetJAEE3We8FxJidC8bzzlQpquQ1lfhGKHBo=
-git.solsynth.dev/hypernet/nexus v0.0.0-20241027050830-7fd0b7695eb1/go.mod h1:fXQsHXGio+7/0U95IitKF07wS4yTdCMp5ms8wpFBwVI=
 git.solsynth.dev/hypernet/nexus v0.0.0-20241027051235-ae3583ead196 h1:vTT1Vhz9OJHUh+D07AUFO3jjm3p8/dRo194REny0Wk4=
 git.solsynth.dev/hypernet/nexus v0.0.0-20241027051235-ae3583ead196/go.mod h1:fXQsHXGio+7/0U95IitKF07wS4yTdCMp5ms8wpFBwVI=
+git.solsynth.dev/hypernet/nexus v0.0.0-20241031133156-6bb8eab3fcd8 h1:fo9WuAXcmxdGfYXZKTiAbqGLHAkeL7vf0zpwbjoUNc0=
+git.solsynth.dev/hypernet/nexus v0.0.0-20241031133156-6bb8eab3fcd8/go.mod h1:fXQsHXGio+7/0U95IitKF07wS4yTdCMp5ms8wpFBwVI=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DataDog/datadog-go v3.2.0+incompatible/go.mod h1:LButxg5PwREeZtORoXG3tL4fMGNddJ+vMq1mwgfaqoQ=

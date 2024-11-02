@@ -6,9 +6,9 @@ import (
 	"gorm.io/datatypes"
 	"strings"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
 )
 

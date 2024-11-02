@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/k0kubun/go-ansi"
 	"github.com/rs/zerolog/log"

@@ -1,11 +1,11 @@
-module git.solsynth.dev/hydrogen/paperclip
+module git.solsynth.dev/hypernet/paperclip
 
 go 1.22.0
 
 toolchain go1.23.2
 
 require (
-	git.solsynth.dev/hypernet/nexus v0.0.0-20241027051235-ae3583ead196
+	git.solsynth.dev/hypernet/nexus v0.0.0-20241031133156-6bb8eab3fcd8
 	github.com/barasher/go-exiftool v1.10.0
 	github.com/dgraph-io/ristretto v0.1.1
 	github.com/eko/gocache/lib/v4 v4.1.6

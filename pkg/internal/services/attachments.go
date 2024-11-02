@@ -17,10 +17,10 @@ import (
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
 
-	localCache "git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/models"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

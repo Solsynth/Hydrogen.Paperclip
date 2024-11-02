@@ -1,7 +1,7 @@
 package services
 
 import (
-	database2 "git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
+	database2 "git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"time"
 
 	"github.com/rs/zerolog/log"

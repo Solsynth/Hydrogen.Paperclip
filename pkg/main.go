@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	pkg "git.solsynth.dev/hydrogen/paperclip/pkg/internal"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
+	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"github.com/fatih/color"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/cache"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/database"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/grpc"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/grpc"
 
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/server"
-	"git.solsynth.dev/hydrogen/paperclip/pkg/internal/services"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/robfig/cron/v3"
 
 	"github.com/rs/zerolog"
