@@ -277,7 +277,7 @@ func HashAttachment(file models.Attachment) (hash string, err error) {
 
 	hasher := sha256.New()
 
-	if chunkSize*3 <= fileInfo.Size() {
+	if chunkSize*3 > fileInfo.Size() {
 		// If the total size is smaller than three chunks, then hash the whole file
 		buf := make([]byte, fileInfo.Size())
 		if _, err := inFile.Read(buf); err != nil && err != io.EOF {
