@@ -57,6 +57,28 @@ func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHead
 	}
 }
 
+func UploadChunkToTemporaryWithRaw(ctx *fiber.Ctx, cid string, raw []byte, meta models.Attachment) error {
+	destMap := viper.GetStringMap("destinations.temporary")
+
+	var dest models.BaseDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
+
+	switch dest.Type {
+	case models.DestinationTypeLocal:
+		var destConfigured models.LocalDestination
+		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
+		tempPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s.partial", meta.Uuid, cid))
+		destPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
+		if err := os.WriteFile(tempPath, raw, 0644); err != nil {
+			return err
+		}
+		return os.Rename(tempPath, destPath)
+	default:
+		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
+	}
+}
+
 func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
 	destMap := viper.GetStringMap("destinations.temporary")
 

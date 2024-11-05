@@ -74,10 +74,10 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 	rid := c.Params("file")
 	cid := c.Params("chunk")
 
-	file, err := c.FormFile("file")
-	if err != nil {
-		return err
-	} else if file.Size > viper.GetInt64("performance.file_chunk_size") {
+	fileData := c.Body()
+	if len(fileData) == 0 {
+		return fiber.NewError(fiber.StatusBadRequest, "no file data")
+	} else if len(fileData) > viper.GetInt("performance.file_chunk_size") {
 		return fiber.NewError(fiber.StatusBadRequest, "file is too large for one chunk")
 	}
 
@@ -94,7 +94,7 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusNotFound, fmt.Sprintf("chunk %s was uploaded", cid))
 	}
 
-	if err := services.UploadChunkToTemporary(c, cid, file, meta); err != nil {
+	if err := services.UploadChunkToTemporaryWithRaw(c, cid, fileData, meta); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
