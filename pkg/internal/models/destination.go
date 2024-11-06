@@ -12,7 +12,8 @@ type BaseDestination struct {
 type LocalDestination struct {
 	BaseDestination
 
-	Path string `json:"path"`
+	Path          string `json:"path"`
+	AccessBaseURL string `json:"access_baseurl"`
 }
 
 type S3Destination struct {

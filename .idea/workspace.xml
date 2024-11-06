@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Bug fixes">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix hash bug">
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/bac83d8a-c619-4680-a07f-6674b93fbfea.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/models/attachments.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/attachments.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/models/destination.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/models/destination.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/server/api/attachments_api.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/analyzer.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.toml" beforeDir="false" afterPath="$PROJECT_DIR$/settings.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,7 +51,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultGoTemplateProperty": "Go File",
-    "Go Build.Backend.executor": "Run",
+    "Go Build.Backend.executor": "Debug",
     "Go 构建.Backend.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.go.formatter.settings.were.checked": "true",
@@ -118,7 +125,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":bug: Fix doesn't get has lifecycle settings buckets correctly" />
     <MESSAGE value=":zap: Fix the RandString method cause the lag" />
     <MESSAGE value=":bug: Fix mark clean required issue" />
     <MESSAGE value=":sparkles: Support use rid to get file" />
@@ -143,9 +149,46 @@
     <MESSAGE value=":recycle: Migrated to nexus" />
     <MESSAGE value=":wastebasket: Remove account" />
     <MESSAGE value=":bug: Bug fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Bug fixes" />
+    <MESSAGE value=":bug: Fix hash bug" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix hash bug" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241102174036-194d27090415/pkg/nex/sec/perms.go</url>
+          <line>9</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241102174036-194d27090415/pkg/nex/sec/perms.go</url>
+          <line>11</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241103161217-e1207a8deb28/pkg/nex/sec/perms.go</url>
+          <line>11</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241103161217-e1207a8deb28/pkg/nex/sec/perms.go</url>
+          <line>9</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241103165336-3e68cea0d783/pkg/nex/sec/perms.go</url>
+          <line>12</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$USER_HOME$/Applications/GoLang/pkg/mod/git.solsynth.dev/hypernet/nexus@v0.0.0-20241103165336-3e68cea0d783/pkg/nex/sec/perms.go</url>
+          <line>10</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

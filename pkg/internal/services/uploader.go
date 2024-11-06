@@ -94,12 +94,15 @@ func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
 	}
 }
 
-func ReUploadFileToPermanent(meta models.Attachment) error {
+func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
+	if dst == models.AttachmentDstTemporary || meta.Destination != dst {
+		return fmt.Errorf("destnation cannot be reversed temporary or the same as the original")
+	}
 	if meta.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
 	}
 
-	meta.Destination = models.AttachmentDstPermanent
+	meta.Destination = 0
 
 	destMap := viper.GetStringMap("destinations.permanent")
 

@@ -16,13 +16,13 @@ print_routes = false
 [performance]
 file_chunk_size = 26214400
 
-[destinations.temporary]
+[[destinations]]
 type = "local"
 path = "uploads"
-
-[destinations.permanent]
+[[destinations]]
 type = "local"
 path = "uploads/permanent"
+access_baseurl = "http://localhost:8004"
 
 [security]
 internal_public_key = "keys/internal_public_key.pem"

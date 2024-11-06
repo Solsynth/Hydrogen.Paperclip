@@ -7,11 +7,8 @@ import (
 	"gorm.io/datatypes"
 )
 
-type AttachmentDst = int8
-
 const (
-	AttachmentDstTemporary = AttachmentDst(iota)
-	AttachmentDstPermanent
+	AttachmentDstTemporary = 0 // The destination 0 is a reserved config for pre-upload processing
 )
 
 type Attachment struct {
@@ -22,13 +19,13 @@ type Attachment struct {
 	// Unique ID is for storing (appear in local file name or object name)
 	Uuid string `json:"uuid"`
 
-	Size        int64         `json:"size"`
-	Name        string        `json:"name"`
-	Alternative string        `json:"alt"`
-	MimeType    string        `json:"mimetype"`
-	HashCode    string        `json:"hash"`
-	Destination AttachmentDst `json:"destination"`
-	RefCount    int           `json:"ref_count"`
+	Size        int64  `json:"size"`
+	Name        string `json:"name"`
+	Alternative string `json:"alt"`
+	MimeType    string `json:"mimetype"`
+	HashCode    string `json:"hash"`
+	Destination int    `json:"destination"`
+	RefCount    int    `json:"ref_count"`
 
 	FileChunks datatypes.JSONMap `json:"file_chunks"`
 
