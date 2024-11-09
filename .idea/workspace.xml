@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="ALL" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Still reading the abandoned temporary dest config">
+    <list default="true" id="18dd0d68-b4b8-40db-9734-9119b5c848bd" name="更改" comment=":bug: Fix attachment uploader">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/internal/services/uploader.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/internal/services/uploader.go" afterDir="false" />
     </list>
@@ -118,7 +118,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value=":sparkles: Support use rid to get file" />
     <MESSAGE value=":boom: Replace attachment id by rid when fetching" />
     <MESSAGE value=":boom: Use attachment rid instead of primary key when create" />
     <MESSAGE value=":bug: Fix crash on maintain cache" />
@@ -143,7 +142,8 @@
     <MESSAGE value=":bug: Fix hash bug" />
     <MESSAGE value=":bug: Provide a way to bypass nexus and serving content to prevent nexus reverse proxy issue" />
     <MESSAGE value=":bug: Still reading the abandoned temporary dest config" />
-    <option name="LAST_COMMIT_MESSAGE" value=":bug: Still reading the abandoned temporary dest config" />
+    <MESSAGE value=":bug: Fix attachment uploader" />
+    <option name="LAST_COMMIT_MESSAGE" value=":bug: Fix attachment uploader" />
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>

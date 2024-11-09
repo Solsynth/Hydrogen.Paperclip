@@ -102,6 +102,7 @@ func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
 	}
 
+	meta.Destination = dst
 	destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", dst))
 
 	var dest models.BaseDestination
