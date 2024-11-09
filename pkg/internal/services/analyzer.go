@@ -116,7 +116,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	// Do analyze jobs
 	if !file.IsAnalyzed || len(file.HashCode) == 0 {
-		destMap := viper.GetStringMap("destinations.temporary")
+		destMap := viper.GetStringMap("destinations.0")
 
 		var dest models.LocalDestination
 		rawDest, _ := jsoniter.Marshal(destMap)
@@ -259,7 +259,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 func HashAttachment(file models.Attachment) (hash string, err error) {
 	const chunkSize = 32 * 1024
 
-	destMap := viper.GetStringMapString("destinations.temporary")
+	destMap := viper.GetStringMapString("destinations.0")
 	destPath := filepath.Join(destMap["path"], file.Uuid)
 
 	// Check if the file exists

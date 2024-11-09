@@ -13,7 +13,7 @@ import (
 
 func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachment, error) {
 	// Fetch destination from config
-	destMap := viper.GetStringMapString("destinations.temporary")
+	destMap := viper.GetStringMapString("destinations.0")
 
 	var dest models.LocalDestination
 	dest.Path = destMap["path"]

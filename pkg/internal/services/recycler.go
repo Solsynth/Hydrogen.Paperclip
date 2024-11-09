@@ -98,7 +98,7 @@ func RunScheduleDeletionTask() {
 
 func DeleteFile(meta models.Attachment) error {
 	if !meta.IsUploaded {
-		destMap := viper.GetStringMap("destinations.temporary")
+		destMap := viper.GetStringMap("destinations.0")
 		var dest models.LocalDestination
 		rawDest, _ := jsoniter.Marshal(destMap)
 		_ = jsoniter.Unmarshal(rawDest, &dest)
@@ -113,7 +113,7 @@ func DeleteFile(meta models.Attachment) error {
 
 	var destMap map[string]any
 	if meta.Destination == models.AttachmentDstTemporary {
-		destMap = viper.GetStringMap("destinations.temporary")
+		destMap = viper.GetStringMap("destinations.0")
 	} else {
 		destMap = viper.GetStringMap("destinations.permanent")
 	}

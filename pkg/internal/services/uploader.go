@@ -19,7 +19,7 @@ import (
 )
 
 func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations.temporary")
+	destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", meta.Destination))
 
 	var dest models.BaseDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
@@ -36,7 +36,7 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 }
 
 func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHeader, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations.temporary")
+	destMap := viper.GetStringMap("destinations.0")
 
 	var dest models.BaseDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
@@ -58,7 +58,7 @@ func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHead
 }
 
 func UploadChunkToTemporaryWithRaw(ctx *fiber.Ctx, cid string, raw []byte, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations.temporary")
+	destMap := viper.GetStringMap("destinations.0")
 
 	var dest models.BaseDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
@@ -80,7 +80,7 @@ func UploadChunkToTemporaryWithRaw(ctx *fiber.Ctx, cid string, raw []byte, meta 
 }
 
 func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
-	destMap := viper.GetStringMap("destinations.temporary")
+	destMap := viper.GetStringMap("destinations.0")
 
 	var dest models.LocalDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
@@ -110,7 +110,7 @@ func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
 	rawDest, _ := jsoniter.Marshal(destMap)
 	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-	prevDestMap := viper.GetStringMap("destinations.temporary")
+	prevDestMap := viper.GetStringMap("destinations.0")
 
 	// Currently, the temporary destination only supports the local.
 	// So we can do this.
