@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"github.com/fatih/color"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
@@ -72,9 +73,6 @@ func main() {
 	}
 
 	// Set up some workers
-	for idx := 0; idx < viper.GetInt("workers.files_deletion"); idx++ {
-		go services.StartConsumeDeletionTask()
-	}
 	for idx := 0; idx < viper.GetInt("workers.files_analyze"); idx++ {
 		go services.StartConsumeAnalyzeTask()
 	}
