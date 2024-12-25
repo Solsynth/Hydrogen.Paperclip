@@ -3,13 +3,14 @@ package services
 import (
 	"context"
 	"fmt"
-	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"math"
 	"mime"
 	"mime/multipart"
 	"net/http"
 	"path/filepath"
 	"time"
+
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 
 	"github.com/eko/gocache/lib/v4/cache"
 	"github.com/eko/gocache/lib/v4/marshaler"
@@ -251,7 +252,7 @@ func DeleteAttachment(item models.Attachment) error {
 	tx.Commit()
 
 	if dat.RefCount == 0 {
-		PublishDeleteFileTask(dat)
+		go DeleteFile(dat)
 	}
 
 	return nil

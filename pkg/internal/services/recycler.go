@@ -3,11 +3,12 @@ package services
 import (
 	"context"
 	"fmt"
-	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
-	"github.com/samber/lo"
 	"os"
 	"path/filepath"
 	"time"
+
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"github.com/samber/lo"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
@@ -16,24 +17,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
-
-var fileDeletionQueue = make(chan models.Attachment, 256)
-
-func PublishDeleteFileTask(file models.Attachment) {
-	fileDeletionQueue <- file
-}
-
-func StartConsumeDeletionTask() {
-	for {
-		task := <-fileDeletionQueue
-		start := time.Now()
-		if err := DeleteFile(task); err != nil {
-			log.Error().Err(err).Any("task", task).Msg("A file deletion task failed...")
-		} else {
-			log.Info().Dur("elapsed", time.Since(start)).Uint("id", task.ID).Msg("A file deletion task was completed.")
-		}
-	}
-}
 
 func RunMarkLifecycleDeletionTask() {
 	var pools []models.AttachmentPool

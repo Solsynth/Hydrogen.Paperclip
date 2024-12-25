@@ -5,8 +5,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/barasher/go-exiftool"
-	"github.com/samber/lo"
 	"image"
 	"io"
 	"os"
@@ -14,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/barasher/go-exiftool"
+	"github.com/samber/lo"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -164,7 +165,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				defer et.Close()
 				exif := et.ExtractMetadata(dst)
 				for _, data := range exif {
-					for k, _ := range data.Fields {
+					for k := range data.Fields {
 						if strings.HasPrefix(k, "GPS") {
 							data.Clear(k)
 						} else if lo.Contains(exifWhitelist, k) {
@@ -205,7 +206,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 				defer et.Close()
 				exif := et.ExtractMetadata(dst)
 				for _, data := range exif {
-					for k, _ := range data.Fields {
+					for k := range data.Fields {
 						if strings.HasPrefix(k, "GPS") {
 							data.Clear(k)
 						} else if lo.Contains(exifWhitelist, k) {
@@ -248,7 +249,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	// Recycle the temporary file
 	file.Destination = models.AttachmentDstTemporary
-	PublishDeleteFileTask(file)
+	go DeleteFile(file)
 
 	// Finish
 	log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Bool("linked", linked).Msg("A file post-analyze upload task was finished.")

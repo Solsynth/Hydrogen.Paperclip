@@ -1,8 +1,9 @@
 package models
 
 import (
-	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
 	"time"
+
+	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
 
 	"gorm.io/datatypes"
 )
