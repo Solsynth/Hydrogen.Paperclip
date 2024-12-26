@@ -91,6 +91,7 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	var data struct {
 		Alternative *string         `json:"alt"`
+		Thumbnail   *string         `json:"thumbnail"`
 		Metadata    *map[string]any `json:"metadata"`
 		IsIndexable *bool           `json:"is_indexable"`
 	}
@@ -106,6 +107,9 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	if data.Alternative != nil {
 		attachment.Alternative = *data.Alternative
+	}
+	if data.Thumbnail != nil {
+		attachment.Thumbnail = *data.Thumbnail
 	}
 	if data.Metadata != nil {
 		attachment.Usermeta = *data.Metadata
