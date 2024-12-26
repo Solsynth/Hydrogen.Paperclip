@@ -44,6 +44,8 @@ func listAttachment(c *fiber.Ctx) error {
 		tx = tx.Where("rid IN ?", pendingQueryId)
 		needQuery = len(pendingQueryId) > 0
 	} else {
+		tx = tx.Where("is_indexable IS NULL OR is_indexable = ?", true)
+
 		// Do sort this when doesn't filter by the id
 		// Because the sort will mess up the result
 		tx = tx.Order("created_at DESC")
@@ -73,8 +75,6 @@ func listAttachment(c *fiber.Ctx) error {
 	if original := c.QueryBool("original", false); original {
 		tx = tx.Where("ref_id IS NULL")
 	}
-
-	tx = tx.Where("is_indexable != ?", false)
 
 	var count int64
 	countTx := tx
