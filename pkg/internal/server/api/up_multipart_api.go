@@ -113,9 +113,14 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 		return c.JSON(meta)
 	}
 
-	if meta, err = services.MergeFileChunks(meta, chunkArrange); err != nil {
+	meta, err = services.MergeFileChunks(meta, chunkArrange)
+	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	} else if !c.QueryBool("analyzeNow", false) {
+		services.AnalyzeAttachment(meta)
 	} else {
-		return c.JSON(meta)
+		services.PublishAnalyzeTask(meta)
 	}
+
+	return c.JSON(meta)
 }
