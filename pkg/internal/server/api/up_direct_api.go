@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -45,8 +46,7 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 	metadata, err := services.NewAttachmentMetadata(tx, user, file, models.Attachment{
 		Alternative: c.FormValue("alt"),
 		MimeType:    c.FormValue("mimetype"),
-		Metadata:    usermeta,
-		IsMature:    len(c.FormValue("mature")) > 0,
+		Usermeta:    usermeta,
 		IsAnalyzed:  false,
 		IsUploaded:  true,
 		Destination: models.AttachmentDstTemporary,

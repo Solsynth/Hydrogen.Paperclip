@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -22,7 +23,6 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		Alternative string         `json:"alt"`
 		MimeType    string         `json:"mimetype"`
 		Metadata    map[string]any `json:"metadata"`
-		IsMature    bool           `json:"is_mature"`
 	}
 
 	if err := exts.BindAndValidate(c, &data); err != nil {
@@ -50,8 +50,7 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		Size:        data.Size,
 		Alternative: data.Alternative,
 		MimeType:    data.MimeType,
-		Metadata:    data.Metadata,
-		IsMature:    data.IsMature,
+		Usermeta:    data.Metadata,
 		IsAnalyzed:  false,
 		Destination: models.AttachmentDstTemporary,
 		Pool:        &pool,

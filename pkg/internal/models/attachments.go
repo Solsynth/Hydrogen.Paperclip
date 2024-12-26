@@ -32,11 +32,17 @@ type Attachment struct {
 
 	CleanedAt *time.Time `json:"cleaned_at"`
 
-	Metadata   datatypes.JSONMap `json:"metadata"`
-	IsMature   bool              `json:"is_mature"`
-	IsAnalyzed bool              `json:"is_analyzed"`
-	IsUploaded bool              `json:"is_uploaded"`
-	IsSelfRef  bool              `json:"is_self_ref"`
+	Metadata datatypes.JSONMap `json:"metadata"` // This field is analyzer auto generated metadata
+	Usermeta datatypes.JSONMap `json:"usermeta"` // This field is user set metadata
+
+	Thumbnail     string `json:"thumbnail"`      // The cover image of audio / video attachment
+	ContentRating int    `json:"content_rating"` // This field use to filter mature content or not
+	QualityRating int    `json:"quality_rating"` // This field use to filter good content or not
+
+	IsAnalyzed  bool `json:"is_analyzed"`
+	IsUploaded  bool `json:"is_uploaded"`
+	IsSelfRef   bool `json:"is_self_ref"`
+	IsIndexable bool `json:"is_indexable"` // Show this attachment in the public directory api or not
 
 	Ref   *Attachment `json:"ref"`
 	RefID *uint       `json:"ref_id"`

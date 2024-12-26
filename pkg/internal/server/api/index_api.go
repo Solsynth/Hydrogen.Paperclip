@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
+	"strings"
+
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"git.solsynth.dev/hypernet/passport/pkg/authkit"
 	"github.com/spf13/viper"
 	"gorm.io/datatypes"
-	"strings"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
@@ -26,7 +27,7 @@ func listAttachment(c *fiber.Ctx) error {
 
 	needQuery := true
 
-	var result = make([]models.Attachment, take)
+	result := make([]models.Attachment, take)
 	var idxList []string
 
 	if len(c.Query("id")) > 0 {
@@ -72,6 +73,8 @@ func listAttachment(c *fiber.Ctx) error {
 	if original := c.QueryBool("original", false); original {
 		tx = tx.Where("ref_id IS NULL")
 	}
+
+	tx = tx.Where("is_indexable != ?", false)
 
 	var count int64
 	countTx := tx

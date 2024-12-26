@@ -2,11 +2,12 @@ package api
 
 import (
 	"fmt"
+	"net/url"
+	"path/filepath"
+
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
-	"net/url"
-	"path/filepath"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
@@ -89,9 +90,9 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
-		Alternative string         `json:"alt"`
-		Metadata    map[string]any `json:"metadata"`
-		IsMature    bool           `json:"is_mature"`
+		Alternative *string         `json:"alt"`
+		Metadata    *map[string]any `json:"metadata"`
+		IsIndexable *bool           `json:"is_indexable"`
 	}
 
 	if err := exts.BindAndValidate(c, &data); err != nil {
@@ -103,9 +104,15 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	attachment.Alternative = data.Alternative
-	attachment.Metadata = data.Metadata
-	attachment.IsMature = data.IsMature
+	if data.Alternative != nil {
+		attachment.Alternative = *data.Alternative
+	}
+	if data.Metadata != nil {
+		attachment.Usermeta = *data.Metadata
+	}
+	if data.IsIndexable != nil {
+		attachment.IsIndexable = *data.IsIndexable
+	}
 
 	if attachment, err := services.UpdateAttachment(attachment); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
