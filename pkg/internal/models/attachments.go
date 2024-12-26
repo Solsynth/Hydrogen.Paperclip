@@ -51,4 +51,7 @@ type Attachment struct {
 	PoolID *uint           `json:"pool_id"`
 
 	AccountID uint `json:"account_id"`
+
+	// Outdated fields, just for backward compatibility
+	IsMature bool `json:"is_mature"`
 }
