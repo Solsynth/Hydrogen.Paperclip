@@ -65,7 +65,8 @@ type Attachment struct {
 	AccountID uint `json:"account_id"`
 
 	// Outdated fields, just for backward compatibility
-	IsMature bool `json:"is_mature" gorm:"-"`
+	IsUploaded bool `json:"is_uploaded" gorm:"-"`
+	IsMature   bool `json:"is_mature" gorm:"-"`
 }
 
 // Data model for in progress multipart attachments
