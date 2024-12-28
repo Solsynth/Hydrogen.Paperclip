@@ -36,11 +36,8 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 }
 
 func ReUploadFile(meta models.Attachment, dst int) error {
-	if dst == models.AttachmentDstTemporary || meta.Destination == dst {
+	if meta.Destination == dst {
 		return fmt.Errorf("destnation cannot be reversed temporary or the same as the original")
-	}
-	if meta.Destination != models.AttachmentDstTemporary {
-		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
 	}
 
 	prevDst := meta.Destination
