@@ -89,7 +89,8 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 	if rawDest == nil {
 		if len(result.Boosts) > 0 {
 			randomIdx := rand.IntN(len(result.Boosts))
-			if des, ok := DestinationsByIndex[randomIdx]; ok {
+			boost := result.Boosts[randomIdx]
+			if des, ok := DestinationsByIndex[boost.Destination]; ok {
 				rawDest = des.Raw
 				json.Unmarshal(rawDest, &dest)
 			}
