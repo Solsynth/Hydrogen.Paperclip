@@ -35,8 +35,6 @@ type Attachment struct {
 	RefCount    int    `json:"ref_count"`
 	Type        uint   `json:"type"`
 
-	FileChunks datatypes.JSONMap `json:"file_chunks"`
-
 	CleanedAt *time.Time `json:"cleaned_at"`
 
 	Metadata datatypes.JSONMap `json:"metadata"` // This field is analyzer auto generated metadata
@@ -62,11 +60,14 @@ type Attachment struct {
 	Pool   *AttachmentPool `json:"pool"`
 	PoolID *uint           `json:"pool_id"`
 
+	Boosts []AttachmentBoost `json:"boosts"`
+
 	AccountID uint `json:"account_id"`
 
 	// Outdated fields, just for backward compatibility
-	IsUploaded bool `json:"is_uploaded" gorm:"-"`
-	IsMature   bool `json:"is_mature" gorm:"-"`
+	FileChunks datatypes.JSONMap `json:"file_chunks" gorm:"-"`
+	IsUploaded bool              `json:"is_uploaded" gorm:"-"`
+	IsMature   bool              `json:"is_mature" gorm:"-"`
 }
 
 // Data model for in progress multipart attachments

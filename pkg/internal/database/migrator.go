@@ -9,6 +9,7 @@ var AutoMaintainRange = []any{
 	&models.AttachmentPool{},
 	&models.Attachment{},
 	&models.AttachmentFragment{},
+	&models.AttachmentBoost{},
 	&models.StickerPack{},
 	&models.Sticker{},
 }

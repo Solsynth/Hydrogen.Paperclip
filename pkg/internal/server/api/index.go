@@ -10,6 +10,13 @@ func MapAPIs(app *fiber.App, baseURL string) {
 
 	api := app.Group(baseURL).Name("API")
 	{
+		boost := api.Group("/boosts").Name("Boosts API")
+		{
+			boost.Get("/:id", getBoost)
+			boost.Post("/", sec.ValidatorMiddleware, createBoost)
+			boost.Put("/:id", sec.ValidatorMiddleware, updateBoost)
+		}
+
 		api.Get("/pools", listPost)
 		api.Get("/pools/:id", getPool)
 		api.Post("/pools", sec.ValidatorMiddleware, createPool)

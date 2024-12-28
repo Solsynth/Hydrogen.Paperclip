@@ -104,22 +104,22 @@ func DeleteFile(meta models.Attachment) error {
 	case models.DestinationTypeLocal:
 		var destConfigured models.LocalDestination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return DeleteFileFromLocal(destConfigured, meta)
+		return DeleteFileFromLocal(destConfigured, meta.Uuid)
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		return DeleteFileFromS3(destConfigured, meta)
+		return DeleteFileFromS3(destConfigured, meta.Uuid)
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
 	}
 }
 
-func DeleteFileFromLocal(config models.LocalDestination, meta models.Attachment) error {
-	fullpath := filepath.Join(config.Path, meta.Uuid)
+func DeleteFileFromLocal(config models.LocalDestination, uuid string) error {
+	fullpath := filepath.Join(config.Path, uuid)
 	return os.Remove(fullpath)
 }
 
-func DeleteFileFromS3(config models.S3Destination, meta models.Attachment) error {
+func DeleteFileFromS3(config models.S3Destination, uuid string) error {
 	client, err := minio.New(config.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(config.SecretID, config.SecretKey, ""),
 		Secure: config.EnableSSL,
@@ -128,7 +128,7 @@ func DeleteFileFromS3(config models.S3Destination, meta models.Attachment) error
 		return fmt.Errorf("unable to configure s3 client: %v", err)
 	}
 
-	err = client.RemoveObject(context.Background(), config.Bucket, filepath.Join(config.Path, meta.Uuid), minio.RemoveObjectOptions{})
+	err = client.RemoveObject(context.Background(), config.Bucket, filepath.Join(config.Path, uuid), minio.RemoveObjectOptions{})
 	if err != nil {
 		return fmt.Errorf("unable to upload file to s3: %v", err)
 	}

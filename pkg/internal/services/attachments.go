@@ -35,6 +35,7 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 		Preload("Pool").
 		Preload("Thumbnail").
 		Preload("Compressed").
+		Preload("Boosts").
 		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
@@ -64,6 +65,7 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 		Preload("Pool").
 		Preload("Thumbnail").
 		Preload("Compressed").
+		Preload("Boosts").
 		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"github.com/gofiber/fiber/v2"
 	jsoniter "github.com/json-iterator/go"
@@ -34,12 +35,25 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 	}
 }
 
-func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
+func ReUploadFile(meta models.Attachment, dst int) error {
 	if dst == models.AttachmentDstTemporary || meta.Destination == dst {
 		return fmt.Errorf("destnation cannot be reversed temporary or the same as the original")
 	}
 	if meta.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to process")
+	}
+
+	prevDst := meta.Destination
+	inDst, err := fs.DownloadFileToLocal(meta, prevDst)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve file content: %v", err)
+	}
+
+	cleanupDst := func() {
+		if prevDst == models.AttachmentDstTemporary {
+			return
+		}
+		os.Remove(inDst)
 	}
 
 	meta.Destination = dst
@@ -48,16 +62,6 @@ func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
 	var dest models.BaseDestination
 	rawDest, _ := jsoniter.Marshal(destMap)
 	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	prevDestMap := viper.GetStringMap("destinations.0")
-
-	// Currently, the temporary destination only supports the local.
-	// So we can do this.
-	var prevDest models.LocalDestination
-	prevRawDest, _ := jsoniter.Marshal(prevDestMap)
-	_ = jsoniter.Unmarshal(prevRawDest, &prevDest)
-
-	inDst := filepath.Join(prevDest.Path, meta.Uuid)
 
 	switch dest.Type {
 	case models.DestinationTypeLocal:
@@ -83,6 +87,7 @@ func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
 
 		database.C.Save(&meta)
 		CacheAttachment(meta)
+		cleanupDst()
 		return nil
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
@@ -107,6 +112,7 @@ func ReUploadFileToPermanent(meta models.Attachment, dst int) error {
 
 		database.C.Save(&meta)
 		CacheAttachment(meta)
+		cleanupDst()
 		return nil
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
