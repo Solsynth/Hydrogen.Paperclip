@@ -17,6 +17,7 @@ import (
 
 	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"github.com/google/uuid"
@@ -218,7 +219,7 @@ func DeleteAttachment(item models.Attachment) error {
 	tx.Commit()
 
 	if dat.RefCount == 0 {
-		go DeleteFile(dat)
+		go fs.DeleteFile(dat)
 	}
 
 	return nil

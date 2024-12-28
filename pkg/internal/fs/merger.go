@@ -1,4 +1,4 @@
-package services
+package fs
 
 import (
 	"fmt"
@@ -55,14 +55,6 @@ func MergeFileChunks(meta models.AttachmentFragment, arrange []string) (models.A
 			}
 		}
 	}
-
-	// Post-upload tasks
-	if err := database.C.Save(&attachment).Error; err != nil {
-		return attachment, err
-	}
-
-	CacheAttachment(attachment)
-	PublishAnalyzeTask(attachment)
 
 	// Clean up: remove chunk files
 	go DeleteFragment(meta)

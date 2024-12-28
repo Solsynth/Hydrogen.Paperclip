@@ -6,6 +6,7 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/server/exts"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
@@ -115,10 +116,19 @@ func uploadFragmentChunk(c *fiber.Ctx) error {
 		return c.JSON(meta)
 	}
 
-	attachment, err := services.MergeFileChunks(meta, chunkArrange)
+	// Merge & post-upload
+	attachment, err := fs.MergeFileChunks(meta, chunkArrange)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
-	} else if !c.QueryBool("analyzeNow", false) {
+	}
+
+	// Post-upload tasks
+	if err := database.C.Save(&attachment).Error; err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+	services.CacheAttachment(attachment)
+
+	if !c.QueryBool("analyzeNow", false) {
 		services.AnalyzeAttachment(attachment)
 	} else {
 		services.PublishAnalyzeTask(attachment)

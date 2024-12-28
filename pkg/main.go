@@ -8,6 +8,7 @@ import (
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	pkg "git.solsynth.dev/hypernet/paperclip/pkg/internal"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/gap"
 	"github.com/fatih/color"
 
@@ -80,9 +81,9 @@ func main() {
 	// Configure timed tasks
 	quartz := cron.New(cron.WithLogger(cron.VerbosePrintfLogger(&log.Logger)))
 	quartz.AddFunc("@every 60m", services.DoAutoDatabaseCleanup)
-	quartz.AddFunc("@every 60m", services.RunMarkLifecycleDeletionTask)
-	quartz.AddFunc("@every 60m", services.RunMarkMultipartDeletionTask)
-	quartz.AddFunc("@midnight", services.RunScheduleDeletionTask)
+	quartz.AddFunc("@every 60m", fs.RunMarkLifecycleDeletionTask)
+	quartz.AddFunc("@every 60m", fs.RunMarkMultipartDeletionTask)
+	quartz.AddFunc("@midnight", fs.RunScheduleDeletionTask)
 	quartz.Start()
 
 	// Server
@@ -93,7 +94,7 @@ func main() {
 
 	// Post-boot actions
 	services.ScanUnanalyzedFileFromDatabase()
-	services.RunMarkLifecycleDeletionTask()
+	fs.RunMarkLifecycleDeletionTask()
 
 	// Messages
 	quit := make(chan os.Signal, 1)

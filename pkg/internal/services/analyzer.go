@@ -17,6 +17,7 @@ import (
 	"github.com/samber/lo"
 
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
+	"git.solsynth.dev/hypernet/paperclip/pkg/internal/fs"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/k0kubun/go-ansi"
@@ -245,7 +246,7 @@ func AnalyzeAttachment(file models.Attachment) error {
 			} else {
 				// Recycle the temporary file
 				file.Destination = models.AttachmentDstTemporary
-				go DeleteFile(file)
+				go fs.DeleteFile(file)
 				// Finish
 				log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Msg("A file post-analyze upload task was finished.")
 			}
