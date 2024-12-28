@@ -27,7 +27,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 			pools.Delete("/:id", sec.ValidatorMiddleware, deletePool)
 		}
 
-		attachments := api.Get("/attachments").Name("Attachments API")
+		attachments := api.Group("/attachments").Name("Attachments API")
 		{
 			attachments.Get("/:attachmentId/boosts", listBoostByAttachment)
 
@@ -39,13 +39,13 @@ func MapAPIs(app *fiber.App, baseURL string) {
 			attachments.Delete("/:id", sec.ValidatorMiddleware, deleteAttachment)
 		}
 
-		fragments := api.Get("/fragments").Name("Fragments API")
+		fragments := api.Group("/fragments").Name("Fragments API")
 		{
 			fragments.Post("/", sec.ValidatorMiddleware, createAttachmentFragment)
 			fragments.Post("/:file/:chunk", sec.ValidatorMiddleware, uploadFragmentChunk)
 		}
 
-		stickers := api.Get("/stickers").Name("Stickers API")
+		stickers := api.Group("/stickers").Name("Stickers API")
 		{
 			stickers.Get("/lookup", lookupStickerBatch)
 			stickers.Get("/lookup/:alias", lookupSticker)
