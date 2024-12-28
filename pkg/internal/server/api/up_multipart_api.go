@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
+func createAttachmentFragment(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
@@ -22,6 +22,7 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		FileName    string         `json:"name" validate:"required"`
 		Alternative string         `json:"alt"`
 		MimeType    string         `json:"mimetype"`
+		Fingerprint *string        `json:"fingerprint"`
 		Metadata    map[string]any `json:"metadata"`
 	}
 
@@ -45,14 +46,13 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("attachment pool %s doesn't allow file larger than %d", pool.Alias, *pool.Config.Data().MaxFileSize))
 	}
 
-	metadata, err := services.NewAttachmentPlaceholder(database.C, user, models.Attachment{
+	metadata, err := services.NewAttachmentFragment(database.C, user, models.AttachmentFragment{
 		Name:        data.FileName,
 		Size:        data.Size,
 		Alternative: data.Alternative,
 		MimeType:    data.MimeType,
 		Usermeta:    data.Metadata,
-		IsAnalyzed:  false,
-		Destination: models.AttachmentDstTemporary,
+		Fingerprint: data.Fingerprint,
 		Pool:        &pool,
 		PoolID:      &pool.ID,
 	})
@@ -67,7 +67,7 @@ func createAttachmentMultipartPlaceholder(c *fiber.Ctx) error {
 	})
 }
 
-func uploadAttachmentMultipart(c *fiber.Ctx) error {
+func uploadFragmentChunk(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	rid := c.Params("file")
@@ -80,7 +80,7 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "file is too large for one chunk")
 	}
 
-	meta, err := services.GetAttachmentByRID(rid)
+	meta, err := services.GetFragmentByRID(rid)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound, fmt.Sprintf("attachment was not found: %v", err))
 	} else if user.ID != meta.AccountID {
@@ -89,18 +89,18 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 
 	if _, ok := meta.FileChunks[cid]; !ok {
 		return fiber.NewError(fiber.StatusNotFound, fmt.Sprintf("chunk %s was not found", cid))
-	} else if services.CheckChunkExistsInTemporary(meta, cid) {
+	} else if services.CheckFragmentChunkExists(meta, cid) {
 		return fiber.NewError(fiber.StatusNotFound, fmt.Sprintf("chunk %s was uploaded", cid))
 	}
 
-	if err := services.UploadChunkToTemporaryWithRaw(c, cid, fileData, meta); err != nil {
+	if err := services.UploadFragmentChunkBytes(c, cid, fileData, meta); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	chunkArrange := make([]string, len(meta.FileChunks))
 	isAllUploaded := true
 	for cid, idx := range meta.FileChunks {
-		if !services.CheckChunkExistsInTemporary(meta, cid) {
+		if !services.CheckFragmentChunkExists(meta, cid) {
 			isAllUploaded = false
 			break
 		} else if val, ok := idx.(json.Number); ok {
@@ -113,13 +113,13 @@ func uploadAttachmentMultipart(c *fiber.Ctx) error {
 		return c.JSON(meta)
 	}
 
-	meta, err = services.MergeFileChunks(meta, chunkArrange)
+	attachment, err := services.MergeFileChunks(meta, chunkArrange)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	} else if !c.QueryBool("analyzeNow", false) {
-		services.AnalyzeAttachment(meta)
+		services.AnalyzeAttachment(attachment)
 	} else {
-		services.PublishAnalyzeTask(meta)
+		services.PublishAnalyzeTask(attachment)
 	}
 
 	return c.JSON(meta)

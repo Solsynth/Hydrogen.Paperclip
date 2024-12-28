@@ -11,7 +11,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachment, error) {
+func MergeFileChunks(meta models.AttachmentFragment, arrange []string) (models.Attachment, error) {
+	attachment := meta.ToAttachment()
+
 	// Fetch destination from config
 	destMap := viper.GetStringMapString("destinations.0")
 
@@ -22,7 +24,7 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 	destPath := filepath.Join(dest.Path, meta.Uuid)
 	destFile, err := os.Create(destPath)
 	if err != nil {
-		return meta, err
+		return attachment, err
 	}
 	defer destFile.Close()
 
@@ -34,7 +36,7 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		chunkFile, err := os.Open(chunkPath)
 		if err != nil {
-			return meta, err
+			return attachment, err
 		}
 
 		defer chunkFile.Close() // Ensure the file is closed after reading
@@ -42,35 +44,36 @@ func MergeFileChunks(meta models.Attachment, arrange []string) (models.Attachmen
 		for {
 			n, err := chunkFile.Read(buf)
 			if err != nil && err != io.EOF {
-				return meta, err
+				return attachment, err
 			}
 			if n == 0 {
 				break
 			}
 
 			if _, err := destFile.Write(buf[:n]); err != nil {
-				return meta, err
+				return attachment, err
 			}
 		}
 	}
 
 	// Post-upload tasks
-	meta.IsUploaded = true
-	meta.FileChunks = nil
-	if err := database.C.Save(&meta).Error; err != nil {
-		return meta, err
+	if err := database.C.Save(&attachment).Error; err != nil {
+		return attachment, err
 	}
 
-	CacheAttachment(meta)
-	PublishAnalyzeTask(meta)
+	CacheAttachment(attachment)
+	PublishAnalyzeTask(attachment)
 
 	// Clean up: remove chunk files
 	for _, chunk := range arrange {
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		if err := os.Remove(chunkPath); err != nil {
-			return meta, err
+			return attachment, err
 		}
 	}
 
-	return meta, nil
+	// Clean up: remove fragment record
+	database.C.Delete(&meta)
+
+	return attachment, nil
 }

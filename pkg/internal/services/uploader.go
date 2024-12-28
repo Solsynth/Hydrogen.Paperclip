@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -32,65 +31,6 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 		return ctx.SaveFile(file, filepath.Join(destConfigured.Path, meta.Uuid))
 	default:
 		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
-	}
-}
-
-func UploadChunkToTemporary(ctx *fiber.Ctx, cid string, file *multipart.FileHeader, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations.0")
-
-	var dest models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	switch dest.Type {
-	case models.DestinationTypeLocal:
-		var destConfigured models.LocalDestination
-		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		tempPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s.partial", meta.Uuid, cid))
-		destPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
-		if err := ctx.SaveFile(file, tempPath); err != nil {
-			return err
-		}
-		return os.Rename(tempPath, destPath)
-	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
-	}
-}
-
-func UploadChunkToTemporaryWithRaw(ctx *fiber.Ctx, cid string, raw []byte, meta models.Attachment) error {
-	destMap := viper.GetStringMap("destinations.0")
-
-	var dest models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	switch dest.Type {
-	case models.DestinationTypeLocal:
-		var destConfigured models.LocalDestination
-		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		tempPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s.partial", meta.Uuid, cid))
-		destPath := filepath.Join(destConfigured.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
-		if err := os.WriteFile(tempPath, raw, 0644); err != nil {
-			return err
-		}
-		return os.Rename(tempPath, destPath)
-	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
-	}
-}
-
-func CheckChunkExistsInTemporary(meta models.Attachment, cid string) bool {
-	destMap := viper.GetStringMap("destinations.0")
-
-	var dest models.LocalDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	path := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
-	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
-		return false
-	} else {
-		return true
 	}
 }
 

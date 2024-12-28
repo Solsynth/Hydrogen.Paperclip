@@ -238,21 +238,23 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Msg("A file analyze task was finished, starting uploading...")
 
-	start = time.Now()
-
 	// Move temporary to permanent
 	if !linked {
-		if err := ReUploadFileToPermanent(file, 1); err != nil {
-			return fmt.Errorf("unable to move file to permanet storage: %v", err)
-		}
+		go func() {
+			start = time.Now()
+			if err := ReUploadFileToPermanent(file, 1); err != nil {
+				log.Warn().Any("file", file).Err(err).Msg("Unable to move file to permanet storage...")
+			} else {
+				// Recycle the temporary file
+				file.Destination = models.AttachmentDstTemporary
+				go DeleteFile(file)
+				// Finish
+				log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Msg("A file post-analyze upload task was finished.")
+			}
+		}()
+	} else {
+		log.Info().Uint("id", file.ID).Msg("File is linked to exists one, skipping uploading...")
 	}
-
-	// Recycle the temporary file
-	file.Destination = models.AttachmentDstTemporary
-	go DeleteFile(file)
-
-	// Finish
-	log.Info().Dur("elapsed", time.Since(start)).Uint("id", file.ID).Bool("linked", linked).Msg("A file post-analyze upload task was finished.")
 
 	return nil
 }
