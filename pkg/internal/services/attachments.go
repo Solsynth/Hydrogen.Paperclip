@@ -197,10 +197,15 @@ func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 	return item, nil
 }
 
-func DeleteAttachment(item models.Attachment) error {
+func DeleteAttachment(item models.Attachment, txs ...*gorm.DB) error {
 	dat := item
 
-	tx := database.C.Begin()
+	var tx *gorm.DB
+	if len(txs) == 0 {
+		tx = database.C.Begin()
+	} else {
+		tx = txs[0]
+	}
 
 	if item.RefID != nil {
 		var refTarget models.Attachment
@@ -210,6 +215,16 @@ func DeleteAttachment(item models.Attachment) error {
 				tx.Rollback()
 				return fmt.Errorf("unable to update ref count: %v", err)
 			}
+		}
+	}
+	if item.Thumbnail != nil {
+		if err := DeleteAttachment(*item.Thumbnail, tx); err != nil {
+			return err
+		}
+	}
+	if item.Compressed != nil {
+		if err := DeleteAttachment(*item.Compressed, tx); err != nil {
+			return err
 		}
 	}
 	if err := database.C.Delete(&item).Error; err != nil {
