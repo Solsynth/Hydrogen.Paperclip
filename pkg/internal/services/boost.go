@@ -64,7 +64,7 @@ func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) 
 		AccountID:    user.ID,
 	}
 
-	if des, ok := destinationsByIndex[destination]; !ok {
+	if des, ok := DestinationsByIndex[destination]; !ok {
 		return boost, fmt.Errorf("invalid destination: %d", destination)
 	} else {
 		var destBase models.BaseDestination

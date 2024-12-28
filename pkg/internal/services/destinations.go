@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
@@ -13,15 +15,16 @@ type destinationMapping struct {
 }
 
 var (
-	destinationsByIndex  = make(map[int]destinationMapping)
-	destinationsByRegion = make(map[string]destinationMapping)
+	DestinationsByIndex  = make(map[int]destinationMapping)
+	DestinationsByRegion = make(map[string]destinationMapping)
 )
 
 func BuildDestinationMapping() {
-	count := 0
-	for idx, value := range viper.GetStringSlice("destinations") {
+	count := len(viper.GetStringSlice("destinations"))
+	for idx := 0; idx < count; idx++ {
+		destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", idx))
 		var parsed models.BaseDestination
-		raw, _ := jsoniter.Marshal(value)
+		raw, _ := jsoniter.Marshal(destMap)
 		_ = jsoniter.Unmarshal(raw, &parsed)
 
 		mapping := destinationMapping{
@@ -30,8 +33,8 @@ func BuildDestinationMapping() {
 		}
 
 		if len(parsed.Region) > 0 {
-			destinationsByIndex[idx] = mapping
-			destinationsByRegion[parsed.Region] = mapping
+			DestinationsByIndex[idx] = mapping
+			DestinationsByRegion[parsed.Region] = mapping
 		}
 
 		count++

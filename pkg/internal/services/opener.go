@@ -77,7 +77,7 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 	var rawDest []byte
 
 	if len(region) > 0 {
-		if des, ok := destinationsByRegion[region[0]]; ok {
+		if des, ok := DestinationsByRegion[region[0]]; ok {
 			for _, boost := range result.Boosts {
 				if boost.Destination == des.Index {
 					rawDest = des.Raw
@@ -89,12 +89,12 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 	if rawDest == nil {
 		if len(result.Boosts) > 0 {
 			randomIdx := rand.IntN(len(result.Boosts))
-			if des, ok := destinationsByIndex[randomIdx]; ok {
+			if des, ok := DestinationsByIndex[randomIdx]; ok {
 				rawDest = des.Raw
 				json.Unmarshal(rawDest, &dest)
 			}
 		} else {
-			if des, ok := destinationsByIndex[result.Attachment.Destination]; ok {
+			if des, ok := DestinationsByIndex[result.Attachment.Destination]; ok {
 				rawDest = des.Raw
 				json.Unmarshal(rawDest, &dest)
 			}
