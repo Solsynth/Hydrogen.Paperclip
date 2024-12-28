@@ -33,6 +33,8 @@ func GetAttachmentByID(id uint) (models.Attachment, error) {
 	if err := database.C.
 		Where("id = ?", id).
 		Preload("Pool").
+		Preload("Thumbnail").
+		Preload("Compressed").
 		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
@@ -58,7 +60,11 @@ func GetAttachmentByRID(rid string) (models.Attachment, error) {
 	var attachment models.Attachment
 	if err := database.C.Where(models.Attachment{
 		Rid: rid,
-	}).Preload("Pool").First(&attachment).Error; err != nil {
+	}).
+		Preload("Pool").
+		Preload("Thumbnail").
+		Preload("Compressed").
+		First(&attachment).Error; err != nil {
 		return attachment, err
 	} else {
 		CacheAttachment(attachment)

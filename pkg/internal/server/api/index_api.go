@@ -84,7 +84,10 @@ func listAttachment(c *fiber.Ctx) error {
 
 	if needQuery {
 		var out []models.Attachment
-		if err := tx.Offset(offset).Limit(take).Find(&out).Error; err != nil {
+		if err := tx.
+			Offset(offset).Limit(take).
+			Preload("Thumbnail").Preload("Compressed").
+			Find(&out).Error; err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, err.Error())
 		}
 
