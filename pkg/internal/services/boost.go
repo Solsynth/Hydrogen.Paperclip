@@ -74,7 +74,7 @@ func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) 
 		}
 	}
 
-	if err := database.C.Create(&boost).Error; err != nil {
+	if err := database.C.Save(&boost).Error; err != nil {
 		return boost, err
 	}
 
@@ -85,6 +85,8 @@ func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) 
 }
 
 func ActivateBoost(boost models.AttachmentBoost) {
+	log.Debug().Any("boost", boost).Msg("Activating boost...")
+
 	dests := cast.ToSlice(viper.Get("destinations"))
 	if boost.Destination >= len(dests) {
 		log.Warn().Any("boost", boost).Msg("Unable to activate boost, invalid destination...")
