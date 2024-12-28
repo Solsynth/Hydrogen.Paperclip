@@ -132,6 +132,9 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 			First(&compressed).Error; err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable find compressed: %v", err))
 		}
+		if attachment.Compressed != nil {
+			services.UnsetAttachmentAsCompressed(*attachment.Compressed)
+		}
 		compressed, err := services.SetAttachmentAsCompressed(compressed)
 		if err != nil {
 			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable set compressed: %v", err))
