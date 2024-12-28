@@ -6,6 +6,7 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/cast"
 	"github.com/spf13/viper"
 )
 
@@ -20,8 +21,9 @@ var (
 )
 
 func BuildDestinationMapping() {
-	count := len(viper.GetStringSlice("destinations"))
+	count := len(cast.ToSlice(viper.Get("destinations")))
 	for idx := 0; idx < count; idx++ {
+		fmt.Println(idx)
 		destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", idx))
 		var parsed models.BaseDestination
 		raw, _ := jsoniter.Marshal(destMap)
@@ -36,8 +38,6 @@ func BuildDestinationMapping() {
 			DestinationsByIndex[idx] = mapping
 			DestinationsByRegion[parsed.Region] = mapping
 		}
-
-		count++
 	}
 
 	log.Info().Int("count", count).Msg("Destinations mapping built")

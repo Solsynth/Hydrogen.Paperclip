@@ -10,7 +10,7 @@ files_deletion = 4
 files_analyze = 4
 
 [debug]
-database = true
+database = false
 print_routes = false
 
 [performance]
