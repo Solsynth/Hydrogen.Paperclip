@@ -6,10 +6,10 @@ import (
 )
 
 func MapAPIs(app *fiber.App, baseURL string) {
-	app.Get("/.well-known/destinations", getDestinations)
-
 	api := app.Group(baseURL).Name("API")
 	{
+		api.Get("/destinations", listDestination)
+
 		boost := api.Group("/boosts").Name("Boosts API")
 		{
 			boost.Get("/", listBoostByUser)
