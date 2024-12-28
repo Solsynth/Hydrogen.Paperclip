@@ -35,7 +35,7 @@ func UploadFileToTemporary(ctx *fiber.Ctx, file *multipart.FileHeader, meta mode
 	}
 }
 
-func ReUploadFile(meta models.Attachment, dst int) error {
+func ReUploadFile(meta models.Attachment, dst int, doNotUpdate ...bool) error {
 	if meta.Destination == dst {
 		return fmt.Errorf("destnation cannot be reversed temporary or the same as the original")
 	}
@@ -47,6 +47,9 @@ func ReUploadFile(meta models.Attachment, dst int) error {
 	}
 
 	cleanupDst := func() {
+		if len(doNotUpdate) == 0 || !doNotUpdate[0] {
+			database.C.Save(&meta)
+		}
 		if prevDst == models.AttachmentDstTemporary {
 			return
 		}
@@ -82,7 +85,6 @@ func ReUploadFile(meta models.Attachment, dst int) error {
 			return fmt.Errorf("unable to copy data to dest file: %v", err)
 		}
 
-		database.C.Save(&meta)
 		cleanupDst()
 		return nil
 	case models.DestinationTypeS3:
@@ -106,7 +108,6 @@ func ReUploadFile(meta models.Attachment, dst int) error {
 			return fmt.Errorf("unable to upload file to s3: %v", err)
 		}
 
-		database.C.Save(&meta)
 		cleanupDst()
 		return nil
 	default:

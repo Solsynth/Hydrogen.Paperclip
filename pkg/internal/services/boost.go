@@ -94,7 +94,7 @@ func ActivateBoost(boost models.AttachmentBoost) error {
 		return fmt.Errorf("invalid destination: %d", boost.Destination)
 	}
 
-	if err := ReUploadFile(boost.Attachment, boost.Destination); err != nil {
+	if err := ReUploadFile(boost.Attachment, boost.Destination, true); err != nil {
 		log.Warn().Any("boost", boost).Err(err).Msg("Unable to activate boost...")
 		database.C.Model(&boost).Update("status", models.BoostStatusError)
 		return err
