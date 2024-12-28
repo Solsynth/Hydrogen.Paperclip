@@ -23,8 +23,8 @@ func MapAPIs(app *fiber.App, baseURL string) {
 		api.Put("/attachments/:id", sec.ValidatorMiddleware, updateAttachmentMeta)
 		api.Delete("/attachments/:id", sec.ValidatorMiddleware, deleteAttachment)
 
-		api.Post("/attachments/multipart", sec.ValidatorMiddleware, createAttachmentFragment)
-		api.Post("/attachments/multipart/:file/:chunk", sec.ValidatorMiddleware, uploadFragmentChunk)
+		api.Post("/fragments", sec.ValidatorMiddleware, createAttachmentFragment)
+		api.Post("/fragments/:file/:chunk", sec.ValidatorMiddleware, uploadFragmentChunk)
 
 		api.Get("/stickers/lookup", lookupStickerBatch)
 		api.Get("/stickers/lookup/:alias", lookupSticker)
