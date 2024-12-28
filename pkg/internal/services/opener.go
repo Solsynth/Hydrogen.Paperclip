@@ -16,6 +16,8 @@ import (
 	"github.com/eko/gocache/lib/v4/marshaler"
 	"github.com/eko/gocache/lib/v4/store"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/samber/lo"
 )
 
@@ -113,6 +115,25 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
+		if destConfigured.EnabledSigned {
+			var client *minio.Client
+			client, err = minio.New(destConfigured.Endpoint, &minio.Options{
+				Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
+				Secure: destConfigured.EnableSSL,
+			})
+			if err != nil {
+				return
+			}
+
+			var uri *nurl.URL
+			uri, err = client.PresignedGetObject(context.Background(), destConfigured.Bucket, result.Attachment.Uuid, 60*time.Minute, nil)
+			if err != nil {
+				return
+			}
+
+			url = uri.String()
+			return
+		}
 		if len(destConfigured.AccessBaseURL) > 0 {
 			url = fmt.Sprintf(
 				"%s/%s",
