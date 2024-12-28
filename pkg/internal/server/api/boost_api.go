@@ -9,10 +9,20 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func getBoost(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id", 0)
+func listBoost(c *fiber.Ctx) error {
+	attachmentId, _ := c.ParamsInt("attachmentId", 0)
 
-	if boost, err := services.GetBoostByID(uint(id)); err != nil {
+	if boost, err := services.ListBoostByAttachment(uint(attachmentId)); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	} else {
+		return c.JSON(boost)
+	}
+}
+
+func getBoost(c *fiber.Ctx) error {
+	boostId, _ := c.ParamsInt("boostId", 0)
+
+	if boost, err := services.GetBoostByID(uint(boostId)); err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	} else {
 		return c.JSON(boost)
@@ -45,7 +55,7 @@ func createBoost(c *fiber.Ctx) error {
 
 func updateBoost(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
-	id, _ := c.ParamsInt("id", 0)
+	boostId, _ := c.ParamsInt("boostId", 0)
 
 	var data struct {
 		Status int `json:"status" validate:"required"`
@@ -55,7 +65,7 @@ func updateBoost(c *fiber.Ctx) error {
 		return err
 	}
 
-	boost, err := services.GetBoostByID(uint(id))
+	boost, err := services.GetBoostByID(uint(boostId))
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	} else if boost.AccountID != user.ID {
@@ -71,9 +81,9 @@ func updateBoost(c *fiber.Ctx) error {
 
 func deleteBoost(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
-	id, _ := c.ParamsInt("id", 0)
+	boostId, _ := c.ParamsInt("boostId", 0)
 
-	boost, err := services.GetBoostByID(uint(id))
+	boost, err := services.GetBoostByID(uint(boostId))
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	} else if boost.AccountID != user.ID {

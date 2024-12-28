@@ -28,6 +28,8 @@ func MapAPIs(app *fiber.App, baseURL string) {
 
 		attachments := api.Get("/attachments").Name("Attachments API")
 		{
+			attachments.Get("/:attachmentId/boosts", listBoost)
+
 			attachments.Get("/", listAttachment)
 			attachments.Get("/:id/meta", getAttachmentMeta)
 			attachments.Get("/:id", openAttachment)

@@ -13,6 +13,14 @@ import (
 	"github.com/spf13/viper"
 )
 
+func ListBoostByAttachment(attachmentId uint) ([]models.AttachmentBoost, error) {
+	var boosts []models.AttachmentBoost
+	if err := database.C.Where("attachment_id = ?", attachmentId).Find(&boosts).Error; err != nil {
+		return boosts, err
+	}
+	return boosts, nil
+}
+
 func GetBoostByID(id uint) (models.AttachmentBoost, error) {
 	var boost models.AttachmentBoost
 	if err := database.C.
