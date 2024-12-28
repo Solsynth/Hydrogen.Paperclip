@@ -58,6 +58,8 @@ func createAttachmentFragment(c *fiber.Ctx) error {
 	})
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	} else {
+		metadata.FileChunksMissing = services.FindFragmentMissingChunks(metadata)
 	}
 
 	return c.JSON(fiber.Map{

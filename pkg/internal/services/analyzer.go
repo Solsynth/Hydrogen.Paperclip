@@ -315,7 +315,7 @@ func HashAttachment(file models.Attachment) (hash string, err error) {
 	}
 
 	// Hash with the file metadata
-	hasher.Write([]byte(fmt.Sprintf("%d", file.Size)))
+	fmt.Fprintf(hasher, "%d", file.Size)
 
 	// Return the combined hash
 	hash = hex.EncodeToString(hasher.Sum(nil))

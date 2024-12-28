@@ -92,6 +92,8 @@ type AttachmentFragment struct {
 	PoolID *uint           `json:"pool_id"`
 
 	AccountID uint `json:"account_id"`
+
+	FileChunksMissing []string `json:"file_chunks_missing" gorm:"-"` // This field use to prompt client which chunks is pending upload, do not store it
 }
 
 func (v AttachmentFragment) ToAttachment() Attachment {

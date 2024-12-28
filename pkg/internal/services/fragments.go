@@ -151,3 +151,13 @@ func CheckFragmentChunkExists(meta models.AttachmentFragment, cid string) bool {
 		return true
 	}
 }
+
+func FindFragmentMissingChunks(meta models.AttachmentFragment) []string {
+	var missing []string
+	for cid := range meta.FileChunks {
+		if !CheckFragmentChunkExists(meta, cid) {
+			missing = append(missing, cid)
+		}
+	}
+	return missing
+}
