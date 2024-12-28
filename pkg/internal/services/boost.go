@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
@@ -63,9 +64,14 @@ func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) 
 		AccountID:    user.ID,
 	}
 
-	dests := cast.ToSlice(viper.Get("destinations"))
-	if destination >= len(dests) {
+	if des, ok := destinationsByIndex[destination]; !ok {
 		return boost, fmt.Errorf("invalid destination: %d", destination)
+	} else {
+		var destBase models.BaseDestination
+		json.Unmarshal(des.Raw, &destBase)
+		if !destBase.IsBoost {
+			return boost, fmt.Errorf("invalid destination: %d; wasn't available for boost", destination)
+		}
 	}
 
 	if err := database.C.Create(&boost).Error; err != nil {
