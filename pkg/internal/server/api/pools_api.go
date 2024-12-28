@@ -9,7 +9,7 @@ import (
 	"gorm.io/datatypes"
 )
 
-func listPost(c *fiber.Ctx) error {
+func listPool(c *fiber.Ctx) error {
 	pools, err := services.ListAttachmentPool()
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

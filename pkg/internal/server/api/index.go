@@ -17,34 +17,50 @@ func MapAPIs(app *fiber.App, baseURL string) {
 			boost.Put("/:id", sec.ValidatorMiddleware, updateBoost)
 		}
 
-		api.Get("/pools", listPost)
-		api.Get("/pools/:id", getPool)
-		api.Post("/pools", sec.ValidatorMiddleware, createPool)
-		api.Put("/pools/:id", sec.ValidatorMiddleware, updatePool)
-		api.Delete("/pools/:id", sec.ValidatorMiddleware, deletePool)
+		pools := api.Get("/pools").Name("Pools API")
+		{
+			pools.Get("/", listPool)
+			pools.Get("/:id", getPool)
+			pools.Post("/", sec.ValidatorMiddleware, createPool)
+			pools.Put("/:id", sec.ValidatorMiddleware, updatePool)
+			pools.Delete("/:id", sec.ValidatorMiddleware, deletePool)
+		}
 
-		api.Get("/attachments", listAttachment)
-		api.Get("/attachments/:id/meta", getAttachmentMeta)
-		api.Get("/attachments/:id", openAttachment)
-		api.Post("/attachments", sec.ValidatorMiddleware, createAttachmentDirectly)
-		api.Put("/attachments/:id", sec.ValidatorMiddleware, updateAttachmentMeta)
-		api.Delete("/attachments/:id", sec.ValidatorMiddleware, deleteAttachment)
+		attachments := api.Get("/attachments").Name("Attachments API")
+		{
+			attachments.Get("/", listAttachment)
+			attachments.Get("/:id/meta", getAttachmentMeta)
+			attachments.Get("/:id", openAttachment)
+			attachments.Post("/", sec.ValidatorMiddleware, createAttachmentDirectly)
+			attachments.Put("/:id", sec.ValidatorMiddleware, updateAttachmentMeta)
+			attachments.Delete("/:id", sec.ValidatorMiddleware, deleteAttachment)
+		}
 
-		api.Post("/fragments", sec.ValidatorMiddleware, createAttachmentFragment)
-		api.Post("/fragments/:file/:chunk", sec.ValidatorMiddleware, uploadFragmentChunk)
+		fragments := api.Get("/fragments").Name("Fragments API")
+		{
+			fragments.Post("/", sec.ValidatorMiddleware, createAttachmentFragment)
+			fragments.Post("/:file/:chunk", sec.ValidatorMiddleware, uploadFragmentChunk)
+		}
 
-		api.Get("/stickers/lookup", lookupStickerBatch)
-		api.Get("/stickers/lookup/:alias", lookupSticker)
-		api.Get("/stickers/packs", listStickerPacks)
-		api.Get("/stickers/packs/:packId", getStickerPack)
-		api.Post("/stickers/packs", sec.ValidatorMiddleware, createStickerPack)
-		api.Put("/stickers/packs/:packId", sec.ValidatorMiddleware, updateStickerPack)
-		api.Delete("/stickers/packs/:packId", sec.ValidatorMiddleware, deleteStickerPack)
+		stickers := api.Get("/stickers").Name("Stickers API")
+		{
+			stickers.Get("/lookup", lookupStickerBatch)
+			stickers.Get("/lookup/:alias", lookupSticker)
 
-		api.Get("/stickers", listStickers)
-		api.Get("/stickers/:stickerId", getSticker)
-		api.Post("/stickers", sec.ValidatorMiddleware, createSticker)
-		api.Put("/stickers/:stickerId", sec.ValidatorMiddleware, updateSticker)
-		api.Delete("/stickers/:stickerId", sec.ValidatorMiddleware, deleteSticker)
+			stickers.Get("/", listStickers)
+			stickers.Get("/:stickerId", getSticker)
+			stickers.Post("/", sec.ValidatorMiddleware, createSticker)
+			stickers.Put("/:stickerId", sec.ValidatorMiddleware, updateSticker)
+			stickers.Delete("/:stickerId", sec.ValidatorMiddleware, deleteSticker)
+
+			packs := stickers.Group("/packs").Name("Sticker Packs API")
+			{
+				packs.Get("/", listStickerPacks)
+				packs.Get("/:packId", getStickerPack)
+				packs.Post("/", sec.ValidatorMiddleware, createStickerPack)
+				packs.Put("/:packId", sec.ValidatorMiddleware, updateStickerPack)
+				packs.Delete("/:packId", sec.ValidatorMiddleware, deleteStickerPack)
+			}
+		}
 	}
 }
