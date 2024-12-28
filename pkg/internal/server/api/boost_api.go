@@ -9,7 +9,32 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func listBoost(c *fiber.Ctx) error {
+func listBoostByUser(c *fiber.Ctx) error {
+	user := c.Locals("nex_user").(*sec.UserInfo)
+	take := c.QueryInt("take", 0)
+	offset := c.QueryInt("offset", 0)
+
+	if take > 100 {
+		take = 100
+	}
+
+	count, err := services.CountBoostByUser(user.ID)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	boosts, err := services.ListBoostByUser(user.ID, take, offset)
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{
+		"count": count,
+		"data":  boosts,
+	})
+}
+
+func listBoostByAttachment(c *fiber.Ctx) error {
 	attachmentId, _ := c.ParamsInt("attachmentId", 0)
 
 	if boost, err := services.ListBoostByAttachment(uint(attachmentId)); err != nil {

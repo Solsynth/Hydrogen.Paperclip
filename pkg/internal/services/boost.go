@@ -13,6 +13,28 @@ import (
 	"github.com/spf13/viper"
 )
 
+func CountBoostByUser(userId uint) (int64, error) {
+	var count int64
+	if err := database.C.
+		Model(&models.AttachmentBoost{}).
+		Where("account_id = ?", userId).
+		Count(&count).Error; err != nil {
+		return count, err
+	}
+	return count, nil
+}
+
+func ListBoostByUser(userId uint, take, offset int) ([]models.AttachmentBoost, error) {
+	var boosts []models.AttachmentBoost
+	if err := database.C.
+		Where("account_id = ?", userId).
+		Limit(take).Offset(offset).
+		Find(&boosts).Error; err != nil {
+		return boosts, err
+	}
+	return boosts, nil
+}
+
 func ListBoostByAttachment(attachmentId uint) ([]models.AttachmentBoost, error) {
 	var boosts []models.AttachmentBoost
 	if err := database.C.Where("attachment_id = ?", attachmentId).Find(&boosts).Error; err != nil {

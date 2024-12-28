@@ -12,6 +12,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 	{
 		boost := api.Group("/boosts").Name("Boosts API")
 		{
+			boost.Get("/", listBoostByUser)
 			boost.Get("/:id", getBoost)
 			boost.Post("/", sec.ValidatorMiddleware, createBoost)
 			boost.Put("/:id", sec.ValidatorMiddleware, updateBoost)
@@ -28,7 +29,7 @@ func MapAPIs(app *fiber.App, baseURL string) {
 
 		attachments := api.Get("/attachments").Name("Attachments API")
 		{
-			attachments.Get("/:attachmentId/boosts", listBoost)
+			attachments.Get("/:attachmentId/boosts", listBoostByAttachment)
 
 			attachments.Get("/", listAttachment)
 			attachments.Get("/:id/meta", getAttachmentMeta)
