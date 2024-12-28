@@ -33,6 +33,7 @@ type Attachment struct {
 	HashCode    string `json:"hash"`
 	Destination int    `json:"destination"`
 	RefCount    int    `json:"ref_count"`
+	Type        uint   `json:"type"`
 
 	FileChunks datatypes.JSONMap `json:"file_chunks"`
 
@@ -108,6 +109,7 @@ func (v AttachmentFragment) ToAttachment() Attachment {
 		Metadata:    v.Metadata,
 		Usermeta:    v.Usermeta,
 		Destination: AttachmentDstTemporary,
+		Type:        AttachmentTypeNormal,
 		Pool:        v.Pool,
 		PoolID:      v.PoolID,
 		AccountID:   v.AccountID,

@@ -88,9 +88,11 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
 
 	var data struct {
-		Alternative *string         `json:"alt"`
-		Metadata    *map[string]any `json:"metadata"`
-		IsIndexable *bool           `json:"is_indexable"`
+		Thumbnail   *uint          `json:"thumbnail"`
+		Compressed  *uint          `json:"compressed"`
+		Alternative string         `json:"alt"`
+		Metadata    map[string]any `json:"metadata"`
+		IsIndexable bool           `json:"is_indexable"`
 	}
 
 	if err := exts.BindAndValidate(c, &data); err != nil {
@@ -98,19 +100,49 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 	}
 
 	var attachment models.Attachment
-	if err := database.C.Where("id = ? AND account_id = ?", id, user.ID).First(&attachment).Error; err != nil {
+	if err := database.C.
+		Where("id = ? AND account_id = ?", id, user.ID).
+		Preload("Thumbnail").
+		Preload("Compressed").
+		First(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
-	if data.Alternative != nil {
-		attachment.Alternative = *data.Alternative
+	if data.Thumbnail != nil && attachment.ThumbnailID != data.Thumbnail {
+		var thumbnail models.Attachment
+		if err := database.C.
+			Where("id = ? AND account_id = ?", data.Thumbnail, user.ID).
+			First(&thumbnail).Error; err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable find thumbnail: %v", err))
+		}
+		if attachment.Thumbnail != nil {
+			services.UnsetAttachmentAsThumbnail(*attachment.Thumbnail)
+		}
+		thumbnail, err := services.SetAttachmentAsThumbnail(thumbnail)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable set thumbnail: %v", err))
+		}
+		attachment.Thumbnail = &thumbnail
+		attachment.ThumbnailID = &thumbnail.ID
 	}
-	if data.Metadata != nil {
-		attachment.Usermeta = *data.Metadata
+	if data.Compressed != nil && attachment.CompressedID != data.Compressed {
+		var compressed models.Attachment
+		if err := database.C.
+			Where("id = ? AND account_id = ?", data.Compressed, user.ID).
+			First(&compressed).Error; err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable find compressed: %v", err))
+		}
+		compressed, err := services.SetAttachmentAsCompressed(compressed)
+		if err != nil {
+			return fiber.NewError(fiber.StatusBadRequest, fmt.Sprintf("unable set compressed: %v", err))
+		}
+		attachment.Compressed = &compressed
+		attachment.CompressedID = &compressed.ID
 	}
-	if data.IsIndexable != nil {
-		attachment.IsIndexable = *data.IsIndexable
-	}
+
+	attachment.Alternative = data.Alternative
+	attachment.Usermeta = data.Metadata
+	attachment.IsIndexable = data.IsIndexable
 
 	if attachment, err := services.UpdateAttachment(attachment); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())

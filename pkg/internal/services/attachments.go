@@ -182,7 +182,7 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 }
 
 func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
-	if err := database.C.Updates(&item).Error; err != nil {
+	if err := database.C.Model(&item).Updates(&item).Error; err != nil {
 		return item, err
 	} else {
 		CacheAttachment(item)
