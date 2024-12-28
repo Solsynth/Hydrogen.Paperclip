@@ -30,5 +30,5 @@ type S3Destination struct {
 	SecretKey     string `json:"secret_key"`
 	AccessBaseURL string `json:"access_baseurl"`
 	EnableSSL     bool   `json:"enable_ssl"`
-	EnabledSigned bool   `json:"enable_signed"`
+	EnableSigned  bool   `json:"enable_signed"`
 }

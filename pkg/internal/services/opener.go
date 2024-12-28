@@ -116,7 +116,7 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 	case models.DestinationTypeS3:
 		var destConfigured models.S3Destination
 		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		if destConfigured.EnabledSigned {
+		if destConfigured.EnableSigned {
 			var client *minio.Client
 			client, err = minio.New(destConfigured.Endpoint, &minio.Options{
 				Creds:  credentials.NewStaticV4(destConfigured.SecretID, destConfigured.SecretKey, ""),
