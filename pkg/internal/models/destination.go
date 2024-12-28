@@ -6,9 +6,10 @@ const (
 )
 
 type BaseDestination struct {
-	Type        string `json:"type"`
-	Label       string `json:"label"`
-	LabelRegion string `json:"label_region"`
+	Type    string `json:"type"`
+	Label   string `json:"label"`
+	Region  string `json:"region"`
+	IsBoost bool   `json:"is_boost"`
 }
 
 type LocalDestination struct {

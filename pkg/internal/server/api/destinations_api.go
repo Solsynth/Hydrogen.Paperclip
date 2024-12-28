@@ -8,9 +8,9 @@ import (
 )
 
 func listDestination(c *fiber.Ctx) error {
-	var destinations []models.LocalDestination
+	var destinations []models.BaseDestination
 	for _, value := range viper.GetStringSlice("destinations") {
-		var parsed models.LocalDestination
+		var parsed models.BaseDestination
 		raw, _ := jsoniter.Marshal(value)
 		_ = jsoniter.Unmarshal(raw, &parsed)
 		destinations = append(destinations, parsed)

@@ -2,8 +2,7 @@ package api
 
 import (
 	"fmt"
-	"net/url"
-	"path/filepath"
+	"strings"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/sec"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/database"
@@ -12,64 +11,32 @@ import (
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/models"
 	"git.solsynth.dev/hypernet/paperclip/pkg/internal/services"
 	"github.com/gofiber/fiber/v2"
-	jsoniter "github.com/json-iterator/go"
-	"github.com/samber/lo"
-	"github.com/spf13/viper"
 )
 
 func openAttachment(c *fiber.Ctx) error {
 	id := c.Params("id")
+	region := c.Query("region")
 
-	metadata, err := services.GetAttachmentByRID(id)
+	var err error
+	var url, mimetype string
+	if len(region) > 0 {
+		url, mimetype, err = services.OpenAttachmentByRID(id, region)
+	} else {
+		url, mimetype, err = services.OpenAttachmentByRID(id)
+	}
+
 	if err != nil {
-		return fiber.NewError(fiber.StatusNotFound)
+		return fiber.NewError(fiber.StatusNotFound, err.Error())
 	}
 
-	destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", metadata.Destination))
+	c.Set(fiber.HeaderContentType, mimetype)
 
-	var dest models.BaseDestination
-	rawDest, _ := jsoniter.Marshal(destMap)
-	_ = jsoniter.Unmarshal(rawDest, &dest)
-
-	switch dest.Type {
-	case models.DestinationTypeLocal:
-		var destConfigured models.LocalDestination
-		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		if len(destConfigured.AccessBaseURL) > 0 && !c.QueryBool("direct", false) {
-			// This will drop all query parameters,
-			// for not it's okay because the openAttachment api won't take any query parameters
-			return c.Redirect(fmt.Sprintf(
-				"%s%s?direct=true",
-				destConfigured.AccessBaseURL,
-				c.Path(),
-			), fiber.StatusMovedPermanently)
-		}
-		if len(metadata.MimeType) > 0 {
-			c.Set(fiber.HeaderContentType, metadata.MimeType)
-		}
-		return c.SendFile(filepath.Join(destConfigured.Path, metadata.Uuid))
-	case models.DestinationTypeS3:
-		var destConfigured models.S3Destination
-		_ = jsoniter.Unmarshal(rawDest, &destConfigured)
-		if len(destConfigured.AccessBaseURL) > 0 {
-			return c.Redirect(fmt.Sprintf(
-				"%s/%s",
-				destConfigured.AccessBaseURL,
-				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
-			), fiber.StatusMovedPermanently)
-		} else {
-			protocol := lo.Ternary(destConfigured.EnableSSL, "https", "http")
-			return c.Redirect(fmt.Sprintf(
-				"%s://%s.%s/%s",
-				protocol,
-				destConfigured.Bucket,
-				destConfigured.Endpoint,
-				url.QueryEscape(filepath.Join(destConfigured.Path, metadata.Uuid)),
-			), fiber.StatusMovedPermanently)
-		}
-	default:
-		return fmt.Errorf("invalid destination: unsupported protocol %s", dest.Type)
+	if strings.HasPrefix(url, "file://") {
+		fp := strings.Replace(url, "file://", "", 1)
+		return c.SendFile(fp)
 	}
+
+	return c.Redirect(url, fiber.StatusFound)
 }
 
 func getAttachmentMeta(c *fiber.Ctx) error {

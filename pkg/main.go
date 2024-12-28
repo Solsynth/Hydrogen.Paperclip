@@ -93,6 +93,7 @@ func main() {
 	go grpc.NewGrpc().Listen()
 
 	// Post-boot actions
+	services.BuildDestinationMapping()
 	services.ScanUnanalyzedFileFromDatabase()
 	fs.RunMarkLifecycleDeletionTask()
 
