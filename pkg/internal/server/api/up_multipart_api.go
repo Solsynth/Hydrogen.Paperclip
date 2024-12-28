@@ -113,7 +113,10 @@ func uploadFragmentChunk(c *fiber.Ctx) error {
 	}
 
 	if !isAllUploaded {
-		return c.JSON(meta)
+		return c.JSON(fiber.Map{
+			"is_finished": false,
+			"fragment":    meta,
+		})
 	}
 
 	// Merge & post-upload
@@ -134,5 +137,8 @@ func uploadFragmentChunk(c *fiber.Ctx) error {
 		services.PublishAnalyzeTask(attachment)
 	}
 
-	return c.JSON(meta)
+	return c.JSON(fiber.Map{
+		"is_finished": true,
+		"attachment":  attachment,
+	})
 }
