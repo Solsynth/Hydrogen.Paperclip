@@ -99,9 +99,7 @@ func ScanUnanalyzedFileFromDatabase() {
 }
 
 func AnalyzeAttachment(file models.Attachment) error {
-	if !file.IsUploaded {
-		return fmt.Errorf("file isn't finish multipart upload")
-	} else if file.Destination != models.AttachmentDstTemporary {
+	if file.Destination != models.AttachmentDstTemporary {
 		return fmt.Errorf("attachment isn't in temporary storage, unable to analyze")
 	}
 

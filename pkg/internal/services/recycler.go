@@ -79,21 +79,21 @@ func RunScheduleDeletionTask() {
 	database.C.Where("cleaned_at IS NOT NULL").Delete(&models.Attachment{})
 }
 
-func DeleteFile(meta models.Attachment) error {
-	if !meta.IsUploaded {
-		destMap := viper.GetStringMap("destinations.0")
-		var dest models.LocalDestination
-		rawDest, _ := jsoniter.Marshal(destMap)
-		_ = jsoniter.Unmarshal(rawDest, &dest)
+func DeleteFragment(meta models.AttachmentFragment) error {
+	destMap := viper.GetStringMap("destinations.0")
+	var dest models.LocalDestination
+	rawDest, _ := jsoniter.Marshal(destMap)
+	_ = jsoniter.Unmarshal(rawDest, &dest)
 
-		for cid := range meta.FileChunks {
-			path := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
-			_ = os.Remove(path)
-		}
-
-		return nil
+	for cid := range meta.FileChunks {
+		path := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, cid))
+		_ = os.Remove(path)
 	}
 
+	return nil
+}
+
+func DeleteFile(meta models.Attachment) error {
 	destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", meta.Destination))
 
 	var dest models.BaseDestination

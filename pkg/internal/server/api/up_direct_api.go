@@ -48,7 +48,6 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 		MimeType:    c.FormValue("mimetype"),
 		Usermeta:    usermeta,
 		IsAnalyzed:  false,
-		IsUploaded:  true,
 		Destination: models.AttachmentDstTemporary,
 		Pool:        &pool,
 		PoolID:      &pool.ID,

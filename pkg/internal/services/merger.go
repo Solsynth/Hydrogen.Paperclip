@@ -65,6 +65,7 @@ func MergeFileChunks(meta models.AttachmentFragment, arrange []string) (models.A
 	PublishAnalyzeTask(attachment)
 
 	// Clean up: remove chunk files
+	go DeleteFragment(meta)
 	for _, chunk := range arrange {
 		chunkPath := filepath.Join(dest.Path, fmt.Sprintf("%s.part%s", meta.Uuid, chunk))
 		if err := os.Remove(chunkPath); err != nil {

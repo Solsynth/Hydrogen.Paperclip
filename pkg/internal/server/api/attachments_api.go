@@ -23,8 +23,6 @@ func openAttachment(c *fiber.Ctx) error {
 	metadata, err := services.GetAttachmentByRID(id)
 	if err != nil {
 		return fiber.NewError(fiber.StatusNotFound)
-	} else if !metadata.IsUploaded {
-		return fiber.NewError(fiber.StatusNotFound, "file is in uploading progress, please wait until all chunk uploaded")
 	}
 
 	destMap := viper.GetStringMap(fmt.Sprintf("destinations.%d", metadata.Destination))
@@ -91,7 +89,6 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	var data struct {
 		Alternative *string         `json:"alt"`
-		Thumbnail   *string         `json:"thumbnail"`
 		Metadata    *map[string]any `json:"metadata"`
 		IsIndexable *bool           `json:"is_indexable"`
 	}
@@ -107,9 +104,6 @@ func updateAttachmentMeta(c *fiber.Ctx) error {
 
 	if data.Alternative != nil {
 		attachment.Alternative = *data.Alternative
-	}
-	if data.Thumbnail != nil {
-		attachment.Thumbnail = *data.Thumbnail
 	}
 	if data.Metadata != nil {
 		attachment.Usermeta = *data.Metadata
