@@ -86,6 +86,10 @@ func (v *Attachment) AfterUpdate(tx *gorm.DB) error {
 		ctx,
 		fmt.Sprintf("attachment#%s", v.Rid),
 	)
+	_ = marshal.Delete(
+		ctx,
+		fmt.Sprintf("attachment-open#%s", v.Rid),
+	)
 
 	return nil
 }
@@ -117,6 +121,19 @@ type AttachmentFragment struct {
 	AccountID uint `json:"account_id"`
 
 	FileChunksMissing []string `json:"file_chunks_missing" gorm:"-"` // This field use to prompt client which chunks is pending upload, do not store it
+}
+
+func (v *AttachmentFragment) AfterUpdate(tx *gorm.DB) error {
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	ctx := context.Background()
+
+	_ = marshal.Delete(
+		ctx,
+		fmt.Sprintf("attachment-fragment#%s", v.Rid),
+	)
+
+	return nil
 }
 
 func (v AttachmentFragment) ToAttachment() Attachment {
