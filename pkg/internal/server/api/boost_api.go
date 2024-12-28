@@ -78,6 +78,24 @@ func createBoost(c *fiber.Ctx) error {
 	}
 }
 
+func activateBoost(c *fiber.Ctx) error {
+	user := c.Locals("nex_user").(*sec.UserInfo)
+	boostId, _ := c.ParamsInt("boostId", 0)
+
+	boost, err := services.GetBoostByID(uint(boostId))
+	if err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	} else if boost.AccountID != user.ID {
+		return fiber.NewError(fiber.StatusNotFound, "record not created by you")
+	}
+
+	if err := services.ActivateBoost(boost); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	} else {
+		return c.JSON(boost)
+	}
+}
+
 func updateBoost(c *fiber.Ctx) error {
 	user := c.Locals("nex_user").(*sec.UserInfo)
 	boostId, _ := c.ParamsInt("boostId", 0)

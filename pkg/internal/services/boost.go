@@ -84,24 +84,25 @@ func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) 
 	return boost, nil
 }
 
-func ActivateBoost(boost models.AttachmentBoost) {
+func ActivateBoost(boost models.AttachmentBoost) error {
 	log.Debug().Any("boost", boost).Msg("Activating boost...")
 
 	dests := cast.ToSlice(viper.Get("destinations"))
 	if boost.Destination >= len(dests) {
 		log.Warn().Any("boost", boost).Msg("Unable to activate boost, invalid destination...")
 		database.C.Model(&boost).Update("status", models.BoostStatusError)
-		return
+		return fmt.Errorf("invalid destination: %d", boost.Destination)
 	}
 
 	if err := ReUploadFile(boost.Attachment, boost.Destination); err != nil {
 		log.Warn().Any("boost", boost).Err(err).Msg("Unable to activate boost...")
 		database.C.Model(&boost).Update("status", models.BoostStatusError)
-		return
+		return err
 	}
 
 	log.Info().Any("boost", boost).Msg("Boost was activated successfully.")
 	database.C.Model(&boost).Update("status", models.BoostStatusActive)
+	return nil
 }
 
 func UpdateBoostStatus(boost models.AttachmentBoost, status int) (models.AttachmentBoost, error) {
