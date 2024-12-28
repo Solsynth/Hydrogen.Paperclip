@@ -12,6 +12,7 @@ func listDestination(c *fiber.Ctx) error {
 	for _, value := range services.DestinationsByIndex {
 		var parsed models.BaseDestination
 		_ = jsoniter.Unmarshal(value.Raw, &parsed)
+		parsed.ID = value.Index
 		destinations = append(destinations, parsed)
 	}
 	return c.JSON(destinations)

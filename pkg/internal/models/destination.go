@@ -6,6 +6,7 @@ const (
 )
 
 type BaseDestination struct {
+	ID      int    `json:"id,omitempty"` // Auto filled with index, only for user
 	Type    string `json:"type"`
 	Label   string `json:"label"`
 	Region  string `json:"region"`
