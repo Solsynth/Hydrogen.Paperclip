@@ -86,7 +86,6 @@ func ReUploadFile(meta models.Attachment, dst int) error {
 		}
 
 		database.C.Save(&meta)
-		CacheAttachment(meta)
 		cleanupDst()
 		return nil
 	case models.DestinationTypeS3:
@@ -111,7 +110,6 @@ func ReUploadFile(meta models.Attachment, dst int) error {
 		}
 
 		database.C.Save(&meta)
-		CacheAttachment(meta)
 		cleanupDst()
 		return nil
 	default:

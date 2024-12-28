@@ -1,11 +1,18 @@
 package models
 
 import (
+	"context"
+	"fmt"
 	"time"
 
 	"git.solsynth.dev/hypernet/nexus/pkg/nex/cruda"
+	"github.com/eko/gocache/lib/v4/cache"
+	"github.com/eko/gocache/lib/v4/marshaler"
+
+	localCache "git.solsynth.dev/hypernet/paperclip/pkg/internal/cache"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 const (
@@ -68,6 +75,19 @@ type Attachment struct {
 	FileChunks datatypes.JSONMap `json:"file_chunks" gorm:"-"`
 	IsUploaded bool              `json:"is_uploaded" gorm:"-"`
 	IsMature   bool              `json:"is_mature" gorm:"-"`
+}
+
+func (v *Attachment) AfterUpdate(tx *gorm.DB) error {
+	cacheManager := cache.New[any](localCache.S)
+	marshal := marshaler.New(cacheManager)
+	ctx := context.Background()
+
+	_ = marshal.Delete(
+		ctx,
+		fmt.Sprintf("attachment#%s", v.Rid),
+	)
+
+	return nil
 }
 
 // Data model for in progress multipart attachments

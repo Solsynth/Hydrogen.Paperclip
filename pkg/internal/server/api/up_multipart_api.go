@@ -129,7 +129,6 @@ func uploadFragmentChunk(c *fiber.Ctx) error {
 	if err := database.C.Save(&attachment).Error; err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
-	services.CacheAttachment(attachment)
 
 	if !c.QueryBool("analyzeNow", false) {
 		services.AnalyzeAttachment(attachment)

@@ -25,6 +25,8 @@ import (
 )
 
 func GetAttachmentCacheKey(rid string) any {
+	// Reminder: when you update this, update it in models/attachments too
+	// It cannot be imported here due to cycle import
 	return fmt.Sprintf("attachment#%s", rid)
 }
 
@@ -103,10 +105,10 @@ func GetAttachmentCache(rid string) (models.Attachment, bool) {
 func CacheAttachment(item models.Attachment) {
 	cacheManager := cache.New[any](localCache.S)
 	marshal := marshaler.New(cacheManager)
-	contx := context.Background()
+	ctx := context.Background()
 
 	_ = marshal.Set(
-		contx,
+		ctx,
 		GetAttachmentCacheKey(item.Rid),
 		item,
 		store.WithExpiration(60*time.Minute),
@@ -146,8 +148,6 @@ func NewAttachmentMetadata(tx *gorm.DB, user *sec.UserInfo, file *multipart.File
 
 	if err := tx.Save(&attachment).Error; err != nil {
 		return attachment, fmt.Errorf("failed to save attachment record: %v", err)
-	} else {
-		CacheAttachment(attachment)
 	}
 
 	return attachment, nil
@@ -183,17 +183,12 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 		return true, err
 	}
 
-	CacheAttachment(prev)
-	CacheAttachment(og)
-
 	return true, nil
 }
 
 func UpdateAttachment(item models.Attachment) (models.Attachment, error) {
 	if err := database.C.Save(&item).Error; err != nil {
 		return item, err
-	} else {
-		CacheAttachment(item)
 	}
 
 	return item, nil
