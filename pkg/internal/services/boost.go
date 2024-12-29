@@ -44,6 +44,16 @@ func ListBoostByAttachment(attachmentId uint) ([]models.AttachmentBoost, error) 
 	return boosts, nil
 }
 
+func ListBoostByAttachmentWithStatus(attachmentId uint, status int) ([]models.AttachmentBoost, error) {
+	var boosts []models.AttachmentBoost
+	if err := database.C.
+		Where("attachment_id = ? AND status = ?", attachmentId, status).
+		Find(&boosts).Error; err != nil {
+		return boosts, err
+	}
+	return boosts, nil
+}
+
 func GetBoostByID(id uint) (models.AttachmentBoost, error) {
 	var boost models.AttachmentBoost
 	if err := database.C.

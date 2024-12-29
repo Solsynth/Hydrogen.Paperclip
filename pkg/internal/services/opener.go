@@ -52,13 +52,12 @@ func OpenAttachmentByRID(rid string, region ...string) (url string, mimetype str
 			Preload("Pool").
 			Preload("Thumbnail").
 			Preload("Compressed").
-			Preload("Boosts").
 			First(&attachment).Error; err != nil {
 			return
 		}
 
 		var boosts []models.AttachmentBoost
-		boosts, err = ListBoostByAttachment(attachment.ID)
+		boosts, err = ListBoostByAttachmentWithStatus(attachment.ID, models.BoostStatusActive)
 		if err != nil {
 			return
 		}
