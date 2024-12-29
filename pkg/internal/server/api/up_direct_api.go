@@ -66,7 +66,7 @@ func createAttachmentDirectly(c *fiber.Ctx) error {
 
 	metadata.Pool = &pool
 
-	if !c.QueryBool("analyzeNow", false) {
+	if c.QueryBool("analyzeNow", false) {
 		services.AnalyzeAttachment(metadata)
 	} else {
 		services.PublishAnalyzeTask(metadata)

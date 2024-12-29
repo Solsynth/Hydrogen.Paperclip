@@ -130,7 +130,7 @@ func uploadFragmentChunk(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
-	if !c.QueryBool("analyzeNow", false) {
+	if c.QueryBool("analyzeNow", false) {
 		services.AnalyzeAttachment(attachment)
 	} else {
 		services.PublishAnalyzeTask(attachment)
