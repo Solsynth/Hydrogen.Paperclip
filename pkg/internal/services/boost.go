@@ -66,7 +66,12 @@ func GetBoostByID(id uint) (models.AttachmentBoost, error) {
 }
 
 func CreateBoost(user *sec.UserInfo, source models.Attachment, destination int) (models.AttachmentBoost, error) {
-	boost := models.AttachmentBoost{
+	var boost models.AttachmentBoost
+	if err := database.C.Where("attachment_id = ? AND destination = ?", source.ID, destination).First(&boost); err == nil {
+		return boost, fmt.Errorf("boost already exists")
+	}
+
+	boost = models.AttachmentBoost{
 		Status:       models.BoostStatusPending,
 		Destination:  destination,
 		AttachmentID: source.ID,
