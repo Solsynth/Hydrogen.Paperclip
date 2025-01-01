@@ -220,16 +220,14 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	tx := database.C.Begin()
 
-	file.IsAnalyzed = true
+	if err := tx.Model(&file).Update("is_analyzed", true).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("unable to update file record: %v", err)
+	}
 
 	linked, err := TryLinkAttachment(tx, file, file.HashCode)
 	if linked && err != nil {
 		return fmt.Errorf("unable to link file record: %v", err)
-	} else if !linked {
-		if err := tx.Save(&file).Error; err != nil {
-			tx.Rollback()
-			return fmt.Errorf("unable to save file record: %v", err)
-		}
 	}
 
 	tx.Commit()

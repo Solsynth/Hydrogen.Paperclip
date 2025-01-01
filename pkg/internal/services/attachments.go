@@ -166,19 +166,15 @@ func TryLinkAttachment(tx *gorm.DB, og models.Attachment, hash string) (bool, er
 		}
 	}
 
-	prev.RefCount++
-	og.RefID = &prev.ID
-	og.Uuid = prev.Uuid
-	og.Destination = prev.Destination
-
-	if og.AccountID == prev.AccountID {
-		og.IsSelfRef = true
-	}
-
-	if err := tx.Save(&og).Error; err != nil {
+	if err := tx.Model(&og).Updates(&models.Attachment{
+		RefID:       &prev.ID,
+		Uuid:        prev.Uuid,
+		Destination: prev.Destination,
+		IsSelfRef:   og.AccountID == prev.AccountID,
+	}).Error; err != nil {
 		tx.Rollback()
 		return true, err
-	} else if err = tx.Save(&prev).Error; err != nil {
+	} else if err = tx.Model(&prev).Update("ref_count", prev.RefCount+1).Error; err != nil {
 		tx.Rollback()
 		return true, err
 	}

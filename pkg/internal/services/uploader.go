@@ -48,7 +48,7 @@ func ReUploadFile(meta models.Attachment, dst int, doNotUpdate ...bool) error {
 
 	cleanupDst := func() {
 		if len(doNotUpdate) == 0 || !doNotUpdate[0] {
-			database.C.Save(&meta)
+			database.C.Model(&meta).Update("destination", dst)
 		}
 		if prevDst == models.AttachmentDstTemporary {
 			return
