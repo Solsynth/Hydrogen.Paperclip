@@ -220,7 +220,10 @@ func AnalyzeAttachment(file models.Attachment) error {
 
 	tx := database.C.Begin()
 
-	if err := tx.Model(&file).Update("is_analyzed", true).Error; err != nil {
+	if err := tx.Model(&file).Updates(&models.Attachment{
+		IsAnalyzed: true,
+		Metadata:   file.Metadata,
+	}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("unable to update file record: %v", err)
 	}
